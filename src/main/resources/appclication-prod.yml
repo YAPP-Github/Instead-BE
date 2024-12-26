@@ -1,0 +1,34 @@
+spring:
+  config:
+    activate:
+      on-profile: "prod"
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+        jdbc:
+          time_zone: Asia/Seoul
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${DB_NAME}?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maxLifetime: 580000
+      maximum-pool-size: 20
+      idle-timeout: 30000
+      connection-timeout: 30000
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+
+# 로깅 설정
+logging:
+  level:
+    org:
+      springframework: ERROR
+      hibernate:
+        orm:
+          jdbc:
+            bind: trace

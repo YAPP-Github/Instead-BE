@@ -1,0 +1,9 @@
+spring:
+  config:
+    import: optional:file:src/main/resources/.env[.properties]
+  profiles:
+    group:
+      dev: "dev"
+      prod: "prod"
+    include:
+      - security
