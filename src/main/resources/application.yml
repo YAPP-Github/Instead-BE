@@ -2,6 +2,7 @@ spring:
   config:
     import: optional:file:src/main/resources/.env[.properties]
   profiles:
+    active: dev
     group:
       dev: "dev"
       prod: "prod"
