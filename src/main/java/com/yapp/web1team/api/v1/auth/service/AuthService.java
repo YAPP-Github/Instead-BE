@@ -1,15 +1,15 @@
-package com.yapp.web1team.domain.auth.service;
+package com.yapp.web1team.api.v1.auth.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.yapp.web1team.domain.auth.dto.request.AuthRequest;
-import com.yapp.web1team.domain.auth.dto.response.SignInResponse;
-import com.yapp.web1team.domain.auth.entity.RefreshToken;
-import com.yapp.web1team.domain.auth.repository.RefreshTokenRepository;
-import com.yapp.web1team.domain.user.entity.User;
-import com.yapp.web1team.domain.user.service.UserService;
+import com.yapp.web1team.api.v1.auth.dto.request.AuthRequest;
+import com.yapp.web1team.api.v1.auth.dto.response.SignInResponse;
+import com.yapp.web1team.api.v1.auth.entity.RefreshToken;
+import com.yapp.web1team.api.v1.auth.repository.RefreshTokenRepository;
+import com.yapp.web1team.api.v1.user.entity.User;
+import com.yapp.web1team.api.v1.user.service.UserService;
 import com.yapp.web1team.security.constants.HeaderConstants;
 import com.yapp.web1team.security.util.JwtProvider;
 

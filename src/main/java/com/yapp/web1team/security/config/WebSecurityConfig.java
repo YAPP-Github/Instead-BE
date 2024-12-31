@@ -17,7 +17,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.yapp.web1team.domain.common.constatns.UrlConstants;
+import com.yapp.web1team.api.v1.common.constatns.UrlConstants;
 import com.yapp.web1team.security.constants.WebSecurityURI;
 import com.yapp.web1team.security.filter.JwtAuthenticaltionFilter;
 

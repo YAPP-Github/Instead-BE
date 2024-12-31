@@ -1,4 +1,4 @@
-package com.yapp.web1team.domain.common.constatns;
+package com.yapp.web1team.api.v1.common.constatns;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

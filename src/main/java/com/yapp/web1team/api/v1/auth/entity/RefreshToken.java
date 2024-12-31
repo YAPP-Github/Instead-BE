@@ -1,6 +1,6 @@
-package com.yapp.web1team.domain.auth.entity;
+package com.yapp.web1team.api.v1.auth.entity;
 
-import com.yapp.web1team.domain.user.entity.User;
+import com.yapp.web1team.api.v1.user.entity.User;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

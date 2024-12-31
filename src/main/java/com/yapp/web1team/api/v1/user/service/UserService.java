@@ -1,11 +1,11 @@
-package com.yapp.web1team.domain.user.service;
+package com.yapp.web1team.api.v1.user.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.yapp.web1team.domain.user.entity.User;
-import com.yapp.web1team.domain.user.repository.UserRepository;
+import com.yapp.web1team.api.v1.user.entity.User;
+import com.yapp.web1team.api.v1.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 

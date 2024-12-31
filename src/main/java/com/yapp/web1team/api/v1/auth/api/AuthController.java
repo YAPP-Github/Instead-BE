@@ -1,4 +1,4 @@
-package com.yapp.web1team.domain.auth.api;
+package com.yapp.web1team.api.v1.auth.api;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -10,9 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.yapp.web1team.domain.auth.dto.request.AuthRequest;
-import com.yapp.web1team.domain.auth.dto.response.SignInResponse;
-import com.yapp.web1team.domain.auth.service.AuthService;
+import com.yapp.web1team.api.v1.auth.dto.request.AuthRequest;
+import com.yapp.web1team.api.v1.auth.dto.response.SignInResponse;
+import com.yapp.web1team.api.v1.auth.service.AuthService;
 
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +56,6 @@ public class AuthController {
 	}
 
 	public String handleOAuth2Login(@AuthenticationPrincipal OAuth2User oAuth2User) {
-		System.out.println("OAuth2User Attributes: " + oAuth2User.getAttributes());
 		return "redirect:/api/v1/auth/success";
 	}
 

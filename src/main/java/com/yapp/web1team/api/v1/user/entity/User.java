@@ -1,4 +1,4 @@
-package com.yapp.web1team.domain.user.entity;
+package com.yapp.web1team.api.v1.user.entity;
 
 import org.hibernate.annotations.Comment;
 

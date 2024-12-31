@@ -10,7 +10,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
-import com.yapp.web1team.domain.user.entity.User;
+import com.yapp.web1team.api.v1.user.entity.User;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

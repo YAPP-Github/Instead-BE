@@ -5,8 +5,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.yapp.web1team.domain.user.entity.User;
-import com.yapp.web1team.domain.user.repository.UserRepository;
+import com.yapp.web1team.api.v1.user.entity.User;
+import com.yapp.web1team.api.v1.user.repository.UserRepository;
 import com.yapp.web1team.security.entity.CustomUserDetails;
 
 import lombok.RequiredArgsConstructor;

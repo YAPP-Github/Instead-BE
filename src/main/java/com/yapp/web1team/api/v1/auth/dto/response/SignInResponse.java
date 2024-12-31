@@ -1,4 +1,4 @@
-package com.yapp.web1team.domain.auth.dto.response;
+package com.yapp.web1team.api.v1.auth.dto.response;
 
 public record SignInResponse(
 	String account,
