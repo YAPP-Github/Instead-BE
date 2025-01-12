@@ -1,0 +1,10 @@
+spring:
+  config:
+    import: optional:file:../.env[.properties]
+  profiles:
+    active: dev
+    group:
+      dev: "dev"
+      prod: "prod"
+    include:
+      - security
