@@ -5,7 +5,7 @@ plugins {
     id 'checkstyle'
 }
 
-group = 'org'
+group = 'yapp'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -20,47 +20,58 @@ configurations {
     }
 }
 
-repositories {
-    mavenCentral()
+bootJar {
+    enabled = false
 }
 
-dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+jar {
+    enabled = true
+}
 
-    // Lombok
-    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
-    annotationProcessor 'org.projectlombok:lombok'
-    compileOnly 'org.projectlombok:lombok'
+allprojects {
+    group = 'com.yapp'
+    version = '1.0.0'
 
-    // Security
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    testImplementation 'org.springframework.security:spring-security-test'
+    repositories {
+        mavenCentral()
+    }
+}
 
-    //jwt
-    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
-    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+subprojects { // 모든 하위 모듈들에 적용할 설정들
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
 
-    implementation 'org.springframework:spring-context'
-    implementation 'org.springframework:spring-beans'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
 
-    developmentOnly 'org.springframework.boot:spring-boot-devtools'
-    runtimeOnly 'com.mysql:mysql-connector-j'
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    //Oauth2
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+        implementation 'org.springframework:spring-context'
+        implementation 'org.springframework:spring-beans'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+        developmentOnly 'org.springframework.boot:spring-boot-devtools'
+        runtimeOnly 'com.mysql:mysql-connector-j'
+    }
+    compileJava.options.encoding = 'UTF-8'
+    compileTestJava.options.encoding = 'UTF-8'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
 }
 
-compileJava.options.encoding = 'UTF-8'
-compileTestJava.options.encoding = 'UTF-8'
 tasks.withType(Checkstyle) {
     reports {
         xml.required = true
