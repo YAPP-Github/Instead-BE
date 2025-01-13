@@ -1,6 +1,6 @@
 spring:
   config:
-    import: optional:file:src/main/resources/.env[.properties]
+    import: optional:file:../.env[.properties]
   profiles:
     active: dev
     group:
