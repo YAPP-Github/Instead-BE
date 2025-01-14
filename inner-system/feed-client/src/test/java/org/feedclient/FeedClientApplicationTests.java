@@ -1,0 +1,13 @@
+package org.feedclient;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class FeedClientApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}

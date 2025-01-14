@@ -5,7 +5,7 @@ plugins {
     id 'checkstyle'
 }
 
-group = 'yapp'
+group = 'com.yapp'
 version = '0.0.1-SNAPSHOT'
 
 java {
@@ -43,6 +43,10 @@ subprojects { // 모든 하위 모듈들에 적용할 설정들
     apply plugin: 'org.springframework.boot'
     apply plugin: 'io.spring.dependency-management'
 
+    repositories {
+        mavenCentral()
+    }
+
     java {
         toolchain {
             languageVersion = JavaLanguageVersion.of(17)
@@ -56,17 +60,17 @@ subprojects { // 모든 하위 모듈들에 적용할 설정들
         compileOnly 'org.projectlombok:lombok'
 
         implementation 'org.springframework.boot:spring-boot-starter-validation'
-        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
         implementation 'org.springframework.boot:spring-boot-starter-web'
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        implementation 'org.springframework.boot:spring-boot-starter'
+        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
         implementation 'org.springframework:spring-context'
         implementation 'org.springframework:spring-beans'
-        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
         developmentOnly 'org.springframework.boot:spring-boot-devtools'
-        runtimeOnly 'com.mysql:mysql-connector-j'
     }
+
     compileJava.options.encoding = 'UTF-8'
     compileTestJava.options.encoding = 'UTF-8'
 }
