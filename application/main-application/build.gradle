@@ -10,6 +10,10 @@ dependencies {
 
 }
 
+bootJar {
+    archiveFileName = 'yapp-main-application.jar'
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }
