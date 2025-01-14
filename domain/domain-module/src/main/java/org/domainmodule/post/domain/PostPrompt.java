@@ -1,5 +1,6 @@
 package org.domainmodule.post.domain;
 
+import org.domainmodule.common.entity.BaseTimeEntity;
 import org.domainmodule.post.domain.type.PostPromptType;
 
 import jakarta.persistence.Column;
@@ -16,7 +17,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class PostPrompt {
+public class PostPrompt extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

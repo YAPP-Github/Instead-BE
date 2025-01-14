@@ -1,5 +1,7 @@
 package org.domainmodule.user.domain;
 
+import org.domainmodule.common.entity.BaseTimeEntity;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,7 +14,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class RefreshToken {
+public class RefreshToken extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

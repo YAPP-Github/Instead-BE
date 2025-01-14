@@ -2,6 +2,7 @@ package org.domainmodule.agent.domain;
 
 import org.domainmodule.agent.domain.type.AgentPlatform;
 import org.domainmodule.agent.domain.type.AgentType;
+import org.domainmodule.common.entity.BaseTimeEntity;
 import org.domainmodule.user.domain.User;
 
 import jakarta.persistence.Column;
@@ -18,7 +19,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class Agent {
+public class Agent extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

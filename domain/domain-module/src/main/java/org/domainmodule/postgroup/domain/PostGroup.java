@@ -1,6 +1,7 @@
 package org.domainmodule.postgroup.domain;
 
 import org.domainmodule.agent.domain.Agent;
+import org.domainmodule.common.entity.BaseTimeEntity;
 import org.domainmodule.postgroup.domain.type.PostGroupPurpose;
 import org.domainmodule.postgroup.domain.type.PostGroupReference;
 import org.domainmodule.rssfeed.domain.RssFeed;
@@ -19,7 +20,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class PostGroup {
+public class PostGroup extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

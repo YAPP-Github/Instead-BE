@@ -2,6 +2,7 @@ package org.domainmodule.post.domain;
 
 import java.time.LocalDateTime;
 
+import org.domainmodule.common.entity.BaseTimeEntity;
 import org.domainmodule.post.domain.type.PostStatus;
 import org.domainmodule.postgroup.domain.PostGroup;
 
@@ -19,7 +20,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-public class Post {
+public class Post extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
