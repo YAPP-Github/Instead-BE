@@ -8,5 +8,3 @@ ARG JAR_FILE=/yapp-main-application.jar
 COPY ${JAR_FILE} yapp-main-application.jar
 ### Docker 컨테이너가 시작될 때 실행할 명령을 지정한다.
 ENTRYPOINT ["java","-jar","-Dspring.profiles.active=prod", "/yapp-main-application.jar"]
-
-
