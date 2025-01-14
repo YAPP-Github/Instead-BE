@@ -2,7 +2,7 @@ package org.domainmodule.post.domain;
 
 import java.time.LocalDateTime;
 
-import org.domainmodule.common.entity.BaseTimeEntity;
+import org.domainmodule.common.entity.BaseAuditEntity;
 import org.domainmodule.post.domain.type.PostStatus;
 import org.domainmodule.postgroup.domain.PostGroup;
 
@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Post extends BaseTimeEntity {
+public class Post extends BaseAuditEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,5 +43,5 @@ public class Post extends BaseTimeEntity {
 	@Enumerated(EnumType.STRING)
 	private PostStatus status;
 
-	private LocalDateTime uploadAt;
+	private LocalDateTime uploadTime;
 }

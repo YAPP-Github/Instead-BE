@@ -1,7 +1,5 @@
 package org.domainmodule.rssfeed.domain;
 
-import org.domainmodule.common.entity.BaseTimeEntity;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -14,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class RssFeed extends BaseTimeEntity {
+public class RssFeed {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

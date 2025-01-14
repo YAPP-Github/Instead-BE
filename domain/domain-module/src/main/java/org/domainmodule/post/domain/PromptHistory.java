@@ -20,11 +20,11 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostPrompt extends BaseTimeEntity {
+public class PromptHistory extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "post_prompt_id")
+	@Column(name = "prompt_history_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)

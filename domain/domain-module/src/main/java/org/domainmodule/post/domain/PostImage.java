@@ -1,7 +1,5 @@
 package org.domainmodule.post.domain;
 
-import org.domainmodule.common.entity.BaseTimeEntity;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostImage extends BaseTimeEntity {
+public class PostImage {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
