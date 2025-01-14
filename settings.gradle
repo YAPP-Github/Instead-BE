@@ -1,4 +1,18 @@
 rootProject.name = 'yapp'
 
-include ':module-common'
-include ':module-sns'
+// application 모듈
+include 'application:main-application'
+include 'application:upload-schedule-application'
+
+// common 모듈
+include 'common:common-module'
+
+// system domain 모듈
+include 'domain:domain-module'
+
+// inner system 모듈
+include 'inner-system:feed-client'
+include 'inner-system:open-ai-client'
+include 'inner-system:sns-client'
+include 'inner-system:security'
+
