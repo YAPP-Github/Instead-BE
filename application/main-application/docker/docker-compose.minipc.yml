@@ -1,0 +1,14 @@
+version: '3'
+services:
+  animal-meeting-app:
+    image: yapp-main-application:latest
+    container_name: yapp-main-application-container
+    networks:
+      - pricewagon-network
+    ports:
+      - "8080:8080"
+    build:
+      context: .
+networks:
+  pricewagon-network:
+    external: true  # 이미 존재하는 네트워크를 사용
