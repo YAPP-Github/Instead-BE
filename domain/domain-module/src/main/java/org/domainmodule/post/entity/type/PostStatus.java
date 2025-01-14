@@ -1,5 +1,5 @@
 package org.domainmodule.post.entity.type;
 
 public enum PostStatus {
-	GENERATED, EDITING, EDITED, RESERVED, UPLOADED, FAILED
+	GENERATED, EDITING, READY_TO_UPLOAD, UPLOAD_RESERVED, UPLOADED, UPLOAD_FAILED
 }
