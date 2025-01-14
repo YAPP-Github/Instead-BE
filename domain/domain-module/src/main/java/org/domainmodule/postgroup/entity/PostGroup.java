@@ -1,10 +1,10 @@
-package org.domainmodule.postgroup.domain;
+package org.domainmodule.postgroup.entity;
 
-import org.domainmodule.agent.domain.Agent;
+import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.common.entity.BaseTimeEntity;
-import org.domainmodule.postgroup.domain.type.PostGroupPurpose;
-import org.domainmodule.postgroup.domain.type.PostGroupReference;
-import org.domainmodule.rssfeed.domain.RssFeed;
+import org.domainmodule.postgroup.entity.type.PostGroupPurpose;
+import org.domainmodule.postgroup.entity.type.PostGroupReference;
+import org.domainmodule.rssfeed.entity.RssFeed;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

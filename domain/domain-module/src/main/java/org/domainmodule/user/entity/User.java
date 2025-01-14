@@ -1,4 +1,4 @@
-package org.domainmodule.user.domain;
+package org.domainmodule.user.entity;
 
 import org.domainmodule.common.entity.BaseAuditEntity;
 

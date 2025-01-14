@@ -1,4 +1,6 @@
-package org.domainmodule.postgroup.domain;
+package org.domainmodule.user.entity;
+
+import org.domainmodule.common.entity.BaseTimeEntity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,16 +17,18 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostGroupImage {
+public class Oauth extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "post_group_image_id")
+	@Column(name = "oauth_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_group_id")
-	private PostGroup postGroup;
+	@JoinColumn(name = "user_id")
+	private User user;
 
-	private String url;
+	private String provider;
+
+	private String providerId;
 }

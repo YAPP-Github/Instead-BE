@@ -1,15 +1,7 @@
-package org.domainmodule.post.domain;
-
-import java.time.LocalDateTime;
-
-import org.domainmodule.common.entity.BaseAuditEntity;
-import org.domainmodule.post.domain.type.PostStatus;
-import org.domainmodule.postgroup.domain.PostGroup;
+package org.domainmodule.postgroup.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,25 +15,16 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Post extends BaseAuditEntity {
+public class PostGroupImage {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "post_id")
+	@Column(name = "post_group_image_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "post_group_id")
 	private PostGroup postGroup;
 
-	private String title;
-
-	private String summary;
-
-	private String content;
-
-	@Enumerated(EnumType.STRING)
-	private PostStatus status;
-
-	private LocalDateTime uploadTime;
+	private String url;
 }

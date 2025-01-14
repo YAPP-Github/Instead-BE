@@ -1,9 +1,10 @@
-package org.domainmodule.agent.domain;
+package org.domainmodule.post.entity;
 
-import org.domainmodule.agent.domain.type.AgentPlatform;
-import org.domainmodule.agent.domain.type.AgentType;
-import org.domainmodule.common.entity.BaseTimeEntity;
-import org.domainmodule.user.domain.User;
+import java.time.LocalDateTime;
+
+import org.domainmodule.common.entity.BaseAuditEntity;
+import org.domainmodule.post.entity.type.PostStatus;
+import org.domainmodule.postgroup.entity.PostGroup;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,30 +23,25 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Agent extends BaseTimeEntity {
+public class Post extends BaseAuditEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "agent_id")
+	@Column(name = "post_id")
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
-	private User user;
+	@JoinColumn(name = "post_group_id")
+	private PostGroup postGroup;
+
+	private String title;
+
+	private String summary;
+
+	private String content;
 
 	@Enumerated(EnumType.STRING)
-	private AgentPlatform platform;
+	private PostStatus status;
 
-	private String accessToken;
-
-	private String refreshToken;
-
-	private String accountId;
-
-	private String bio;
-
-	private Boolean autoMode;
-
-	@Enumerated(EnumType.STRING)
-	private AgentType agentType;
+	private LocalDateTime uploadTime;
 }

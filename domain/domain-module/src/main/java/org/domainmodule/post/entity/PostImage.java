@@ -1,4 +1,4 @@
-package org.domainmodule.post.domain;
+package org.domainmodule.post.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

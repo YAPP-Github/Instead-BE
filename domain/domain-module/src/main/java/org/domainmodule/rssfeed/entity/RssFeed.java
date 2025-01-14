@@ -1,4 +1,4 @@
-package org.domainmodule.rssfeed.domain;
+package org.domainmodule.rssfeed.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
