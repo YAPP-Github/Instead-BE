@@ -1,0 +1,5 @@
+jwt:
+  access-token-key: ${ACCESS_JWT_KEY:}
+  refresh-token-key: ${REFRESH_JWT_KEY:}
+  access-token-expiration: ${ACCESS_JWT_EXPIRATION:900000}  # 15분
+  refresh-token-expiration: ${REFRESH_JWT_EXPIRATION:604800000} # 7일
