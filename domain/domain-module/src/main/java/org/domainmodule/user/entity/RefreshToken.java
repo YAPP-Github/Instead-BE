@@ -1,5 +1,7 @@
 package org.domainmodule.user.entity;
 
+import java.time.LocalDateTime;
+
 import org.domainmodule.common.entity.BaseTimeEntity;
 
 import jakarta.persistence.Column;
@@ -25,8 +27,12 @@ public class RefreshToken extends BaseTimeEntity {
 	private Long id;
 
 	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	private String refreshToken;
+	@Column(nullable = false, unique = true, length = 500)
+	private String tokenValue;
+
+	@Column(nullable = false)
+	private LocalDateTime expirationDate;
 }

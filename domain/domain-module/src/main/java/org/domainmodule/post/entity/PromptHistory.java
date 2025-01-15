@@ -31,10 +31,13 @@ public class PromptHistory extends BaseTimeEntity {
 	@JoinColumn(name = "post_id")
 	private Post post;
 
+	@Column(columnDefinition = "TEXT")
 	private String prompt;
 
+	@Column(columnDefinition = "TEXT")
 	private String response;
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private PostPromptType promptType;
 }

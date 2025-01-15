@@ -34,10 +34,13 @@ public class Post extends BaseAuditEntity {
 	@JoinColumn(name = "post_group_id")
 	private PostGroup postGroup;
 
+	@Column(length = 500)
 	private String title;
 
+	@Column(length = 500)
 	private String summary;
 
+	@Column(columnDefinition = "TEXT")
 	private String content;
 
 	@Enumerated(EnumType.STRING)

@@ -30,22 +30,32 @@ public class Agent extends BaseTimeEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private AgentPlatform platform;
 
+	@Column(length = 500)
 	private String accessToken;
 
+	@Column(length = 500)
 	private String refreshToken;
 
+	@Column(nullable = false, unique = true, length = 100)
 	private String accountId;
 
+	@Column(length = 255)
 	private String bio;
 
+	@Column(nullable = false)
 	private Boolean autoMode;
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private AgentType agentType;
+
+	@Column(nullable = false)
+	private Boolean isActivated;
 }

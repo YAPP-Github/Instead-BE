@@ -21,7 +21,10 @@ public class User extends BaseAuditEntity {
 	@Column(name = "user_id")
 	private Long id;
 
-	private String name;
+	@Column(nullable = false, length = 50)
+	private String username;
 
+	@Column(nullable = false, unique = true, length = 320)
 	private String email;
+
 }

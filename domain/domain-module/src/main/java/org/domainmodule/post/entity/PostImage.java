@@ -26,5 +26,6 @@ public class PostImage {
 	@JoinColumn(name = "post_id")
 	private Post post;
 
+	@Column(length = 500, nullable = false)
 	private String url;
 }
