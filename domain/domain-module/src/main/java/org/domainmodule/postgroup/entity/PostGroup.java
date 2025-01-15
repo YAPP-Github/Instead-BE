@@ -4,6 +4,7 @@ import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.common.entity.BaseTimeEntity;
 import org.domainmodule.postgroup.entity.type.PostGroupPurpose;
 import org.domainmodule.postgroup.entity.type.PostGroupReference;
+import org.domainmodule.postgroup.entity.type.PostLength;
 import org.domainmodule.rssfeed.entity.RssFeed;
 
 import jakarta.persistence.Column;
@@ -38,15 +39,20 @@ public class PostGroup extends BaseTimeEntity {
 	@JoinColumn(name = "feed_id")
 	private RssFeed feed;
 
+	@Column(nullable = false, length = 255)
 	private String topic;
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private PostGroupPurpose purpose;
 
 	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
 	private PostGroupReference reference;
 
-	private Integer length;
+	@Enumerated(EnumType.STRING)
+	private PostLength length;
 
+	@Column(columnDefinition = "TEXT")
 	private String content;
 }

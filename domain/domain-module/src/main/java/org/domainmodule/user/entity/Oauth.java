@@ -1,9 +1,12 @@
 package org.domainmodule.user.entity;
 
 import org.domainmodule.common.entity.BaseTimeEntity;
+import org.domainmodule.user.entity.type.ProviderType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -28,7 +31,9 @@ public class Oauth extends BaseTimeEntity {
 	@JoinColumn(name = "user_id")
 	private User user;
 
-	private String provider;
+	@Enumerated(EnumType.STRING)
+	private ProviderType provider;
 
+	@Column(nullable = false, unique = true, length = 100)
 	private String providerId;
 }

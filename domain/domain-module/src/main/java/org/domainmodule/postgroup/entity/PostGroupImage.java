@@ -26,5 +26,6 @@ public class PostGroupImage {
 	@JoinColumn(name = "post_group_id")
 	private PostGroup postGroup;
 
+	@Column(length = 500)
 	private String url;
 }
