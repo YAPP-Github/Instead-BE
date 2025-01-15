@@ -57,5 +57,5 @@ public class Agent extends BaseTimeEntity {
 	private AgentType agentType;
 
 	@Column(nullable = false)
-	private Boolean active;
+	private Boolean isActivated;
 }
