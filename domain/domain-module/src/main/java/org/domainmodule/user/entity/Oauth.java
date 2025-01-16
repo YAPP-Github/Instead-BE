@@ -28,7 +28,7 @@ public class Oauth extends BaseTimeEntity {
 	@Column(name = "oauth_id")
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "user_id")
 	private User user;
 
