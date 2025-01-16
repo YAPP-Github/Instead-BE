@@ -1,7 +1,9 @@
 package org.feedclient.client;
 
-import org.feedclient.rss.RssClient;
-import org.feedclient.rss.dto.RssResponse;
+import java.time.LocalDateTime;
+
+import org.feedclient.client.rss.RssClient;
+import org.feedclient.client.rss.dto.RssResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +19,7 @@ class RssClientTest {
 	RssClient rssClient;
 
 	@Test
-	void getRssFeed() {
+	void getRssFeedTest() {
 		// Given
 		String feedUrl = "https://rss.app/feeds/v1.1/tMxpbLaaVTNSJ0nI.json";
 
@@ -26,5 +28,19 @@ class RssClientTest {
 
 		// Then
 		Assertions.assertEquals(25, rssFeed.getItems().size());
+	}
+
+	@Test
+	void rssFeedDateTest() {
+		// Given
+		String feedUrl = "https://rss.app/feeds/v1.1/tMxpbLaaVTNSJ0nI.json";
+
+		// When
+		RssResponse rssFeed = rssClient.getRssFeed(feedUrl);
+
+		// Then
+		System.out.println(rssFeed.getItems().get(0).getDatePublished());
+		Assertions.assertTrue(
+			rssFeed.getItems().get(0).getDatePublished().isAfter(LocalDateTime.of(2025, 1, 16, 2, 0, 0)));
 	}
 }

@@ -1,4 +1,6 @@
-package org.feedclient.rss.dto;
+package org.feedclient.client.rss.type;
+
+import java.time.LocalDateTime;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -24,5 +26,5 @@ public class RssItem {
 	private String image;
 
 	@JsonProperty("date_published")
-	private String datePublished;
+	private LocalDateTime datePublished;
 }

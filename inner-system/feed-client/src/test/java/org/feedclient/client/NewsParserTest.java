@@ -1,7 +1,7 @@
 package org.feedclient.client;
 
-import org.feedclient.newsparser.NewsParserClient;
-import org.feedclient.newsparser.dto.NewsParserResponse;
+import org.feedclient.client.newsparser.NewsParserClient;
+import org.feedclient.client.newsparser.dto.NewsParserResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

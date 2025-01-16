@@ -1,9 +1,12 @@
-package org.feedclient.newsparser;
+package org.feedclient.client.newsparser;
 
-import org.feedclient.newsparser.dto.NewsParserRequest;
-import org.feedclient.newsparser.dto.NewsParserResponse;
+import java.util.concurrent.CompletableFuture;
+
+import org.feedclient.client.newsparser.dto.NewsParserRequest;
+import org.feedclient.client.newsparser.dto.NewsParserResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -30,5 +33,12 @@ public class NewsParserClient {
 				throw new RuntimeException("Server error: " + res.getStatusCode());
 			})
 			.body(NewsParserResponse.class);
+	}
+
+	@Async
+	public CompletableFuture<NewsParserResponse> parseNewsAsync(String newsUrl) {
+		return CompletableFuture.supplyAsync(() -> {
+			return parseNews(newsUrl);
+		});
 	}
 }

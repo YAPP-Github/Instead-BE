@@ -1,6 +1,6 @@
-package org.feedclient.rss;
+package org.feedclient.client.rss;
 
-import org.feedclient.rss.dto.RssResponse;
+import org.feedclient.client.rss.dto.RssResponse;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -14,6 +14,9 @@ public class RssClient {
 		this.rssClient = clientBuilder.build();
 	}
 
+	/**
+	 * RSS 피드에서 뉴스 목록 전체 조회
+	 */
 	public RssResponse getRssFeed(String feedUrl) {
 		return rssClient.get()
 			.uri(feedUrl)

@@ -1,6 +1,8 @@
-package org.feedclient.rss.dto;
+package org.feedclient.client.rss.dto;
 
 import java.util.List;
+
+import org.feedclient.client.rss.type.RssItem;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

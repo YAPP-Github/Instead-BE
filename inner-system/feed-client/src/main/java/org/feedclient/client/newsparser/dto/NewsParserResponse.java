@@ -1,4 +1,4 @@
-package org.feedclient.newsparser.dto;
+package org.feedclient.client.newsparser.dto;
 
 import lombok.Getter;
 import lombok.Setter;
