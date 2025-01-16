@@ -37,8 +37,6 @@ public class NewsParserClient {
 
 	@Async
 	public CompletableFuture<NewsParserResponse> parseNewsAsync(String newsUrl) {
-		return CompletableFuture.supplyAsync(() -> {
-			return parseNews(newsUrl);
-		});
+		return CompletableFuture.supplyAsync(() -> parseNews(newsUrl));
 	}
 }

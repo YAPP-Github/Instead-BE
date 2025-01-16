@@ -24,13 +24,6 @@ public class FeedService {
 	private final NewsParserClient newsParserClient;
 
 	/**
-	 * RSS url로부터, 전체 RSS 피드 목록을 단순 조회
-	 */
-	public List<RssItem> getRssFeed(String feedUrl) {
-		return rssClient.getRssFeed(feedUrl).getItems();
-	}
-
-	/**
 	 * RSS url로부터, 본문이 포함된 피드 목록을 limit만큼 조회
 	 */
 	public FeedPagingResult getPagedFeed(String feedUrl, int limit) {
