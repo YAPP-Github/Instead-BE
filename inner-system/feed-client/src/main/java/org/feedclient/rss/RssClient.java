@@ -1,6 +1,6 @@
-package org.feedclient.client;
+package org.feedclient.rss;
 
-import org.feedclient.client.dto.RssResponse;
+import org.feedclient.rss.dto.RssResponse;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;

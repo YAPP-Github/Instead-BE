@@ -1,6 +1,7 @@
 package org.feedclient.client;
 
-import org.feedclient.client.dto.RssResponse;
+import org.feedclient.rss.RssClient;
+import org.feedclient.rss.dto.RssResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

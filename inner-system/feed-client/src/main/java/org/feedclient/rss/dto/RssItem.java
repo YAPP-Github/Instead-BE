@@ -1,4 +1,4 @@
-package org.feedclient.client.dto;
+package org.feedclient.rss.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
