@@ -7,7 +7,11 @@ plugins {
 version = '0.0.1-SNAPSHOT'
 
 dependencies {
+    api project(':inner-system:security')
 
+    // db
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    testImplementation 'com.h2database:h2'
 }
 
 bootJar {

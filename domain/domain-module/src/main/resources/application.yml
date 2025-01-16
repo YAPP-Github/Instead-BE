@@ -3,15 +3,14 @@ spring:
         name: domain-module
 
     datasource:
-        url: ${MYSQL_URL}
+        url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${DB_NAME}?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
+        driver-class-name: com.mysql.cj.jdbc.Driver
         username: ${MYSQL_USERNAME}
         password: ${MYSQL_PASSWORD}
-        driver-class-name: com.mysql.cj.jdbc.Driver
 
     jpa:
         show-sql: true
         hibernate:
-            ddl-auto: none
+            ddl-auto: update
         properties:
-            hibernate:
-                dialect: org.hibernate.dialect.MySQLDialect
+            hibernate.dialect: org.hibernate.dialect.MySQLDialect

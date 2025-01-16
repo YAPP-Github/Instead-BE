@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -31,8 +32,19 @@ public class RefreshToken extends BaseTimeEntity {
 	private User user;
 
 	@Column(nullable = false, unique = true, length = 500)
-	private String tokenValue;
+	private String token;
 
 	@Column(nullable = false)
 	private LocalDateTime expirationDate;
+
+	@Builder
+	private RefreshToken(User user, String token) {
+		this.user = user;
+		this.token = token;
+		this.expirationDate = LocalDateTime.now().plusDays(1); //TODO 리프래쉬 토큰 만료시간으로 변경해야 함
+	}
+
+	public void renewToken(String token) {
+		this.token = token;
+	}
 }

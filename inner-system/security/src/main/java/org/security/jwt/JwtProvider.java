@@ -39,7 +39,7 @@ public class JwtProvider {
 	@Value("${jwt.refresh-token-key}")
 	private String REFRESH_SECRET_KEY;
 
-	private final String ISSUER = "PROJECT_NAME";
+	private final String ISSUER = "YAPP_PROJECT";
 
 	//accessToekn 발급
 	// TODO 이후에 account 말고 유저만의 시크릿으로 변경해야함
@@ -66,7 +66,7 @@ public class JwtProvider {
 				.setSubject(userId)
 				.setIssuer(ISSUER)
 				.setIssuedAt(now)
-				.setExpiration(new Date(now.getTime() + ACCESS_TOKEN_VALID_MILL_TIME))
+				.setExpiration(new Date(now.getTime() + REFRESH_TOKEN_VALID_MILL_TIME))
 				.signWith(getRefreshTokenKey())
 				.compact();
 

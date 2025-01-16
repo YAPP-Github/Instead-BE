@@ -6,6 +6,8 @@ import static org.springframework.security.config.Customizer.*;
 import org.security.constants.UrlConstants;
 import org.security.constants.WebSecurityURI;
 import org.security.jwt.JwtAuthenticationFilter;
+import org.security.oauth2.CustomOAuth2SuccessHandler;
+import org.security.oauth2.CustomOauth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -26,8 +28,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class WebSecurityConfig {
-	// HTTP 요청이 들어올 때 필터로 작동하여 JWT를 검증하고 인증 설정
 	private final JwtAuthenticationFilter jwtAuthenticaltionFilter;
+	private final CustomOauth2UserService customOauth2UserService;
+	private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 
 	private void defaultBasicFilterChain(HttpSecurity http) throws Exception {
 		http.httpBasic(AbstractHttpConfigurer::disable)
@@ -47,13 +50,20 @@ public class WebSecurityConfig {
 		http.authorizeHttpRequests(
 				authorize ->
 					authorize
-						.requestMatchers("/yapp/auth/test").authenticated()
+						.requestMatchers("/")
+						.permitAll()
 						.requestMatchers(WebSecurityURI.PUBLIC_URIS.toArray(new String[0]))
 						.permitAll()
-						.anyRequest().permitAll()
-				// .authenticated()
+						.anyRequest()
+						.permitAll()
 			)
-			.addFilterBefore(jwtAuthenticaltionFilter, UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(jwtAuthenticaltionFilter, UsernamePasswordAuthenticationFilter.class)
+			.oauth2Login(oauth2 -> oauth2
+				.userInfoEndpoint(userInfo -> userInfo
+					.userService(customOauth2UserService) // OAuth2UserService 추가
+				)
+				.successHandler(customOAuth2SuccessHandler)
+			);
 		return http.build();
 	}
 
@@ -74,8 +84,9 @@ public class WebSecurityConfig {
 
 		return source;
 	}
+
 	@Bean
-	public PasswordEncoder passwordEncoder() {
+	public static PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
 }

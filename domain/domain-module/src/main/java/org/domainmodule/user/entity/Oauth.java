@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -36,4 +37,27 @@ public class Oauth extends BaseTimeEntity {
 
 	@Column(nullable = false, unique = true, length = 100)
 	private String providerId;
+
+	@Builder
+	private Oauth (
+		User user,
+		ProviderType provider,
+		String providerId
+
+	) {
+		this.user = user;
+		this.provider = provider;
+		this.providerId = providerId;
+	}
+
+	public static Oauth createOauth(
+		User user,
+		ProviderType provider,
+		String providerId) {
+		return Oauth.builder()
+			.user(user)
+			.provider(provider)
+			.providerId(providerId)
+			.build();
+	}
 }
