@@ -2,10 +2,10 @@ package org.mainapplication.global.oauth2.handler;
 
 import java.io.IOException;
 
-import org.mainapplication.auth.service.AuthService;
 import org.mainapplication.global.oauth2.CustomUserDetails;
 import org.mainapplication.global.jwt.JwtProvider;
 import org.mainapplication.global.util.ResponseUtil;
+import org.mainapplication.token.service.TokenService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
 	private final JwtProvider jwtProvider;
-	private final AuthService authService;
+	private final TokenService tokenService;
 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
@@ -29,7 +29,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 		String accessToken = jwtProvider.generateAccessToken(customOAuth2User.getId());
 		String refreshToken = jwtProvider.generateRegreshToken(customOAuth2User.getId());
 
-		authService.saveRenewRefreshToken(customOAuth2User.getUser(), refreshToken);
+		tokenService.saveRenewRefreshToken(customOAuth2User.getUser(), refreshToken);
 		ResponseUtil.setTokensInResponse(response, accessToken, refreshToken);
 
 		// 응답 처리

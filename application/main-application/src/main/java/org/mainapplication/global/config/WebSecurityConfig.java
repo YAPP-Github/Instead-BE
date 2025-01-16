@@ -60,7 +60,7 @@ public class WebSecurityConfig {
 			.addFilterBefore(jwtAuthenticaltionFilter, UsernamePasswordAuthenticationFilter.class)
 			.oauth2Login(oauth2 -> oauth2
 				.userInfoEndpoint(userInfo -> userInfo
-					.userService(customOauth2UserService) // OAuth2UserService 추가
+					.userService(customOauth2UserService)
 				)
 				.successHandler(customOAuth2SuccessHandler)
 			);

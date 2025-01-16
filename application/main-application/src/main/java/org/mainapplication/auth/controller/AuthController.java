@@ -1,6 +1,6 @@
 package org.mainapplication.auth.controller;
 
-import org.mainapplication.auth.service.AuthService;
+import org.mainapplication.token.service.TokenService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,13 +14,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/yapp/auth")
 public class AuthController {
-	private final AuthService authService;
+	private final TokenService tokenService;
 
 	// 토큰 재발급 API
 	@PostMapping("/refresh")
 	public ResponseEntity<String> refreshAccessToken(@CookieValue("RefreshToken") String refreshToken,
 		HttpServletResponse response) {
-		String newAccessToken = authService. reissueAccessToken(refreshToken, response);
+		String newAccessToken = tokenService.reissueAccessToken(refreshToken, response);
 		return ResponseEntity.ok(newAccessToken);
 	}
 
