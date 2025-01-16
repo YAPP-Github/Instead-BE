@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"org.mainapplication", "org.security"})
+@ComponentScan(basePackages = {"org.mainapplication", "org.domainmodule"})
 public class MainApplication {
 
 	public static void main(String[] args) {
