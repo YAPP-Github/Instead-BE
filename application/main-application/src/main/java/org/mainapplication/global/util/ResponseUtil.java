@@ -22,4 +22,8 @@ public class ResponseUtil {
 		cookie.setMaxAge(7 * 24 * 60 * 60); //TODO 쿠키 기간 설정하기 유효기간 7일
 		response.addCookie(cookie);
 	}
+
+	public static void setContentType(HttpServletResponse response, String contentType) {
+		response.setContentType(contentType);
+	}
 }

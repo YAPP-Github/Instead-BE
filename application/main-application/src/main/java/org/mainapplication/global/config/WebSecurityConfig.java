@@ -50,12 +50,12 @@ public class WebSecurityConfig {
 		http.authorizeHttpRequests(
 				authorize ->
 					authorize
-						.requestMatchers("/")
+						.requestMatchers("/","/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**")
 						.permitAll()
 						.requestMatchers(WebSecurityURI.PUBLIC_URIS.toArray(new String[0]))
 						.permitAll()
 						.anyRequest()
-						.permitAll()
+						.authenticated()
 			)
 			.addFilterBefore(jwtAuthenticaltionFilter, UsernamePasswordAuthenticationFilter.class)
 			.oauth2Login(oauth2 -> oauth2
