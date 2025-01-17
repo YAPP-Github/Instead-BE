@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/yapp/auth")
+@RequestMapping("/auth")
 public class AuthController {
 	private final TokenService tokenService;
 
