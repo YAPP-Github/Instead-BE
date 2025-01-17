@@ -20,6 +20,11 @@ public class UserServiceImp implements UserService {
 	private final AuthService authService;
 	private final OauthRepository oauthRepository;
 
+	/**
+	 * Oauth2 Provider, ProviderId로 사용자 존재여부 확인후 없으면 회원가입 진행한다.
+	 * @param oAuth2Response
+	 * @return User
+	 */
 	@Override
 	@Transactional
 	public User loginOrCreateUser(OAuth2UserInfo oAuth2Response) {
