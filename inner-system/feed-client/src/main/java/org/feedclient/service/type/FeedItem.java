@@ -20,6 +20,8 @@ public class FeedItem {
 
 	private String title;
 
+	private String contentSummary;
+
 	private String content;
 
 	private String image;
@@ -33,6 +35,7 @@ public class FeedItem {
 		feedItem.title = rssItem.getTitle();
 		feedItem.image = rssItem.getImage();
 		feedItem.datePublished = rssItem.getDatePublished();
+		feedItem.contentSummary = rssItem.getContentText();
 		feedItem.content = content;
 		return feedItem;
 	}
