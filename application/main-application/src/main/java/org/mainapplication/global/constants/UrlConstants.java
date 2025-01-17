@@ -8,7 +8,7 @@ import lombok.Getter;
 public enum UrlConstants {
 	LOCAL_SERVER_URL("http://localhost:8080"),
 	LOCAL_DOMAIN_URL("http://localhost:3000"),
-	LOCAL_SECURE_DOMAIN_URL("https://localhost:3000");
-
+	LOCAL_SECURE_DOMAIN_URL("https://localhost:3000"),
+	BASE_URI("/yapp");
 	private String value;
 }

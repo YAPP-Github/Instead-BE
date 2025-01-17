@@ -9,11 +9,7 @@ import lombok.NoArgsConstructor;
 public final class WebSecurityURI {
 
 	public static final List<String> PUBLIC_URIS = List.of(
-		"/swagger-ui/**",
-		"/login/oauth2/**",
-		"/login",
-		"/oauth2/",
-		"/api/v1/auth/login/oauth2/code/google"
+		 UrlConstants.BASE_URI + "/auth/login/oauth2/code/google"
 	);
 
 	public static final List<String> CORS_ALLOW_URIS =

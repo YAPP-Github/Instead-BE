@@ -15,6 +15,7 @@ spring:
       properties:
         hibernate:
           dialect: org.hibernate.dialect.MySQLDialect
+
     security:
       oauth2:
         client:
@@ -38,8 +39,13 @@ jwt:
   refresh-token-key: ${REFRESH_JWT_KEY:}
   access-token-expiration: ${ACCESS_JWT_EXPIRATION:900000}  # 15분
   refresh-token-expiration: ${REFRESH_JWT_EXPIRATION:604800000} # 7일
+
 logging:
   level:
     org:
       springframework:
         security=DEBUG:
+
+server:
+  servlet:
+    context-path: /yapp
