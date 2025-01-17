@@ -14,7 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 class FeedServiceImplTest {
 
 	@Autowired
-	FeedServiceImpl feedService;
+	FeedService feedService;
 
 	@Test
 	void getPagedFeedTest() {
