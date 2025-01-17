@@ -1,0 +1,9 @@
+spring:
+    application:
+        name: open-ai-client
+
+client:
+    openai:
+        url: https://api.openai.com/v1/chat/completions
+        key: ${OPENAI_API_KEY}
+        model: gpt-4o-mini
