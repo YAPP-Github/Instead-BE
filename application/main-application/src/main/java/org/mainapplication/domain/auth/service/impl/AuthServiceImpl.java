@@ -1,9 +1,10 @@
-package org.mainapplication.domain.auth.service;
+package org.mainapplication.domain.auth.service.impl;
 
 import org.domainmodule.user.entity.Oauth;
 import org.domainmodule.user.entity.User;
 import org.domainmodule.user.entity.type.ProviderType;
 import org.domainmodule.user.repository.OauthRepository;
+import org.mainapplication.domain.auth.service.AuthService;
 import org.mainapplication.global.oauth2.userinfo.OAuth2UserInfo;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class AuthServiceImp implements AuthService {
+public class AuthServiceImpl implements AuthService {
 
 	private final OauthRepository oauthRepository;
 
