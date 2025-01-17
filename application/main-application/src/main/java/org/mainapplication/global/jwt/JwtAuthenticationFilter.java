@@ -19,40 +19,40 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-	private final JwtProvider jwtProvider;
+	private final JwtUtil jwtUtil;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
 
-		String accessToken = jwtProvider.resolveToken(request, HeaderConstants.ACCESS_TOKEN_HEADER);
-
+		String accessToken = jwtUtil.resolveToken(request, HeaderConstants.ACCESS_TOKEN_HEADER);
 		if (accessToken == null) {
 			throw new RuntimeException("ACCESS_TOKEN이 없습니다.");
 		}
 
-		boolean isAccessTokenValid = jwtProvider.isTokenValid(accessToken, true);
-
+		boolean isAccessTokenValid = jwtUtil.isTokenValid(accessToken, true);
 		// AccessToken이 만료
 		if (!isAccessTokenValid ) {
 			throw new RuntimeException("ACCESS_TOKEN이 만료되었습니다.");
 		}
 
-		String userId = jwtProvider.extractUserId(accessToken, true);
+		String userId = jwtUtil.extractUserId(accessToken, true);
+		SecurityContextHolder.getContext().setAuthentication(jwtUtil.getAuthentication(userId));
 
-		// 유저의 id로만 인증객체 생성
-		SecurityContextHolder.getContext().setAuthentication(jwtProvider.getAuthentication(userId));
-
-		filterChain.doFilter(request, response); // 다음 필터로 넘기기
+		filterChain.doFilter(request, response);
 	}
 
+	/**
+	 * 필터를 거치지 않는 URI를 설정한다
+	 * @return 필터링 여부
+	 */
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String requestURI = request.getRequestURI();
 
 		// 정적 리소스 경로를 필터링하지 않음
 		if (requestURI.matches(".*\\.(css|js|png|jpg|jpeg|svg|ico)$")) {
-			return true; // 필터 건너뛰기
+			return true;
 		}
 
 		// 정확히 매칭하도록 AntPathRequestMatcher를 제거하고 직접 비교

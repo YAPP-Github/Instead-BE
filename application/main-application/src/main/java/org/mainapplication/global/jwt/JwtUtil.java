@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtProvider {
+public class JwtUtil {
 	@Value("${jwt.access-token-expiration}")
 	public long ACCESS_TOKEN_VALID_MILL_TIME;
 
@@ -42,7 +42,6 @@ public class JwtProvider {
 	private final String ISSUER = "YAPP_PROJECT";
 
 	//accessToekn 발급
-	// TODO 이후에 account 말고 유저만의 시크릿으로 변경해야함
 	public String generateAccessToken(String userId) {
 		final Date now = new Date();
 
@@ -76,6 +75,7 @@ public class JwtProvider {
 		byte[] keyBytes = ACCESS_SECRET_KEY.getBytes(StandardCharsets.UTF_8);
 		return Keys.hmacShaKeyFor(keyBytes);
 	}
+
 	private Key getRefreshTokenKey() {
 		byte[] keyBytes = REFRESH_SECRET_KEY.getBytes(StandardCharsets.UTF_8);
 		return Keys.hmacShaKeyFor(keyBytes);

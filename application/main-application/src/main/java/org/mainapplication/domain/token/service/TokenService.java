@@ -3,7 +3,7 @@ package org.mainapplication.domain.token.service;
 import org.domainmodule.user.entity.RefreshToken;
 import org.domainmodule.user.entity.User;
 import org.domainmodule.user.repository.RefreshTokenRepository;
-import org.mainapplication.global.jwt.JwtProvider;
+import org.mainapplication.global.jwt.JwtUtil;
 import org.mainapplication.global.util.ResponseUtil;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class TokenService {
 	private final RefreshTokenRepository refreshTokenRepository;
-	private final JwtProvider jwtProvider;
+	private final JwtUtil jwtUtil;
 
 	@Transactional
 	public void saveRenewRefreshToken(User user, String newToken) {
@@ -40,14 +40,14 @@ public class TokenService {
 
 	@Transactional
 	public String reissueAccessToken(String refreshToken, HttpServletResponse response) {
-		if (jwtProvider.isTokenValid(refreshToken, false)) {
+		if (jwtUtil.isTokenValid(refreshToken, false)) {
 			throw new IllegalArgumentException("RefreshToken이 만료되었습니다.");
 		}
 
-		String usdrId = jwtProvider.extractUserId(refreshToken, false);
+		String usdrId = jwtUtil.extractUserId(refreshToken, false);
 		validateRefreshToken(usdrId, refreshToken);
 
-		String accessToken = jwtProvider.generateAccessToken(usdrId);
+		String accessToken = jwtUtil.generateAccessToken(usdrId);
 		ResponseUtil.setTokensInResponse(response, accessToken, refreshToken);
 		return accessToken;
 	}
