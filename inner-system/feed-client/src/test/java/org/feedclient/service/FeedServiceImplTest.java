@@ -11,10 +11,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
-class FeedServiceTest {
+class FeedServiceImplTest {
 
 	@Autowired
-	FeedService feedService;
+	FeedServiceImpl feedService;
 
 	@Test
 	void getPagedFeedTest() {
