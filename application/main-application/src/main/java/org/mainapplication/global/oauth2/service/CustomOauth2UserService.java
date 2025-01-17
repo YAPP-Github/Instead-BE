@@ -6,7 +6,7 @@ import org.domainmodule.user.entity.User;
 import org.mainapplication.global.oauth2.CustomUserDetails;
 import org.mainapplication.global.oauth2.userinfo.GoogleOAuth2UserInfo;
 import org.mainapplication.global.oauth2.userinfo.OAuth2UserInfo;
-import org.mainapplication.user.service.UserService;
+import org.mainapplication.domain.user.service.UserService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;

@@ -1,4 +1,4 @@
-package org.mainapplication.user.service;
+package org.mainapplication.domain.user.service;
 
 import org.domainmodule.user.entity.User;
 import org.mainapplication.global.oauth2.userinfo.OAuth2UserInfo;

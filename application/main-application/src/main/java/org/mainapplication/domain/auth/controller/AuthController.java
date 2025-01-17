@@ -1,6 +1,6 @@
-package org.mainapplication.auth.controller;
+package org.mainapplication.domain.auth.controller;
 
-import org.mainapplication.token.service.TokenService;
+import org.mainapplication.domain.token.service.TokenService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;

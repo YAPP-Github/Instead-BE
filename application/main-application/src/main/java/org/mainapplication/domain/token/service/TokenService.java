@@ -1,4 +1,4 @@
-package org.mainapplication.token.service;
+package org.mainapplication.domain.token.service;
 
 import org.domainmodule.user.entity.RefreshToken;
 import org.domainmodule.user.entity.User;
