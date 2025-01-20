@@ -44,25 +44,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	}
 
 	/**
-	 * 필터를 거치지 않는 URI를 설정한다
+	 * 필터를 거치지 않는 URI를 설정
 	 * @return 필터링 여부
 	 */
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
-		String requestURI = request.getRequestURI();
-
-		// 정적 리소스 경로를 필터링하지 않음
-		if (requestURI.matches(".*\\.(css|js|png|jpg|jpeg|svg|ico)$")) {
-			return true;
-		}
-
 		// 정확히 매칭하도록 AntPathRequestMatcher를 제거하고 직접 비교
-		boolean shouldNotFilter = WebSecurityURI.PUBLIC_URIS.stream()
+		return WebSecurityURI.PUBLIC_URIS.stream()
 			.anyMatch(uri -> new AntPathRequestMatcher(uri).matches(request));
-
-		System.out.println("Request URI: " + requestURI + ", Should not filter: " + shouldNotFilter);
-
-		return shouldNotFilter;
 	}
 }
 
