@@ -1,6 +1,9 @@
 spring:
     application:
         name: main-application
+    profiles:
+        include:
+          - oauth
 
     datasource:
       url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${DB_NAME}?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8
@@ -16,30 +19,6 @@ spring:
         hibernate:
           dialect: org.hibernate.dialect.MySQLDialect
 
-    security:
-      oauth2:
-        client:
-          registration:
-            google:
-              client-id: ${GOOGLE_CLIENT_ID}
-              client-secret: ${GOOGLE_CLIENT_SECRET}
-              redirect_uri: ${GOOGLE_REDIRECT_URI}
-              authorization-grant-type: authorization_code
-              scope:
-                - email
-                - profile
-          provider:
-            google:
-              authorization-uri: https://accounts.google.com/o/oauth2/auth
-              token-uri: https://oauth2.googleapis.com/token
-              user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
-
-jwt:
-  access-token-key: ${ACCESS_JWT_KEY:}
-  refresh-token-key: ${REFRESH_JWT_KEY:}
-  access-token-expiration: ${ACCESS_JWT_EXPIRATION:900000}  # 15분
-  refresh-token-expiration: ${REFRESH_JWT_EXPIRATION:604800000} # 7일
-
 logging:
   level:
     org:
@@ -49,3 +28,18 @@ logging:
 server:
   servlet:
     context-path: /yapp
+
+swagger:
+  version: ${SWAGGER_VERSION:0.0.1}
+springdoc:
+  default-consumes-media-type: application/json;charset=UTF-8
+  default-produces-media-type: application/json;charset=UTF-8
+  swagger-ui:
+    path: /swagger-ui
+    disable-swagger-default-url: true
+    display-request-duration: true
+    tags-sorter: alpha
+    operations-sorter: alpha
+    syntax-highlight:
+      theme: none
+    urls-primary-name: INSTEAD API DOCS

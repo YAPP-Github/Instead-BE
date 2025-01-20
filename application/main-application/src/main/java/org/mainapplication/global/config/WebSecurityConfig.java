@@ -52,18 +52,19 @@ public class WebSecurityConfig {
 					authorize
 						.requestMatchers("/","/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**")
 						.permitAll()
-						.requestMatchers(WebSecurityURI.PUBLIC_URIS.toArray(new String[0]))
+						.requestMatchers(WebSecurityURI.PUBLIC_URIS.toArray(String[]::new))
 						.permitAll()
 						.anyRequest()
 						.authenticated()
 			)
-			.addFilterBefore(jwtAuthenticaltionFilter, UsernamePasswordAuthenticationFilter.class)
 			.oauth2Login(oauth2 -> oauth2
 				.userInfoEndpoint(userInfo -> userInfo
 					.userService(customOauth2UserService)
 				)
 				.successHandler(customOAuth2SuccessHandler)
-			);
+			)
+			.addFilterBefore(jwtAuthenticaltionFilter, UsernamePasswordAuthenticationFilter.class);
+
 		return http.build();
 	}
 
