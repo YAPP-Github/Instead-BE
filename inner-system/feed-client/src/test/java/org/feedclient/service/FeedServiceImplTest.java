@@ -40,7 +40,7 @@ class FeedServiceImplTest {
 	}
 
 	@Test
-	void testGetPagedFeedTest() {
+	void getPagedFeedByCursorTest() {
 		// Given
 		String feedUrl = "https://rss.app/feeds/v1.1/t3OECiAGSXYOG8h5.json";
 
