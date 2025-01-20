@@ -13,5 +13,5 @@ public final class WebSecurityURI {
 	);
 
 	public static final List<String> CORS_ALLOW_URIS =
-		List.of("http://localhost:3000","http://localhost:8080");
+		List.of(UrlConstants.LOCAL_DOMAIN_URL, UrlConstants.PROD_DOMAIN_URL);
 }

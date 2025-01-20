@@ -72,8 +72,8 @@ public class WebSecurityConfig {
 		CorsConfiguration configuration = new CorsConfiguration();
 
 		configuration.setAllowedOrigins(WebSecurityURI.CORS_ALLOW_URIS);
-		configuration.addAllowedOriginPattern(UrlConstants.LOCAL_DOMAIN_URL.getValue());
-		configuration.addAllowedOriginPattern(UrlConstants.LOCAL_SECURE_DOMAIN_URL.getValue());
+		configuration.addAllowedOriginPattern(UrlConstants.LOCAL_DOMAIN_URL);
+		configuration.addAllowedOriginPattern(UrlConstants.PROD_DOMAIN_URL);
 		configuration.addAllowedMethod("*");
 		configuration.addAllowedHeader("*");
 		configuration.setAllowCredentials(true);
