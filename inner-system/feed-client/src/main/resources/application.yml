@@ -1,0 +1,7 @@
+spring:
+    application:
+        name: feed-client
+
+client:
+    news-parser:
+        url: ${NEWS_PARSER_URL}
