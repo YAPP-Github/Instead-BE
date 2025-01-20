@@ -6,6 +6,7 @@ import static org.springframework.security.config.Customizer.*;
 import org.mainapplication.global.constants.UrlConstants;
 import org.mainapplication.global.constants.WebSecurityURI;
 import org.mainapplication.global.filter.JwtAuthenticationFilter;
+import org.mainapplication.global.filter.TestAuthenticationFilter;
 import org.mainapplication.global.oauth2.handler.CustomOAuth2FailureHandler;
 import org.mainapplication.global.oauth2.handler.CustomOAuth2SuccessHandler;
 import org.mainapplication.global.oauth2.service.CustomOauth2UserService;
@@ -31,10 +32,11 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class WebSecurityConfig {
-	private final JwtAuthenticationFilter jwtAuthenticaltionFilter;
+	// private final JwtAuthenticationFilter jwtAuthenticaltionFilter;
 	private final CustomOauth2UserService customOauth2UserService;
 	private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 	private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
+	private final TestAuthenticationFilter testAuthenticationFilter;
 
 	private void defaultBasicFilterChain(HttpSecurity http) throws Exception {
 		http.httpBasic(AbstractHttpConfigurer::disable)
@@ -72,7 +74,8 @@ public class WebSecurityConfig {
 				exceptionHandling
 					.authenticationEntryPoint(customAuthenticationEntryPoint())
 			)
-			.addFilterBefore(jwtAuthenticaltionFilter, UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(testAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+			// .addFilterBefore(jwtAuthenticaltionFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
