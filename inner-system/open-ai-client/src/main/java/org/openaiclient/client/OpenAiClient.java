@@ -41,16 +41,18 @@ public class OpenAiClient {
 
 	@Async
 	public CompletableFuture<ChatCompletionResponse> getChatCompletionAsync(
-		ChatCompletionRequest chatCompletionRequest) {
-		return CompletableFuture.supplyAsync(() -> openAiClient.post()
-			.body(chatCompletionRequest)
-			.retrieve()
-			.onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
-				throw new RuntimeException("Client error: " + res.getStatusCode());
-			})
-			.onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
-				throw new RuntimeException("Server error: " + res.getStatusCode());
-			})
-			.body(ChatCompletionResponse.class));
+		ChatCompletionRequest chatCompletionRequest
+	) {
+		return CompletableFuture.completedFuture(
+			openAiClient.post()
+				.body(chatCompletionRequest)
+				.retrieve()
+				.onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
+					throw new RuntimeException("Client error: " + res.getStatusCode());
+				})
+				.onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
+					throw new RuntimeException("Server error: " + res.getStatusCode());
+				})
+				.body(ChatCompletionResponse.class));
 	}
 }
