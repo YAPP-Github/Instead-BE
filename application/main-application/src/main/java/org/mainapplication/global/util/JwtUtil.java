@@ -1,4 +1,4 @@
-package org.mainapplication.global.jwt;
+package org.mainapplication.global.util;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;

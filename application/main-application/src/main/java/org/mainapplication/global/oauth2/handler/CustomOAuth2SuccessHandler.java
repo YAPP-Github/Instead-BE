@@ -3,7 +3,7 @@ package org.mainapplication.global.oauth2.handler;
 import java.io.IOException;
 
 import org.mainapplication.global.oauth2.CustomUserDetails;
-import org.mainapplication.global.jwt.JwtUtil;
+import org.mainapplication.global.util.JwtUtil;
 import org.mainapplication.global.util.ResponseUtil;
 import org.mainapplication.domain.token.service.TokenService;
 import org.springframework.security.core.Authentication;

@@ -1,9 +1,10 @@
-package org.mainapplication.global.jwt;
+package org.mainapplication.global.filter;
 
 import java.io.IOException;
 
 import org.mainapplication.global.constants.HeaderConstants;
 import org.mainapplication.global.constants.WebSecurityURI;
+import org.mainapplication.global.util.JwtUtil;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.stereotype.Component;

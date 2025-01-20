@@ -5,7 +5,7 @@ import static org.springframework.security.config.Customizer.*;
 
 import org.mainapplication.global.constants.UrlConstants;
 import org.mainapplication.global.constants.WebSecurityURI;
-import org.mainapplication.global.jwt.JwtAuthenticationFilter;
+import org.mainapplication.global.filter.JwtAuthenticationFilter;
 import org.mainapplication.global.oauth2.handler.CustomOAuth2SuccessHandler;
 import org.mainapplication.global.oauth2.service.CustomOauth2UserService;
 import org.springframework.context.annotation.Bean;
