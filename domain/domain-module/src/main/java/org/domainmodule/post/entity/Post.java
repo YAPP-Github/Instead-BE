@@ -46,5 +46,6 @@ public class Post extends BaseAuditEntity {
 	@Enumerated(EnumType.STRING)
 	private PostStatus status;
 
+	@Column(name = "upload_time")
 	private LocalDateTime uploadTime;
 }

@@ -7,7 +7,22 @@ plugins {
 version = '0.0.1-SNAPSHOT'
 
 dependencies {
+    api project(':domain:domain-module')
 
+    // db
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    testImplementation 'com.h2database:h2'
+
+    //jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    //Oauth2
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    //Security
+    implementation "org.springframework.boot:spring-boot-starter-security"
 }
 
 bootJar {

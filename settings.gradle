@@ -14,5 +14,3 @@ include 'domain:domain-module'
 include 'inner-system:feed-client'
 include 'inner-system:open-ai-client'
 include 'inner-system:sns-client'
-include 'inner-system:security'
-
