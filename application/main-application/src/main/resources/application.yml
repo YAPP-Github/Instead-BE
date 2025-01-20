@@ -49,3 +49,10 @@ logging:
 server:
   servlet:
     context-path: /yapp
+
+urls:
+  local:
+    server: "http://localhost:8080"
+    domain: "http://localhost:3000"
+    secure: "https://localhost:3000"
+  baseUri: "/yapp"
