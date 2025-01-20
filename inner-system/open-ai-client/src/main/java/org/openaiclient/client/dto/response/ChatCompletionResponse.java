@@ -9,10 +9,8 @@ import org.springframework.lang.Nullable;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class ChatCompletionResponse {
 
 	private String id;
