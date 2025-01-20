@@ -1,4 +1,4 @@
-package org.mainapplication.domain.user.service.impl;
+package org.mainapplication.domain.user.service;
 
 import org.domainmodule.user.entity.Oauth;
 import org.domainmodule.user.entity.User;
@@ -6,7 +6,6 @@ import org.domainmodule.user.entity.type.ProviderType;
 import org.domainmodule.user.repository.OauthRepository;
 import org.domainmodule.user.repository.UserRepository;
 import org.mainapplication.domain.auth.service.AuthService;
-import org.mainapplication.domain.user.service.UserService;
 import org.mainapplication.global.oauth2.userinfo.OAuth2UserInfo;
 import org.springframework.stereotype.Service;
 

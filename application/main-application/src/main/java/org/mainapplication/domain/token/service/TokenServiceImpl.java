@@ -1,10 +1,9 @@
-package org.mainapplication.domain.token.service.impl;
+package org.mainapplication.domain.token.service;
 
 import org.domainmodule.user.entity.RefreshToken;
 import org.domainmodule.user.entity.User;
 import org.domainmodule.user.repository.RefreshTokenRepository;
-import org.mainapplication.domain.token.service.TokenService;
-import org.mainapplication.global.jwt.JwtUtil;
+import org.mainapplication.global.util.JwtUtil;
 import org.mainapplication.global.util.ResponseUtil;
 import org.springframework.stereotype.Service;
 
