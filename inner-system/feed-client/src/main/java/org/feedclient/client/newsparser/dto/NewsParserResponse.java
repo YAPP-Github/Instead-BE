@@ -1,10 +1,8 @@
 package org.feedclient.client.newsparser.dto;
 
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
-@Setter
 public class NewsParserResponse {
 
 	private Integer statusCode;

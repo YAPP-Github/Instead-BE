@@ -19,7 +19,7 @@ class FeedServiceImplTest {
 	@Test
 	void getPagedFeedTest() {
 		// Given
-		String feedUrl = "https://rss.app/feeds/v1.1/tMxpbLaaVTNSJ0nI.json";
+		String feedUrl = "https://rss.app/feeds/v1.1/t3OECiAGSXYOG8h5.json";
 
 		// When
 		FeedPagingResult newsFeed = feedService.getPagedFeed(feedUrl, 5);
@@ -33,7 +33,7 @@ class FeedServiceImplTest {
 
 		// Then
 		Assertions.assertAll(
-			() -> Assertions.assertEquals(5, newsFeed.getSize()),
+			() -> Assertions.assertEquals(5, newsFeed.getFeedItems().size()),
 			() -> Assertions.assertFalse(newsFeed.isEof()),
 			() -> Assertions.assertInstanceOf(FeedItem.class, newsFeed.getFeedItems().get(0))
 		);
@@ -42,7 +42,7 @@ class FeedServiceImplTest {
 	@Test
 	void testGetPagedFeedTest() {
 		// Given
-		String feedUrl = "https://rss.app/feeds/v1.1/tMxpbLaaVTNSJ0nI.json";
+		String feedUrl = "https://rss.app/feeds/v1.1/t3OECiAGSXYOG8h5.json";
 
 		// When
 		FeedPagingResult newsFeed = feedService.getPagedFeed(feedUrl, "448f82132b9b63e67fb8e5aba1987317", 5);
@@ -56,7 +56,7 @@ class FeedServiceImplTest {
 
 		// Then
 		Assertions.assertAll(
-			() -> Assertions.assertEquals(5, newsFeed.getSize()),
+			() -> Assertions.assertEquals(5, newsFeed.getFeedItems().size()),
 			() -> Assertions.assertFalse(newsFeed.isEof()),
 			() -> Assertions.assertInstanceOf(FeedItem.class, newsFeed.getFeedItems().get(0))
 		);

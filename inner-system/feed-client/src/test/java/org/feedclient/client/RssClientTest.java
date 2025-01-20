@@ -21,7 +21,7 @@ class RssClientTest {
 	@Test
 	void getRssFeedTest() {
 		// Given
-		String feedUrl = "https://rss.app/feeds/v1.1/tMxpbLaaVTNSJ0nI.json";
+		String feedUrl = "https://rss.app/feeds/v1.1/t3OECiAGSXYOG8h5.json";
 
 		// When
 		RssResponse rssFeed = rssClient.getRssFeed(feedUrl);
@@ -33,7 +33,7 @@ class RssClientTest {
 	@Test
 	void rssFeedDateTest() {
 		// Given
-		String feedUrl = "https://rss.app/feeds/v1.1/tMxpbLaaVTNSJ0nI.json";
+		String feedUrl = "https://rss.app/feeds/v1.1/t3OECiAGSXYOG8h5.json";
 
 		// When
 		RssResponse rssFeed = rssClient.getRssFeed(feedUrl);

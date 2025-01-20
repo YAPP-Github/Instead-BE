@@ -41,7 +41,7 @@ public class FeedServiceImpl implements FeedService {
 		List<FeedItem> pagedFeedItems = parseRssItems(pagedRssItems);
 
 		// 결과 반환
-		return FeedPagingResult.of(pagedFeedItems, pagedFeedItems.size(), false);
+		return FeedPagingResult.of(pagedFeedItems, false);
 	}
 
 	/**
@@ -60,7 +60,7 @@ public class FeedServiceImpl implements FeedService {
 		List<FeedItem> pagedFeedItems = parseRssItems(pagedRssItems);
 
 		// 결과 반환
-		return FeedPagingResult.of(pagedFeedItems, pagedFeedItems.size(), eof.get());
+		return FeedPagingResult.of(pagedFeedItems, eof.get());
 	}
 
 	/**

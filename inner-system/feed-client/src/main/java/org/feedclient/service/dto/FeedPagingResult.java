@@ -5,26 +5,18 @@ import java.util.List;
 import org.feedclient.service.type.FeedItem;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FeedPagingResult {
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public final class FeedPagingResult {
 
-	private int size;
+	private final boolean eof;
 
-	private boolean eof;
+	private final List<FeedItem> feedItems;
 
-	private List<FeedItem> feedItems;
-
-	public static FeedPagingResult of(List<FeedItem> feedItems, int size, boolean eof) {
-		FeedPagingResult feedPagingResult = new FeedPagingResult();
-		feedPagingResult.feedItems = feedItems;
-		feedPagingResult.size = size;
-		feedPagingResult.eof = eof;
-		return feedPagingResult;
+	public static FeedPagingResult of(List<FeedItem> feedItems, boolean eof) {
+		return new FeedPagingResult(eof, List.copyOf(feedItems));
 	}
 }
