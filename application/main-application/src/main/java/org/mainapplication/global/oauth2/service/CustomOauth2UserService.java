@@ -3,10 +3,10 @@ package org.mainapplication.global.oauth2.service;
 import java.util.Map;
 
 import org.domainmodule.user.entity.User;
+import org.mainapplication.domain.auth.service.AuthService;
 import org.mainapplication.global.oauth2.CustomUserDetails;
 import org.mainapplication.global.oauth2.userinfo.GoogleOAuth2UserInfo;
 import org.mainapplication.global.oauth2.userinfo.OAuth2UserInfo;
-import org.mainapplication.domain.user.service.UserService;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
-	private final UserService userService;
+	private final AuthService authService;
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -27,7 +27,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
 
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
 		OAuth2UserInfo oAuth2Response = getOAuth2UserInfo(oAuth2User, registrationId);
-		User user = userService.loginOrCreateUser(oAuth2Response);
+		User user = authService.loginOrRegisterUser(oAuth2Response);
 		return new CustomUserDetails(user);
 	}
 
