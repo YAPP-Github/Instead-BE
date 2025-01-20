@@ -6,6 +6,7 @@ import static org.springframework.security.config.Customizer.*;
 import org.mainapplication.global.constants.UrlConstants;
 import org.mainapplication.global.constants.WebSecurityURI;
 import org.mainapplication.global.filter.JwtAuthenticationFilter;
+import org.mainapplication.global.oauth2.handler.CustomOAuth2FailureHandler;
 import org.mainapplication.global.oauth2.handler.CustomOAuth2SuccessHandler;
 import org.mainapplication.global.oauth2.service.CustomOauth2UserService;
 import org.springframework.context.annotation.Bean;
@@ -16,12 +17,14 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -31,6 +34,7 @@ public class WebSecurityConfig {
 	private final JwtAuthenticationFilter jwtAuthenticaltionFilter;
 	private final CustomOauth2UserService customOauth2UserService;
 	private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
+	private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
 
 	private void defaultBasicFilterChain(HttpSecurity http) throws Exception {
 		http.httpBasic(AbstractHttpConfigurer::disable)
@@ -62,10 +66,24 @@ public class WebSecurityConfig {
 					.userService(customOauth2UserService)
 				)
 				.successHandler(customOAuth2SuccessHandler)
+				.failureHandler(customOAuth2FailureHandler)
+			)
+			.exceptionHandling(exceptionHandling ->
+				exceptionHandling
+					.authenticationEntryPoint(customAuthenticationEntryPoint())
 			)
 			.addFilterBefore(jwtAuthenticaltionFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
+	}
+
+	@Bean
+	public AuthenticationEntryPoint customAuthenticationEntryPoint() {
+		return (request, response, authException) -> {
+			response.setContentType("application/json;charset=UTF-8");
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"로그인이 필요합니다.\"}");
+		};
 	}
 
 	@Bean
