@@ -3,7 +3,7 @@ package org.domainmodule.post.entity;
 import java.time.LocalDateTime;
 
 import org.domainmodule.common.entity.BaseAuditEntity;
-import org.domainmodule.post.entity.type.PostStatus;
+import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.postgroup.entity.PostGroup;
 
 import jakarta.persistence.Column;
@@ -44,7 +44,7 @@ public class Post extends BaseAuditEntity {
 	private String content;
 
 	@Enumerated(EnumType.STRING)
-	private PostStatus status;
+	private PostStatusType status;
 
 	@Column(name = "upload_time")
 	private LocalDateTime uploadTime;

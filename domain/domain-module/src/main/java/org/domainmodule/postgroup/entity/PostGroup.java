@@ -2,9 +2,9 @@ package org.domainmodule.postgroup.entity;
 
 import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.common.entity.BaseTimeEntity;
-import org.domainmodule.postgroup.entity.type.PostGroupPurpose;
-import org.domainmodule.postgroup.entity.type.PostGroupReference;
-import org.domainmodule.postgroup.entity.type.PostLength;
+import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
+import org.domainmodule.postgroup.entity.type.PostGroupReferenceType;
+import org.domainmodule.postgroup.entity.type.PostLengthType;
 import org.domainmodule.rssfeed.entity.RssFeed;
 
 import jakarta.persistence.Column;
@@ -44,14 +44,14 @@ public class PostGroup extends BaseTimeEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private PostGroupPurpose purpose;
+	private PostGroupPurposeType purpose;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private PostGroupReference reference;
+	private PostGroupReferenceType reference;
 
 	@Enumerated(EnumType.STRING)
-	private PostLength length;
+	private PostLengthType length;
 
 	@Column(columnDefinition = "TEXT")
 	private String content;

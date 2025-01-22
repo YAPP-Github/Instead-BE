@@ -1,9 +1,9 @@
 package org.mainapplication.domain.post.controller.request;
 
-import org.domainmodule.postgroup.entity.type.PostGroupPurpose;
-import org.domainmodule.postgroup.entity.type.PostGroupReference;
-import org.domainmodule.postgroup.entity.type.PostLength;
-import org.domainmodule.rssfeed.entity.type.FeedCategory;
+import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
+import org.domainmodule.postgroup.entity.type.PostGroupReferenceType;
+import org.domainmodule.postgroup.entity.type.PostLengthType;
+import org.domainmodule.rssfeed.entity.type.FeedCategoryType;
 import org.springframework.lang.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,17 +14,17 @@ public class CreatePostsRequest {
 
 	private String topic;
 
-	private PostGroupPurpose purpose;
+	private PostGroupPurposeType purpose;
 
-	private PostGroupReference reference;
+	private PostGroupReferenceType reference;
 
 	@Nullable
-	private FeedCategory newsCategory;
+	private FeedCategoryType newsCategory;
 
 	@Nullable
 	private MultipartFile image;
 
-	private PostLength length;
+	private PostLengthType length;
 
 	private String content;
 }

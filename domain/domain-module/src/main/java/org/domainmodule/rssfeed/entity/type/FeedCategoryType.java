@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum FeedCategory {
+public enum FeedCategoryType {
 	COIN("코인"),
 	MONEY("돈");
 
