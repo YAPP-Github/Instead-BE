@@ -7,9 +7,11 @@ import org.domainmodule.rssfeed.entity.type.FeedCategoryType;
 import org.springframework.lang.Nullable;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class CreatePostsRequest {
 
 	private String topic;
