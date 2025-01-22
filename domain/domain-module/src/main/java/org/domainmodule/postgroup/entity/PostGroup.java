@@ -18,6 +18,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -55,4 +56,36 @@ public class PostGroup extends BaseTimeEntity {
 
 	@Column(columnDefinition = "TEXT")
 	private String content;
+
+	@Builder
+	private PostGroup(Agent agent, RssFeed feed, String topic, PostGroupPurposeType purpose,
+		PostGroupReferenceType reference, PostLengthType length, String content) {
+		this.agent = agent;
+		this.feed = feed;
+		this.topic = topic;
+		this.purpose = purpose;
+		this.reference = reference;
+		this.length = length;
+		this.content = content;
+	}
+
+	public static PostGroup createPostGroup(
+		Agent agent,
+		RssFeed feed,
+		String topic,
+		PostGroupPurposeType purpose,
+		PostGroupReferenceType reference,
+		PostLengthType length,
+		String content
+	) {
+		return PostGroup.builder()
+			.agent(agent)
+			.feed(feed)
+			.topic(topic)
+			.purpose(purpose)
+			.reference(reference)
+			.length(length)
+			.content(content)
+			.build();
+	}
 }

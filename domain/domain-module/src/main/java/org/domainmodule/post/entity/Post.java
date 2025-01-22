@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -48,4 +49,39 @@ public class Post extends BaseAuditEntity {
 
 	@Column(name = "upload_time")
 	private LocalDateTime uploadTime;
+
+	@Builder
+	private Post(
+		PostGroup postGroup,
+		String title,
+		String summary,
+		String content,
+		PostStatusType status,
+		LocalDateTime uploadTime
+	) {
+		this.postGroup = postGroup;
+		this.title = title;
+		this.summary = summary;
+		this.content = content;
+		this.status = status;
+		this.uploadTime = uploadTime;
+	}
+
+	public static Post createPost(
+		PostGroup postGroup,
+		String title,
+		String summary,
+		String content,
+		PostStatusType status,
+		LocalDateTime uploadTime
+	) {
+		return Post.builder()
+			.postGroup(postGroup)
+			.title(title)
+			.summary(summary)
+			.content(content)
+			.status(status)
+			.uploadTime(uploadTime)
+			.build();
+	}
 }
