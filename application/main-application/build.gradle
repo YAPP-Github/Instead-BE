@@ -45,3 +45,11 @@ tasks.named('test') {
 springBoot {
     mainClass = "org.mainapplication.MainApplication" // MainApplication 클래스의 패키지 경로
 }
+
+bootJar {
+    enabled = true
+}
+
+jar {
+    enabled = false
+}
