@@ -84,4 +84,15 @@ public class Post extends BaseAuditEntity {
 			.uploadTime(uploadTime)
 			.build();
 	}
+
+	@Override
+	public String toString() {
+		return "Post{"
+			+ "title='" + title + '\''
+			+ ", summary='" + summary + '\''
+			+ ", content='" + content + '\''
+			+ ", status=" + status
+			+ ", uploadTime=" + uploadTime
+			+ '}';
+	}
 }

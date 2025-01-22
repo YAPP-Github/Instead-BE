@@ -88,4 +88,14 @@ public class PostGroup extends BaseTimeEntity {
 			.content(content)
 			.build();
 	}
+
+	@Override
+	public String toString() {
+		return feed + "\n"
+			+ topic + "\n"
+			+ purpose + "\n"
+			+ reference + "\n"
+			+ length + "\n"
+			+ content + "\n";
+	}
 }
