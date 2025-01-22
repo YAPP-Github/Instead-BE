@@ -35,10 +35,6 @@ public class Agent extends BaseTimeEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	@OneToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "sns_token_id", nullable = false)
-	private SnsToken snsToken;
-
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private AgentPlatform platform;
