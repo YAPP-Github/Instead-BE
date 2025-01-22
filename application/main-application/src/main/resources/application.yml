@@ -23,7 +23,12 @@ logging:
   level:
     org:
       springframework:
-        security=DEBUG:
+        security: trace
+        web: DEBUG
+    hibernate:
+      orm:
+        jdbc:
+          bind: trace
 
 server:
   servlet:
