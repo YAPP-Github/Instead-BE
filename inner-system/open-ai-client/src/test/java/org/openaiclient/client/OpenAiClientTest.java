@@ -56,7 +56,7 @@ class OpenAiClientTest {
 
 		// When
 		ChatCompletionResponse result = openAiClient.getChatCompletion(
-			new ChatCompletionRequest(model, messages, responseFormat)
+			new ChatCompletionRequest(model, messages, responseFormat, null, null)
 		);
 
 		// Then
@@ -106,7 +106,7 @@ class OpenAiClientTest {
 
 		// When
 		ChatCompletionResponse result = openAiClient.getChatCompletionAsync(
-			new ChatCompletionRequest(model, messages, responseFormat)
+			new ChatCompletionRequest(model, messages, responseFormat, null, null)
 		).join();
 
 		// Then
