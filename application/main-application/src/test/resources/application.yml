@@ -23,8 +23,7 @@ logging:
     level:
         org:
             springframework:
-                security=DEBUG:
-            hibernate: debug
+            security=DEBUG:
 
 server:
     servlet:

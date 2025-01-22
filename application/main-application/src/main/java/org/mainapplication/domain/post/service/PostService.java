@@ -6,15 +6,14 @@ import java.util.Map;
 
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
-import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
-import org.domainmodule.postgroup.repository.PostGroupRepository;
 import org.feedclient.service.FeedService;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.prompt.PromptUtil;
 import org.mainapplication.domain.post.prompt.ResponseContent;
+import org.mainapplication.domain.post.service.dto.SavePostGroupAndPostDto;
 import org.openaiclient.client.OpenAiClient;
 import org.openaiclient.client.dto.request.ChatCompletionRequest;
 import org.openaiclient.client.dto.request.type.RequestMessage;
@@ -34,9 +33,8 @@ public class PostService {
 
 	private final FeedService feedService;
 	private final OpenAiClient openAiClient;
+	private final PostTransactionService postTransactionService;
 	private final PromptUtil promptUtil;
-	private final PostGroupRepository postGroupRepository;
-	private final PostRepository postRepository;
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -64,8 +62,11 @@ public class PostService {
 		)
 	));
 
+	/**
+	 * 참고자료 없는 게시물 생성 메서드
+	 */
 	public CreatePostsResponse createPosts(CreatePostsRequest request) {
-		// 프롬프트 생성
+		// 프롬프트 생성: Instruction + 주제 Prompt
 		String instructionPrompt = promptUtil.getInstruction();
 		String topicPrompt = promptUtil.getBasicTopicPrompt(request);
 
@@ -76,35 +77,33 @@ public class PostService {
 		ChatCompletionResponse result = openAiClient.getChatCompletion(
 			new ChatCompletionRequest(openAiModel, messages, responseFormat, 5, 0.7));
 
-		// 게시물 그룹 및 게시물 저장
-		PostGroup postGroup = postGroupRepository.save(PostGroup.createPostGroup(
-			null,
-			null,
-			request.getTopic(),
-			request.getPurpose(),
+		// PostGroup 엔티티 생성
+		PostGroup postGroup = PostGroup.createPostGroup(null, null, request.getTopic(), request.getPurpose(),
 			request.getReference(),
-			request.getLength(),
-			request.getContent()
-		));
+			request.getLength(), request.getContent());
+
+		// Post 엔티티 생성: OpenAI API 응답의 choices에서 답변 꺼내 json으로 파싱 후 엔티티 생성
 		List<Post> posts = result.getChoices().stream()
 			.map(choice -> {
 				try {
 					ResponseContent content = objectMapper.readValue(choice.getMessage().getContent(),
 						ResponseContent.class);
-					return postRepository.save(
-						Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
-							PostStatusType.GENERATED, null));
+					return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
+						PostStatusType.GENERATED, null);
 				} catch (JsonProcessingException e) {
 					return null;
 				}
 			})
 			.toList();
 
+		// PostGroup 및 Post 리스트 저장
+		SavePostGroupAndPostDto saveResult = postTransactionService.savePostGroupAndPosts(postGroup, posts);
+
 		// 결과 반환
-		List<PostResponse> postResponses = posts.stream()
+		List<PostResponse> postResponses = saveResult.posts().stream()
 			.map(PostResponse::from)
 			.toList();
-		return new CreatePostsResponse(postGroup.getId(), null, postResponses);
+		return new CreatePostsResponse(saveResult.postGroup().getId(), null, postResponses);
 	}
 
 	public void createPostsByNews() {
