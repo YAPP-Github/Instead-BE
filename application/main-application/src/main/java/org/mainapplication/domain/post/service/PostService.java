@@ -76,11 +76,6 @@ public class PostService {
 		ChatCompletionResponse result = openAiClient.getChatCompletion(
 			new ChatCompletionRequest(openAiModel, messages, responseFormat, 5, 0.7));
 
-		System.out.println("open ai 결과 확인:");
-		result.getChoices().forEach(choice -> {
-			System.out.println(choice.getMessage().getContent());
-		});
-
 		// 게시물 그룹 및 게시물 저장
 		PostGroup postGroup = postGroupRepository.save(PostGroup.createPostGroup(
 			null,
@@ -104,12 +99,6 @@ public class PostService {
 				}
 			})
 			.toList();
-
-		System.out.println("db 결과 확인: ");
-		System.out.println(postGroup.toString());
-		posts.forEach(post -> {
-			System.out.println(post.toString());
-		});
 
 		// 결과 반환
 		List<PostResponse> postResponses = posts.stream()

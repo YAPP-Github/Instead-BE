@@ -36,7 +36,6 @@ class PostServiceTest {
 
 		// When
 		CreatePostsResponse response = postService.createPosts(request);
-		response.getPosts().forEach(System.out::println);
 
 		// Then
 		Assertions.assertAll(
