@@ -3,6 +3,7 @@ package org.mainapplication.domain.post.service;
 import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
 import org.domainmodule.postgroup.entity.type.PostGroupReferenceType;
 import org.domainmodule.postgroup.entity.type.PostLengthType;
+import org.domainmodule.rssfeed.entity.type.FeedCategoryType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,13 +36,37 @@ class PostServiceTest {
 		);
 
 		// When
-		CreatePostsResponse response = postService.createPosts(request);
-		System.out.println(response.getPostGroupId());
+		CreatePostsResponse response = postService.createPosts(request, 5);
 
 		// Then
 		Assertions.assertAll(
 			() -> Assertions.assertNotNull(response.getPostGroupId()),
 			() -> Assertions.assertNull(response.getEof()),
+			() -> Assertions.assertEquals(5, response.getPosts().size())
+		);
+	}
+
+	@Test
+		// @Transactional
+	void createPostsByNews() {
+		// Given
+		CreatePostsRequest request = new CreatePostsRequest(
+			"비트코인 소식 알아보기",
+			PostGroupPurposeType.INFORMATION,
+			PostGroupReferenceType.NEWS,
+			FeedCategoryType.COIN,
+			null,
+			PostLengthType.SHORT,
+			"'화성 가즈아~~'와 같은 추임새를 포함하기"
+		);
+
+		// When
+		CreatePostsResponse response = postService.createPostsByNews(request, 5);
+
+		// Then
+		Assertions.assertAll(
+			() -> Assertions.assertNotNull(response.getPostGroupId()),
+			() -> Assertions.assertFalse(response.getEof()),
 			() -> Assertions.assertEquals(5, response.getPosts().size())
 		);
 	}
