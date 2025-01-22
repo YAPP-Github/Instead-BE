@@ -1,5 +1,6 @@
 package org.mainapplication.health;
 
+import org.mainapplication.global.response.GlobalResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +14,7 @@ public class HealCheckController {
 
 	@Operation(summary = "서버 상태 체크", security = {})
 	@GetMapping("/health")
-	public ResponseEntity<String> healthCheck() {
-		return ResponseEntity.ok("OK");
+	public ResponseEntity<GlobalResponse> healthCheck() {
+		return ResponseEntity.ok(GlobalResponse.success(200, "OK"));
 	}
 }
