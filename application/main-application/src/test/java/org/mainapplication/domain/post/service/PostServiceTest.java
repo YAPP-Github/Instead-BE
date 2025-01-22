@@ -47,7 +47,7 @@ class PostServiceTest {
 	}
 
 	@Test
-		// @Transactional
+	@Transactional
 	void createPostsByNews() {
 		// Given
 		CreatePostsRequest request = new CreatePostsRequest(
