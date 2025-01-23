@@ -34,7 +34,7 @@ public class PostController {
 		@RequestBody CreatePostsRequest createPostsRequest
 	) {
 		return new ResponseEntity<>(HttpStatus.NOT_IMPLEMENTED);
-		// 참고 X
+		// 기본
 		// 뉴스 참고
 		// 이미지 참고
 	}

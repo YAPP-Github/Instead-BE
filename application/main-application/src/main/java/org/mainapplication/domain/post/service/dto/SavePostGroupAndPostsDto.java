@@ -5,5 +5,5 @@ import java.util.List;
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.postgroup.entity.PostGroup;
 
-public record SavePostGroupAndPostDto(PostGroup postGroup, List<Post> posts) {
+public record SavePostGroupAndPostsDto(PostGroup postGroup, List<Post> posts) {
 }

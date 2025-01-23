@@ -46,7 +46,7 @@ public class PromptUtil {
 	 * 게시물 그룹에 설정된 참고자료 Prompt.
 	 * "이미지를 참고하는" 게시물 그룹을 위해 이미지에 대한 참고자료 Prompt를 생성
 	 */
-	public String getImageRefPrompt(String imageUrl) {
-		return "다음 이미지 내용을 바탕으로 게시물을 생성해줘:\n" + imageUrl;
+	public String getImageRefPrompt() {
+		return "다음 이미지 내용을 바탕으로 게시물을 생성해줘.";
 	}
 }

@@ -1,6 +1,7 @@
 package org.mainapplication.domain.post.service;
 
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -17,10 +18,10 @@ import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.prompt.PromptUtil;
 import org.mainapplication.domain.post.prompt.ResponseContent;
-import org.mainapplication.domain.post.service.dto.SavePostGroupAndPostDto;
+import org.mainapplication.domain.post.service.dto.SavePostGroupAndPostsDto;
+import org.mainapplication.domain.post.service.dto.SavePostGroupWithImagesAndPostsDto;
 import org.openaiclient.client.OpenAiClient;
 import org.openaiclient.client.dto.request.ChatCompletionRequest;
-import org.openaiclient.client.dto.request.type.RequestMessage;
 import org.openaiclient.client.dto.request.type.ResponseFormat;
 import org.openaiclient.client.dto.response.ChatCompletionResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -76,11 +77,11 @@ public class PostService {
 		String topicPrompt = promptUtil.getBasicTopicPrompt(request);
 
 		// 게시물 생성
-		ArrayList<RequestMessage> messages = new ArrayList<>();
-		messages.add(new RequestMessage("system", instructionPrompt));
-		messages.add(new RequestMessage("user", topicPrompt));
-		ChatCompletionResponse result = openAiClient.getChatCompletion(
-			new ChatCompletionRequest(openAiModel, messages, responseFormat, limit, 0.7));
+		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(openAiModel, responseFormat, limit,
+			null)
+			.addDeveloperMessage(instructionPrompt)
+			.addUserTextMessage(topicPrompt);
+		ChatCompletionResponse result = openAiClient.getChatCompletion(chatCompletionRequest);
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(null, null, request.getTopic(), request.getPurpose(),
@@ -96,13 +97,13 @@ public class PostService {
 					return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
 						PostStatusType.GENERATED, null);
 				} catch (JsonProcessingException e) {
-					return null;
+					return Post.createPost(postGroup, null, "", "", PostStatusType.GENERATED, null);
 				}
 			})
 			.toList();
 
 		// PostGroup 및 Post 리스트 저장
-		SavePostGroupAndPostDto saveResult = postTransactionService.savePostGroupAndPosts(postGroup, posts);
+		SavePostGroupAndPostsDto saveResult = postTransactionService.savePostGroupAndPosts(postGroup, posts);
 
 		// 결과 반환
 		List<PostResponse> postResponses = saveResult.posts().stream()
@@ -111,6 +112,9 @@ public class PostService {
 		return new CreatePostsResponse(saveResult.postGroup().getId(), null, postResponses);
 	}
 
+	/**
+	 * 뉴스 기사 기반 게시물 생성 메서드
+	 */
 	public CreatePostsResponse createPostsByNews(CreatePostsRequest request, Integer limit) {
 		// 피드 받아오기
 		RssFeed rssFeed = rssFeedRepository.findByCategory(request.getNewsCategory())
@@ -125,17 +129,13 @@ public class PostService {
 			.toList();
 
 		// 게시물 생성하기: 각 뉴스 기사별로 OpenAI API 호출 및 답변 생성
-		RequestMessage instructionMessage = new RequestMessage("system", instructionPrompt);
-		RequestMessage topicMessage = new RequestMessage("user", topicPrompt);
 		List<CompletableFuture<ChatCompletionResponse>> resultFutures = refPrompts.stream()
-			.map(refPrompt -> {
-				ArrayList<RequestMessage> messages = new ArrayList<>();
-				messages.add(instructionMessage);
-				messages.add(topicMessage);
-				messages.add(new RequestMessage("user", refPrompt));
-				return openAiClient.getChatCompletionAsync(
-					new ChatCompletionRequest(openAiModel, messages, responseFormat, null, null));
-			})
+			.map(refPrompt -> openAiClient.getChatCompletionAsync(
+				new ChatCompletionRequest(openAiModel, responseFormat, null, null)
+					.addDeveloperMessage(instructionPrompt)
+					.addUserTextMessage(topicPrompt)
+					.addUserTextMessage(refPrompt)
+			))
 			.toList();
 		List<ChatCompletionResponse> results = resultFutures.stream()
 			.map(CompletableFuture::join)
@@ -154,13 +154,14 @@ public class PostService {
 					return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
 						PostStatusType.GENERATED, null);
 				} catch (JsonProcessingException e) {
-					return null;
+					return Post.createPost(postGroup, null, "", result.getChoices().get(0).getMessage().getContent(),
+						PostStatusType.GENERATED, null);
 				}
 			})
 			.toList();
 
 		// PostGroup 및 Post 리스트 엔티티 저장
-		SavePostGroupAndPostDto saveResult = postTransactionService.savePostGroupAndPosts(postGroup, posts);
+		SavePostGroupAndPostsDto saveResult = postTransactionService.savePostGroupAndPosts(postGroup, posts);
 
 		System.out.println("db 저장 결과:");
 		saveResult.posts().forEach(System.out::println);
@@ -172,13 +173,63 @@ public class PostService {
 		return new CreatePostsResponse(saveResult.postGroup().getId(), feedPagingResult.isEof(), postResponses);
 	}
 
-	public void createPostsByImage() {
+	/**
+	 * 이미지 기반 게시물 생성 메서드
+	 */
+	public CreatePostsResponse createPostsByImage(CreatePostsRequest request, Integer limit) {
 		// 프롬프트 생성
+		String instructionPrompt = promptUtil.getInstruction();
+		String topicPrompt = promptUtil.getBasicTopicPrompt(request);
+		String imageRefPrompt = promptUtil.getImageRefPrompt();
+
+		// 이미지 인코딩
+		List<String> encodedImages = request.getImages().stream()
+			.map(image -> {
+				try {
+					return Base64.getEncoder().encodeToString(image.getBytes());
+				} catch (IOException e) {
+					return null;
+				}
+			})
+			.toList();
 
 		// 게시물 생성
+		ChatCompletionResponse result = openAiClient.getChatCompletion(
+			new ChatCompletionRequest(openAiModel, responseFormat, limit, null)
+				.addDeveloperMessage(instructionPrompt)
+				.addUserTextMessage(topicPrompt)
+				.addUserImageMessage(imageRefPrompt, encodedImages)
+		);
 
-		// 게시물 저장
+		// PostGroup 엔티티 생성
+		PostGroup postGroup = PostGroup.createPostGroup(null, null, request.getTopic(), request.getPurpose(),
+			request.getReference(), request.getLength(), request.getContent());
+
+		// TODO: PostGroupImage 엔티티 리스트 생성 - s3에 업로드 후 받아오는 url로 생성
+
+		// Post 엔티티 리스트 생성
+		List<Post> posts = result.getChoices().stream()
+			.map(choice -> {
+				try {
+					ResponseContent content = objectMapper.readValue(choice.getMessage().getContent(),
+						ResponseContent.class);
+					return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
+						PostStatusType.GENERATED, null);
+				} catch (JsonProcessingException e) {
+					return Post.createPost(postGroup, null, "", choice.getMessage().getContent(),
+						PostStatusType.GENERATED, null);
+				}
+			})
+			.toList();
+
+		// 엔티티 저장
+		SavePostGroupWithImagesAndPostsDto saveResult = postTransactionService.savePostGroupWithImagesAndPosts(
+			postGroup, null, posts);
 
 		// 결과 반환
+		List<PostResponse> postResponses = saveResult.posts().stream()
+			.map(PostResponse::from)
+			.toList();
+		return new CreatePostsResponse(saveResult.postGroup().getId(), null, postResponses);
 	}
 }

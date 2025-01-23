@@ -1,5 +1,7 @@
 package org.mainapplication.domain.post.controller.request;
 
+import java.util.List;
+
 import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
 import org.domainmodule.postgroup.entity.type.PostGroupReferenceType;
 import org.domainmodule.postgroup.entity.type.PostLengthType;
@@ -24,7 +26,7 @@ public class CreatePostsRequest {
 	private FeedCategoryType newsCategory;
 
 	@Nullable
-	private MultipartFile image;
+	private List<MultipartFile> images;
 
 	private PostLengthType length;
 
