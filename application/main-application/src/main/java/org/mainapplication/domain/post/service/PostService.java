@@ -71,7 +71,7 @@ public class PostService {
 	/**
 	 * 참고자료 없는 게시물 생성 메서드
 	 */
-	public CreatePostsResponse createPosts(CreatePostsRequest request, Integer limit) {
+	public CreatePostsResponse createPostsWithoutRef(CreatePostsRequest request, Integer limit) {
 		// 프롬프트 생성: Instruction + 주제 Prompt
 		String instructionPrompt = promptUtil.getInstruction();
 		String topicPrompt = promptUtil.getBasicTopicPrompt(request);

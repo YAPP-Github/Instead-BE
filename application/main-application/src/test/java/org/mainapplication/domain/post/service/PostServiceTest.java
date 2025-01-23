@@ -32,7 +32,7 @@ class PostServiceTest {
 
 	@Test
 	@Transactional
-	void createPosts() {
+	void createPostsWithoutRef() {
 		// Given
 		CreatePostsRequest request = new CreatePostsRequest(
 			"오늘의 점심 또는 저녁 메뉴",
@@ -45,7 +45,7 @@ class PostServiceTest {
 		);
 
 		// When
-		CreatePostsResponse response = postService.createPosts(request, 5);
+		CreatePostsResponse response = postService.createPostsWithoutRef(request, 5);
 
 		// Then
 		Assertions.assertAll(
