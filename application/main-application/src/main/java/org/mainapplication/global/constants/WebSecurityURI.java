@@ -12,7 +12,8 @@ public final class WebSecurityURI {
 		"/auth/login/oauth2/code/google",
 		"/swagger-ui/**",
 		"/v3/api-docs/**",
-		"/swagger-resources/**"
+		"/swagger-resources/**",
+		"/twitter/**"
 	);
 
 	public static final List<String> CORS_ALLOW_URIS =
