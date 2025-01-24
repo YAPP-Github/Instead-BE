@@ -5,7 +5,6 @@ import org.domainmodule.snstoken.entity.SnsToken;
 import org.domainmodule.snstoken.repository.SnsTokenRepository;
 import org.snsclient.twitter.dto.response.TwitterTokenResponse;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +18,6 @@ public class SnsTokenService {
 	 * @param agent 사용자 계정(Agent)
 	 * @param tokenResponse Twitter API로부터 받은 토큰 응답
 	 */
-	@Transactional
 	public void createOrUpdateSnsToken(Agent agent, TwitterTokenResponse tokenResponse) {
 		snsTokenRepository.findByAgentId(agent.getId())
 			.ifPresentOrElse(

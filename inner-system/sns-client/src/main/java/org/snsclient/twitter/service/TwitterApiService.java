@@ -6,6 +6,7 @@ import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import twitter4j.OAuth2TokenProvider;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -18,6 +19,7 @@ import twitter4j.auth.OAuth2Token;
 import twitter4j.conf.Configuration;
 import twitter4j.conf.ConfigurationBuilder;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TwitterApiService {
@@ -30,7 +32,10 @@ public class TwitterApiService {
 	 * @return authorization url
 	 */
 	public String getTwitterAuthorizationUrl() {
-		return twitterOAuth2TokenProvider.createAuthorizeUrl(config.getClientId(), config.getRedirectUri(), scopes,
+		return twitterOAuth2TokenProvider.createAuthorizeUrl(
+			config.getClientId(),
+			config.getRedirectUri(),
+			scopes,
 			config.getChallenge());
 	}
 
@@ -40,20 +45,25 @@ public class TwitterApiService {
 	 * @return access token
 	 */
 	public TwitterTokenResponse getTwitterAuthorizationToken(String code) {
-		OAuth2TokenProvider.Result result = twitterOAuth2TokenProvider.getAccessToken(
-			config.getClientId(),
-			config.getRedirectUri(),
-			code,
-			config.getChallenge()
-		);
+		try {
+			OAuth2TokenProvider.Result result = twitterOAuth2TokenProvider.getAccessToken(
+				config.getClientId(),
+				config.getRedirectUri(),
+				code,
+				config.getChallenge()
+			);
 
-		validateTokenResult(result);
+			validateTokenResult(result);
 
-		return TwitterTokenResponse.fromFields(
-			result.getAccessToken(),
-			result.getRefreshToken(),
-			result.getExpiresIn()
-		);
+			return TwitterTokenResponse.fromFields(
+				result.getAccessToken(),
+				result.getRefreshToken(),
+				result.getExpiresIn()
+			);
+		} catch (Exception e) {
+			log.error("Twitter Token 발급 API 호출 중 오류 발생: {}", e.getMessage());
+			throw new RuntimeException("Twitter Token 발급 API 호출 중 오류 발생", e);
+		}
 	}
 
 	private void validateTokenResult(OAuth2TokenProvider.Result result) {
@@ -76,17 +86,22 @@ public class TwitterApiService {
 	 * @return TwitterV2 인스턴스
 	 */
 	private TwitterV2 createTwitterV2(String accessToken) {
-		Configuration configuration = new ConfigurationBuilder()
-			.setOAuthConsumerKey(config.getClientId())
-			.setOAuthConsumerSecret(config.getClientSecret())
-			.build();
+		try {
+			Configuration configuration = new ConfigurationBuilder()
+				.setOAuthConsumerKey(config.getClientId())
+				.setOAuthConsumerSecret(config.getClientSecret())
+				.build();
 
-		OAuth2Authorization auth = new OAuth2Authorization(configuration);
-		auth.setOAuth2Token(new OAuth2Token("bearer", accessToken));
+			OAuth2Authorization auth = new OAuth2Authorization(configuration);
+			auth.setOAuth2Token(new OAuth2Token("bearer", accessToken));
 
-		Twitter twitter = new TwitterFactory(configuration).getInstance(auth);
+			Twitter twitter = new TwitterFactory(configuration).getInstance(auth);
 
-		return TwitterV2ExKt.getV2(twitter);
+			return TwitterV2ExKt.getV2(twitter);
+		} catch (Exception e) {
+			log.error("TwitterV2 클라이언트 생성 중 오류 발생: {}", e.getMessage());
+			throw new RuntimeException("TTwitterV2 클라이언트 생성 중 오류 발생", e);
+		}
 	}
 
 	/**
@@ -111,6 +126,12 @@ public class TwitterApiService {
 		}
 	}
 
+	/**
+	 * X로 부터 유저 본인의 정보 받아오기
+	 * @param accessToken
+	 * @param refreshToken
+	 * @return
+	 */
 	public TwitterUserInfoDto getUserInfo(String accessToken, String refreshToken) {
 		try {
 			return fetchUserInfo(accessToken);
@@ -128,7 +149,7 @@ public class TwitterApiService {
 	private TwitterUserInfoDto mapToUserInfoDto(UsersResponse usersResponse) {
 		return usersResponse.getUsers()
 			.stream()
-			.findFirst()  //TODO twitter.getMe가 여러 유저를 리턴가능하기에 설정
+			.findFirst()  //twitter.getMe가 여러 유저를 리턴가능하기에 설정
 			.map(TwitterUserInfoDto::fromTwitterUser)
 			.orElseThrow(() -> new IllegalStateException("X 유저 정보가 없습니다."));
 	}
