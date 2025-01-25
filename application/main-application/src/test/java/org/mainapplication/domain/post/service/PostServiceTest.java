@@ -60,10 +60,10 @@ class PostServiceTest {
 	void createPostsByNews() {
 		// Given
 		CreatePostsRequest request = new CreatePostsRequest(
-			"비트코인 소식 알아보기",
+			"주식 관련 소식 알아보기",
 			PostGroupPurposeType.INFORMATION,
 			PostGroupReferenceType.NEWS,
-			FeedCategoryType.COIN,
+			FeedCategoryType.INVEST,
 			null,
 			PostLengthType.SHORT,
 			"'화성 가즈아~~'와 같은 추임새를 포함하기"
