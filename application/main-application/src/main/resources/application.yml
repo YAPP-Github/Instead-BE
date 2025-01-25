@@ -19,6 +19,16 @@ spring:
             hibernate:
                 dialect: org.hibernate.dialect.MySQLDialect
 
+    cloud:
+        aws:
+            region:
+                static: ${AWS_REGION}
+            credentials:
+                access-key: ${AWS_ACCESS_KEY}
+                secret-key: ${AWS_SECRET_KEY}
+            s3:
+                bucket-name: ${AWS_S3_BUCKET}
+
 logging:
     level:
         org:

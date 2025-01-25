@@ -142,9 +142,6 @@ public class PostService {
 		// PostGroup 및 Post 리스트 엔티티 저장
 		SavePostGroupAndPostsDto saveResult = postTransactionService.savePostGroupAndPosts(postGroup, posts);
 
-		System.out.println("db 저장 결과:");
-		saveResult.posts().forEach(System.out::println);
-
 		// 결과 반환하기
 		List<PostResponse> postResponses = saveResult.posts().stream()
 			.map(PostResponse::from)
