@@ -12,4 +12,6 @@ public class CreatePutUrlResponse {
 	private URL presignedUrl;
 
 	private Integer duration;
+
+	private String imageUrl;
 }

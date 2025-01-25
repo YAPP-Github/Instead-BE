@@ -19,11 +19,14 @@ public class S3Service {
 	@Value("${spring.cloud.aws.s3.bucket-name}")
 	private String s3BucketName;
 
+	@Value("${spring.cloud.aws.s3.url-prefix}")
+	private String s3ImagePrefix;
+
 	private final S3Template s3Template;
 
 	public CreatePutUrlResponse createPreSignedPutUrl(String pathPrefix) {
 		String fileName = Generators.timeBasedEpochGenerator().generate().toString();
 		URL presignedUrl = s3Template.createSignedPutURL(s3BucketName, pathPrefix + fileName, Duration.ofMinutes(5));
-		return new CreatePutUrlResponse(presignedUrl, 5);
+		return new CreatePutUrlResponse(presignedUrl, 5, s3ImagePrefix + pathPrefix + fileName);
 	}
 }
