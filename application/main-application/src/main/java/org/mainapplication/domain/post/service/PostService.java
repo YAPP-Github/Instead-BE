@@ -16,10 +16,11 @@ import org.feedclient.service.dto.FeedPagingResult;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
-import org.mainapplication.domain.post.prompt.PromptUtil;
-import org.mainapplication.domain.post.prompt.ResponseContent;
 import org.mainapplication.domain.post.service.dto.SavePostGroupAndPostsDto;
 import org.mainapplication.domain.post.service.dto.SavePostGroupWithImagesAndPostsDto;
+import org.mainapplication.openai.contentformat.jsonschema.SummaryContentSchema;
+import org.mainapplication.openai.contentformat.response.SummaryContentFormat;
+import org.mainapplication.openai.prompt.CreatePostPrompt;
 import org.openaiclient.client.OpenAiClient;
 import org.openaiclient.client.dto.request.ChatCompletionRequest;
 import org.openaiclient.client.dto.request.type.ResponseFormat;
@@ -39,8 +40,9 @@ public class PostService {
 	private final FeedService feedService;
 	private final OpenAiClient openAiClient;
 	private final PostTransactionService postTransactionService;
-	private final PromptUtil promptUtil;
 	private final RssFeedRepository rssFeedRepository;
+	private final CreatePostPrompt createPostPrompt;
+	private final SummaryContentSchema summaryContentSchema;
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -72,13 +74,15 @@ public class PostService {
 	 * 참고자료 없는 게시물 생성 메서드
 	 */
 	public CreatePostsResponse createPostsWithoutRef(CreatePostsRequest request, Integer limit) {
+		summaryContentSchema.getSchema().values().forEach(System.out::println);
+
 		// 프롬프트 생성: Instruction + 주제 Prompt
-		String instructionPrompt = promptUtil.getInstruction();
-		String topicPrompt = promptUtil.getBasicTopicPrompt(request);
+		String instructionPrompt = createPostPrompt.getInstruction();
+		String topicPrompt = createPostPrompt.getBasicTopicPrompt(request);
 
 		// 게시물 생성
-		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(openAiModel, responseFormat, limit,
-			null)
+		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(
+			openAiModel, new ResponseFormat("json_schema", summaryContentSchema.getSchema()), limit, null)
 			.addDeveloperMessage(instructionPrompt)
 			.addUserTextMessage(topicPrompt);
 		ChatCompletionResponse result = openAiClient.getChatCompletion(chatCompletionRequest);
@@ -92,8 +96,8 @@ public class PostService {
 		List<Post> posts = result.getChoices().stream()
 			.map(choice -> {
 				try {
-					ResponseContent content = objectMapper.readValue(choice.getMessage().getContent(),
-						ResponseContent.class);
+					SummaryContentFormat content = objectMapper.readValue(choice.getMessage().getContent(),
+						SummaryContentFormat.class);
 					return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
 						PostStatusType.GENERATED, null);
 				} catch (JsonProcessingException e) {
@@ -122,10 +126,10 @@ public class PostService {
 		FeedPagingResult feedPagingResult = feedService.getPagedFeed(rssFeed.getUrl(), limit);
 
 		// 프롬프트 생성
-		String instructionPrompt = promptUtil.getInstruction();
-		String topicPrompt = promptUtil.getBasicTopicPrompt(request);
+		String instructionPrompt = createPostPrompt.getInstruction();
+		String topicPrompt = createPostPrompt.getBasicTopicPrompt(request);
 		List<String> refPrompts = feedPagingResult.getFeedItems().stream()
-			.map(news -> promptUtil.getNewsRefPrompt(news.getContentSummary(), news.getContent()))
+			.map(news -> createPostPrompt.getNewsRefPrompt(news.getContentSummary(), news.getContent()))
 			.toList();
 
 		// 게시물 생성하기: 각 뉴스 기사별로 OpenAI API 호출 및 답변 생성
@@ -149,8 +153,8 @@ public class PostService {
 		List<Post> posts = results.stream()
 			.map(result -> {
 				try {
-					ResponseContent content = objectMapper.readValue(
-						result.getChoices().get(0).getMessage().getContent(), ResponseContent.class);
+					SummaryContentFormat content = objectMapper.readValue(
+						result.getChoices().get(0).getMessage().getContent(), SummaryContentFormat.class);
 					return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
 						PostStatusType.GENERATED, null);
 				} catch (JsonProcessingException e) {
@@ -178,9 +182,9 @@ public class PostService {
 	 */
 	public CreatePostsResponse createPostsByImage(CreatePostsRequest request, Integer limit) {
 		// 프롬프트 생성
-		String instructionPrompt = promptUtil.getInstruction();
-		String topicPrompt = promptUtil.getBasicTopicPrompt(request);
-		String imageRefPrompt = promptUtil.getImageRefPrompt();
+		String instructionPrompt = createPostPrompt.getInstruction();
+		String topicPrompt = createPostPrompt.getBasicTopicPrompt(request);
+		String imageRefPrompt = createPostPrompt.getImageRefPrompt();
 
 		// 이미지 인코딩
 		List<String> encodedImages = request.getImages().stream()
@@ -211,8 +215,8 @@ public class PostService {
 		List<Post> posts = result.getChoices().stream()
 			.map(choice -> {
 				try {
-					ResponseContent content = objectMapper.readValue(choice.getMessage().getContent(),
-						ResponseContent.class);
+					SummaryContentFormat content = objectMapper.readValue(choice.getMessage().getContent(),
+						SummaryContentFormat.class);
 					return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
 						PostStatusType.GENERATED, null);
 				} catch (JsonProcessingException e) {

@@ -1,10 +1,10 @@
-package org.mainapplication.domain.post.prompt;
+package org.mainapplication.openai.prompt;
 
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PromptUtil {
+public class CreatePostPrompt {
 
 	/**
 	 * 계정 기본 정보 Instruction.
