@@ -7,7 +7,6 @@ import org.domainmodule.postgroup.entity.type.PostGroupReferenceType;
 import org.domainmodule.postgroup.entity.type.PostLengthType;
 import org.domainmodule.rssfeed.entity.type.FeedCategoryType;
 import org.springframework.lang.Nullable;
-import org.springframework.web.multipart.MultipartFile;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,7 +25,7 @@ public class CreatePostsRequest {
 	private FeedCategoryType newsCategory;
 
 	@Nullable
-	private List<MultipartFile> images;
+	private List<String> images;
 
 	private PostLengthType length;
 

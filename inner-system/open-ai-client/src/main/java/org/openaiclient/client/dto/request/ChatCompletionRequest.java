@@ -74,7 +74,8 @@ public class ChatCompletionRequest {
 			.map(imageUrl -> new ChatCompletionContent(
 				ContentType.image_url,
 				null,
-				new ChatCompletionImageUrl("data:image/jpeg;base64," + imageUrl, ImageDetailType.auto))
+				// new ChatCompletionImageUrl("data:image/jpeg;base64," + imageUrl, ImageDetailType.auto))
+				new ChatCompletionImageUrl(imageUrl, ImageDetailType.auto))
 			)
 			.forEach(contents::add);
 

@@ -1,7 +1,5 @@
 package org.mainapplication.domain.post.service;
 
-import java.io.IOException;
-import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -64,8 +62,7 @@ public class PostService {
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(null, null, request.getTopic(), request.getPurpose(),
-			request.getReference(),
-			request.getLength(), request.getContent());
+			request.getReference(), request.getLength(), request.getContent());
 
 		// Post 엔티티 생성: OpenAI API 응답의 choices에서 답변 꺼내 json으로 파싱 후 엔티티 생성
 		List<Post> posts = result.getChoices().stream()
@@ -76,7 +73,8 @@ public class PostService {
 					return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
 						PostStatusType.GENERATED, null);
 				} catch (JsonProcessingException e) {
-					return Post.createPost(postGroup, null, "", "", PostStatusType.GENERATED, null);
+					return Post.createPost(postGroup, null, "게시물", choice.getMessage().getContent(),
+						PostStatusType.GENERATED, null);
 				}
 			})
 			.toList();
@@ -133,7 +131,8 @@ public class PostService {
 					return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
 						PostStatusType.GENERATED, null);
 				} catch (JsonProcessingException e) {
-					return Post.createPost(postGroup, null, "", result.getChoices().get(0).getMessage().getContent(),
+					return Post.createPost(postGroup, null, "게시물",
+						result.getChoices().get(0).getMessage().getContent(),
 						PostStatusType.GENERATED, null);
 				}
 			})
@@ -159,29 +158,27 @@ public class PostService {
 		String imageRefPrompt = createPostPrompt.getImageRefPrompt();
 
 		// 이미지 인코딩
-		List<String> encodedImages = request.getImages().stream()
-			.map(image -> {
-				try {
-					return Base64.getEncoder().encodeToString(image.getBytes());
-				} catch (IOException e) {
-					return null;
-				}
-			})
-			.toList();
+		// List<String> encodedImages = request.getImages().stream()
+		// 	.map(image -> {
+		// 		try {
+		// 			return Base64.getEncoder().encodeToString(image.getBytes());
+		// 		} catch (IOException e) {
+		// 			return null;
+		// 		}
+		// 	})
+		// 	.toList();
 
 		// 게시물 생성
 		ChatCompletionResponse result = openAiClient.getChatCompletion(
 			new ChatCompletionRequest(openAiModel, summaryContentSchema.getResponseFormat(), limit, null)
 				.addDeveloperMessage(instructionPrompt)
 				.addUserTextMessage(topicPrompt)
-				.addUserImageMessage(imageRefPrompt, encodedImages)
+				.addUserImageMessage(imageRefPrompt, request.getImages())
 		);
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(null, null, request.getTopic(), request.getPurpose(),
 			request.getReference(), request.getLength(), request.getContent());
-
-		// TODO: PostGroupImage 엔티티 리스트 생성 - s3에 업로드 후 받아오는 url로 생성
 
 		// Post 엔티티 리스트 생성
 		List<Post> posts = result.getChoices().stream()
@@ -192,7 +189,7 @@ public class PostService {
 					return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
 						PostStatusType.GENERATED, null);
 				} catch (JsonProcessingException e) {
-					return Post.createPost(postGroup, null, "", choice.getMessage().getContent(),
+					return Post.createPost(postGroup, null, "게시물", choice.getMessage().getContent(),
 						PostStatusType.GENERATED, null);
 				}
 			})
