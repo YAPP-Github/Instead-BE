@@ -3,7 +3,6 @@ package org.mainapplication.domain.post.service;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import org.domainmodule.post.entity.Post;
@@ -23,7 +22,6 @@ import org.mainapplication.openai.contentformat.response.SummaryContentFormat;
 import org.mainapplication.openai.prompt.CreatePostPrompt;
 import org.openaiclient.client.OpenAiClient;
 import org.openaiclient.client.dto.request.ChatCompletionRequest;
-import org.openaiclient.client.dto.request.type.ResponseFormat;
 import org.openaiclient.client.dto.response.ChatCompletionResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -49,40 +47,17 @@ public class PostService {
 	@Value("${client.openai.model}")
 	private String openAiModel;
 
-	// TODO: 이건 임시 response format이고, 실제 format은 json 파일로 관리할 예정
-	private final ResponseFormat responseFormat = new ResponseFormat("json_schema", Map.of(
-		"name", "test_response",
-		"strict", true,
-		"schema", Map.of(
-			"type", "object",
-			"properties", Map.of(
-				"summary", Map.of(
-					"type", "string",
-					"description", "summary of main content"
-				),
-				"content", Map.of(
-					"type", "string",
-					"description", "main content"
-				)
-			),
-			"additionalProperties", false,
-			"required", List.of("summary", "content")
-		)
-	));
-
 	/**
 	 * 참고자료 없는 게시물 생성 메서드
 	 */
 	public CreatePostsResponse createPostsWithoutRef(CreatePostsRequest request, Integer limit) {
-		summaryContentSchema.getSchema().values().forEach(System.out::println);
-
 		// 프롬프트 생성: Instruction + 주제 Prompt
 		String instructionPrompt = createPostPrompt.getInstruction();
 		String topicPrompt = createPostPrompt.getBasicTopicPrompt(request);
 
 		// 게시물 생성
-		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(
-			openAiModel, new ResponseFormat("json_schema", summaryContentSchema.getSchema()), limit, null)
+		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(openAiModel,
+			summaryContentSchema.getResponseFormat(), limit, null)
 			.addDeveloperMessage(instructionPrompt)
 			.addUserTextMessage(topicPrompt);
 		ChatCompletionResponse result = openAiClient.getChatCompletion(chatCompletionRequest);
@@ -135,7 +110,7 @@ public class PostService {
 		// 게시물 생성하기: 각 뉴스 기사별로 OpenAI API 호출 및 답변 생성
 		List<CompletableFuture<ChatCompletionResponse>> resultFutures = refPrompts.stream()
 			.map(refPrompt -> openAiClient.getChatCompletionAsync(
-				new ChatCompletionRequest(openAiModel, responseFormat, null, null)
+				new ChatCompletionRequest(openAiModel, summaryContentSchema.getResponseFormat(), null, null)
 					.addDeveloperMessage(instructionPrompt)
 					.addUserTextMessage(topicPrompt)
 					.addUserTextMessage(refPrompt)
@@ -199,7 +174,7 @@ public class PostService {
 
 		// 게시물 생성
 		ChatCompletionResponse result = openAiClient.getChatCompletion(
-			new ChatCompletionRequest(openAiModel, responseFormat, limit, null)
+			new ChatCompletionRequest(openAiModel, summaryContentSchema.getResponseFormat(), limit, null)
 				.addDeveloperMessage(instructionPrompt)
 				.addUserTextMessage(topicPrompt)
 				.addUserImageMessage(imageRefPrompt, encodedImages)
