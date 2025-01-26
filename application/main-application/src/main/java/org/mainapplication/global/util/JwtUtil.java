@@ -139,8 +139,8 @@ public class JwtUtil {
 		return authHeader.replace(HeaderConstants.TOKEN_PREFIX, "");
 	}
 
-	public Authentication getAuthentication(String memberId) {
+	public Authentication getAuthentication(String userId) {
 		// authorities는 지금 ROLE이 필요 없어서 null, credentials은 비밀번호가 들어가는데 jwt이므로 패스
-		return new UsernamePasswordAuthenticationToken(memberId, null, null);
+		return new UsernamePasswordAuthenticationToken(userId, null, null);
 	}
 }
