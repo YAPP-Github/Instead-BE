@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,4 +29,17 @@ public class PostImage {
 
 	@Column(length = 500, nullable = false)
 	private String url;
+
+	@Builder
+	private PostImage(Post post, String url) {
+		this.post = post;
+		this.url = url;
+	}
+
+	public static PostImage createPostImage(Post post, String url) {
+		return PostImage.builder()
+			.post(post)
+			.url(url)
+			.build();
+	}
 }

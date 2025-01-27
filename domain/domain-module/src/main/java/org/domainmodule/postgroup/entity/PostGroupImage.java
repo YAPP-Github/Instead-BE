@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,4 +29,17 @@ public class PostGroupImage {
 
 	@Column(length = 500)
 	private String url;
+
+	@Builder
+	private PostGroupImage(PostGroup postGroup, String url) {
+		this.postGroup = postGroup;
+		this.url = url;
+	}
+
+	public static PostGroupImage createPostGroupImage(PostGroup postGroup, String url) {
+		return PostGroupImage.builder()
+			.postGroup(postGroup)
+			.url(url)
+			.build();
+	}
 }

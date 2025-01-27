@@ -32,7 +32,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class WebSecurityConfig {
-	// private final JwtAuthenticationFilter jwtAuthenticaltionFilter;
+
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final CustomOauth2UserService customOauth2UserService;
 	private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 	private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
@@ -56,7 +57,7 @@ public class WebSecurityConfig {
 		http.authorizeHttpRequests(
 				authorize ->
 					authorize
-						.requestMatchers("/","/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**")
+						.requestMatchers("/", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-resources/**")
 						.permitAll()
 						.requestMatchers(WebSecurityURI.PUBLIC_URIS.toArray(String[]::new))
 						.permitAll()
