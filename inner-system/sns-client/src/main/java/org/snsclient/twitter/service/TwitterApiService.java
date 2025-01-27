@@ -1,12 +1,16 @@
 package org.snsclient.twitter.service;
 
+import java.util.concurrent.CompletableFuture;
+
 import org.snsclient.twitter.config.TwitterConfig;
-import org.snsclient.twitter.dto.response.TwitterTokenResponse;
+import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import twitter4j.CreateTweetResponse;
 import twitter4j.OAuth2TokenProvider;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
@@ -44,7 +48,7 @@ public class TwitterApiService {
 	 * @param code 발급받은 code (10분간 유효)
 	 * @return access token
 	 */
-	public TwitterTokenResponse getTwitterAuthorizationToken(String code) {
+	public TwitterToken getTwitterAuthorizationToken(String code) {
 		try {
 			OAuth2TokenProvider.Result result = twitterOAuth2TokenProvider.getAccessToken(
 				config.getClientId(),
@@ -55,7 +59,7 @@ public class TwitterApiService {
 
 			validateTokenResult(result);
 
-			return TwitterTokenResponse.fromFields(
+			return TwitterToken.fromFields(
 				result.getAccessToken(),
 				result.getRefreshToken(),
 				result.getExpiresIn()
@@ -108,10 +112,10 @@ public class TwitterApiService {
 	 * 토큰 만료 시 RefreshToken으로 AccessToken 갱신
 	 * @param refreshToken 기존 Twitter RefreshToken
 	 */
-	public TwitterTokenResponse refreshTwitterToken(String refreshToken) {
+	public TwitterToken refreshTwitterToken(String refreshToken) {
 		OAuth2TokenProvider.Result result = twitterOAuth2TokenProvider.refreshToken(config.getClientId(), refreshToken);
 		validateRefreshTokenProcess(result);
-		return TwitterTokenResponse.fromTokens(result.getAccessToken(), result.getRefreshToken());
+		return TwitterToken.fromTokens(result.getAccessToken(), result.getRefreshToken());
 	}
 
 	private void validateRefreshTokenProcess(OAuth2TokenProvider.Result result) {
@@ -156,10 +160,49 @@ public class TwitterApiService {
 
 	private TwitterUserInfoDto handleTokenRefreshAndRetry(String refreshToken) {
 		try {
-			TwitterTokenResponse newTokenResponse = refreshTwitterToken(refreshToken);
+			TwitterToken newTokenResponse = refreshTwitterToken(refreshToken);
 			return fetchUserInfo(newTokenResponse.accessToken());
 		} catch (TwitterException e) {
 			throw new RuntimeException("토큰 갱신 및 사용자 정보를 가져오는 데 실패했습니다.", e);
+		}
+	}
+
+	/**
+	 * 트윗 생성 API 호출 메서드
+	 * @param content 트윗 내용
+	 */
+	public Long postTweet(TwitterToken twitterTokens, String content) throws Exception {
+		try {
+			TwitterV2 twitterV2 = createTwitterV2(twitterTokens.accessToken());
+			CreateTweetResponse tweetResponse = twitterV2.createTweet(null, null, null, null, null, null, null, null, null, null, null, content);
+			return tweetResponse.getId();
+		}
+		catch (TwitterException e) {
+			if (e.getStatusCode() == 401) {
+				refreshTwitterToken(twitterTokens.refreshToken());
+				TwitterV2 twitterV2 = createTwitterV2(twitterTokens.accessToken());
+				CreateTweetResponse tweetResponse = twitterV2.createTweet(null, null, null, null, null, null, null, null, null, null, null, content);
+				return tweetResponse.getId();
+			}
+			throw e;
+		}
+	}
+
+	/**
+	 * 비동기로 트윗 생성 요청을 처리
+	 *
+	 * @param twitterTokens TwitterToken 객체
+	 * @param content 트윗 내용
+	 * @return CompletableFuture<Long> 트윗 ID (성공 시)
+	 */
+	@Async
+	public CompletableFuture<Long> postTweetAsync(TwitterToken twitterTokens, String content) {
+		try {
+			// 트윗 생성 로직 호출
+			Long tweetId = postTweet(twitterTokens, content);
+			return CompletableFuture.completedFuture(tweetId);
+		} catch (Exception e) {
+			return CompletableFuture.failedFuture(e);
 		}
 	}
 }
