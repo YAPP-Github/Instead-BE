@@ -3,7 +3,7 @@ package org.mainapplication.domain.sns.token;
 import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.snstoken.entity.SnsToken;
 import org.domainmodule.snstoken.repository.SnsTokenRepository;
-import org.snsclient.twitter.dto.response.TwitterTokenResponse;
+import org.snsclient.twitter.dto.response.TwitterToken;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class SnsTokenService {
 	 * @param agent 사용자 계정(Agent)
 	 * @param tokenResponse Twitter API로부터 받은 토큰 응답
 	 */
-	public void createOrUpdateSnsToken(Agent agent, TwitterTokenResponse tokenResponse) {
+	public void createOrUpdateSnsToken(Agent agent, TwitterToken tokenResponse) {
 		snsTokenRepository.findByAgentId(agent.getId())
 			.ifPresentOrElse(
 				existingToken -> updateSnsToken(existingToken, tokenResponse),
@@ -26,7 +26,7 @@ public class SnsTokenService {
 			);
 	}
 
-	private void updateSnsToken(SnsToken snsToken, TwitterTokenResponse tokenResponse) {
+	private void updateSnsToken(SnsToken snsToken, TwitterToken tokenResponse) {
 		snsToken.update(
 			tokenResponse.accessToken(),
 			tokenResponse.refreshToken(),
@@ -35,7 +35,7 @@ public class SnsTokenService {
 		snsTokenRepository.save(snsToken);
 	}
 
-	private void saveNewSnsToken(Agent agent, TwitterTokenResponse tokenResponse) {
+	private void saveNewSnsToken(Agent agent, TwitterToken tokenResponse) {
 		SnsToken newToken = SnsToken.create(
 			agent,
 			tokenResponse.accessToken(),

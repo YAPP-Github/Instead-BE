@@ -5,7 +5,7 @@ import java.net.URI;
 import org.domainmodule.agent.entity.Agent;
 import org.mainapplication.domain.agent.service.AgentService;
 import org.mainapplication.domain.sns.token.SnsTokenService;
-import org.snsclient.twitter.dto.response.TwitterTokenResponse;
+import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.snsclient.twitter.service.TwitterApiService;
 import org.springframework.http.HttpStatus;
@@ -39,7 +39,7 @@ public class TwitterService {
 	 */
 	@Transactional
 	public void loginOrRegister(String code) {
-		TwitterTokenResponse tokenResponse = twitterApiService.getTwitterAuthorizationToken(code);
+		TwitterToken tokenResponse = twitterApiService.getTwitterAuthorizationToken(code);
 		TwitterUserInfoDto userInfo = twitterApiService.getUserInfo(tokenResponse.accessToken(), tokenResponse.refreshToken());
 
 		Agent agent = agentService.findOrCreateAgent(userInfo);
