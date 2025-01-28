@@ -8,12 +8,14 @@ import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
 import org.domainmodule.rssfeed.entity.RssFeed;
+import org.domainmodule.rssfeed.exception.RssFeedNotFoundException;
 import org.domainmodule.rssfeed.repository.RssFeedRepository;
 import org.feedclient.service.FeedService;
 import org.feedclient.service.dto.FeedPagingResult;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
+import org.mainapplication.domain.post.exception.NewsGetFailedException;
 import org.mainapplication.domain.post.exception.PostGenerateFailedException;
 import org.mainapplication.domain.post.service.dto.SavePostGroupAndPostsDto;
 import org.mainapplication.domain.post.service.dto.SavePostGroupWithImagesAndPostsDto;
@@ -91,8 +93,8 @@ public class PostService {
 	public CreatePostsResponse createPostsByNews(CreatePostsRequest request, Integer limit) {
 		// 피드 받아오기
 		RssFeed rssFeed = rssFeedRepository.findByCategory(request.getNewsCategory())
-			.orElseThrow(() -> new RuntimeException("뉴스 카테고리를 찾을 수 없습니다."));
-		FeedPagingResult feedPagingResult = feedService.getPagedFeed(rssFeed.getUrl(), limit);
+			.orElseThrow(() -> new RssFeedNotFoundException("뉴스 카테고리를 찾을 수 없습니다."));
+		FeedPagingResult feedPagingResult = getNewsFeed(rssFeed, limit);
 
 		// 프롬프트 생성
 		String instructionPrompt = createPostPrompt.getInstruction();
@@ -198,13 +200,25 @@ public class PostService {
 
 	/**
 	 * OpenAiClient의 getChatCompletionAsync 메서드를 호출하여 게시물 생성을 요청하는 메서드
-	 * 예외 발생 시 PostGenerateFailedException 발생
+	 * 예외 발생 시 PostGenerateFailedException
 	 */
 	private CompletableFuture<ChatCompletionResponse> generatePostsAsync(ChatCompletionRequest request) {
 		try {
 			return openAiClient.getChatCompletionAsync(request);
 		} catch (RuntimeException e) {
 			throw new PostGenerateFailedException();
+		}
+	}
+
+	/**
+	 * 요청한 뉴스 카테고리에 따라 뉴스 피드를 가져오는 메서드
+	 * 피드 가져오기 실패 시 NewsGetFailedException
+	 */
+	private FeedPagingResult getNewsFeed(RssFeed rssFeed, Integer limit) {
+		try {
+			return feedService.getPagedFeed(rssFeed.getUrl(), limit);
+		} catch (Exception e) {
+			throw new NewsGetFailedException();
 		}
 	}
 
