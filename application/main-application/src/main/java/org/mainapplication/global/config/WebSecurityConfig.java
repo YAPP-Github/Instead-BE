@@ -5,7 +5,6 @@ import static org.springframework.security.config.Customizer.*;
 
 import org.mainapplication.global.constants.UrlConstants;
 import org.mainapplication.global.constants.WebSecurityURI;
-import org.mainapplication.global.filter.JwtAuthenticationFilter;
 import org.mainapplication.global.filter.TestAuthenticationFilter;
 import org.mainapplication.global.oauth2.handler.CustomAuthenticationEntryPoint;
 import org.mainapplication.global.oauth2.handler.CustomOAuth2FailureHandler;
@@ -19,14 +18,12 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Configuration
@@ -34,7 +31,7 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-	private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	// private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final CustomOauth2UserService customOauth2UserService;
 	private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 	private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
@@ -78,7 +75,7 @@ public class WebSecurityConfig {
 					.authenticationEntryPoint(customAuthenticationEntryPoint.oAuth2EntryPoint())
 			)
 			.addFilterBefore(testAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-			// .addFilterBefore(jwtAuthenticaltionFilter, UsernamePasswordAuthenticationFilter.class);
+		// .addFilterBefore(jwtAuthenticaltionFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
