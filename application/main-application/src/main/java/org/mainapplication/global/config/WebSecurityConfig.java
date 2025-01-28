@@ -7,6 +7,7 @@ import org.mainapplication.global.constants.UrlConstants;
 import org.mainapplication.global.constants.WebSecurityURI;
 import org.mainapplication.global.filter.JwtAuthenticationFilter;
 import org.mainapplication.global.filter.TestAuthenticationFilter;
+import org.mainapplication.global.oauth2.handler.CustomAuthenticationEntryPoint;
 import org.mainapplication.global.oauth2.handler.CustomOAuth2FailureHandler;
 import org.mainapplication.global.oauth2.handler.CustomOAuth2SuccessHandler;
 import org.mainapplication.global.oauth2.service.CustomOauth2UserService;
@@ -37,6 +38,7 @@ public class WebSecurityConfig {
 	private final CustomOauth2UserService customOauth2UserService;
 	private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 	private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
+	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 	private final TestAuthenticationFilter testAuthenticationFilter;
 
 	private void defaultBasicFilterChain(HttpSecurity http) throws Exception {
@@ -73,21 +75,12 @@ public class WebSecurityConfig {
 			)
 			.exceptionHandling(exceptionHandling ->
 				exceptionHandling
-					.authenticationEntryPoint(customAuthenticationEntryPoint())
+					.authenticationEntryPoint(customAuthenticationEntryPoint.oAuth2EntryPoint())
 			)
 			.addFilterBefore(testAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 			// .addFilterBefore(jwtAuthenticaltionFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
-	}
-
-	@Bean
-	public AuthenticationEntryPoint customAuthenticationEntryPoint() {
-		return (request, response, authException) -> {
-			response.setContentType("application/json;charset=UTF-8");
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"로그인이 필요합니다.\"}");
-		};
 	}
 
 	@Bean

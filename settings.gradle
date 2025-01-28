@@ -4,9 +4,6 @@ rootProject.name = 'yapp'
 include 'application:main-application'
 include 'application:upload-schedule-application'
 
-// common 모듈
-include 'common:common-module'
-
 // system domain 모듈
 include 'domain:domain-module'
 

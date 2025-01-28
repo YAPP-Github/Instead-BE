@@ -25,5 +25,4 @@ public class AuthController {
 		String newAccessToken = tokenService.reissueAccessToken(refreshToken, response);
 		return ResponseEntity.ok(newAccessToken);
 	}
-
 }

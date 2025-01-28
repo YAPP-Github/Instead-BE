@@ -31,10 +31,15 @@ spring:
                 url-prefix: ${AWS_S3_URL_PREFIX}
 
 logging:
-    level:
-        org:
-            springframework:
-                security=DEBUG:
+  level:
+    org:
+      springframework:
+        security: trace
+        web: DEBUG
+    hibernate:
+      orm:
+        jdbc:
+          bind: trace
 
 server:
     servlet:
