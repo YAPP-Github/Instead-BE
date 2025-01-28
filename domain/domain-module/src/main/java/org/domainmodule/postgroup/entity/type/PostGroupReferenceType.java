@@ -1,5 +1,5 @@
 package org.domainmodule.postgroup.entity.type;
 
-public enum PostGroupReference {
+public enum PostGroupReferenceType {
 	NONE, NEWS, IMAGE
 }

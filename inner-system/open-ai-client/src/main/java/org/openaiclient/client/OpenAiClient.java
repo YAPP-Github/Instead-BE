@@ -5,10 +5,10 @@ import java.util.concurrent.CompletableFuture;
 import org.openaiclient.client.dto.request.ChatCompletionRequest;
 import org.openaiclient.client.dto.response.ChatCompletionResponse;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 @Component
 public class OpenAiClient {
@@ -27,16 +27,15 @@ public class OpenAiClient {
 	}
 
 	public ChatCompletionResponse getChatCompletion(ChatCompletionRequest chatCompletionRequest) {
-		return openAiClient.post()
-			.body(chatCompletionRequest)
-			.retrieve()
-			.onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
-				throw new RuntimeException("Client error: " + res.getStatusCode());
-			})
-			.onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
-				throw new RuntimeException("Server error: " + res.getStatusCode());
-			})
-			.body(ChatCompletionResponse.class);
+		try {
+			return openAiClient.post()
+				.body(chatCompletionRequest)
+				.retrieve()
+				.body(ChatCompletionResponse.class);
+		} catch (RestClientResponseException e) {
+			String errorBody = e.getResponseBodyAsString();
+			throw new RuntimeException("Client error: " + e.getStatusCode() + " " + errorBody);
+		}
 	}
 
 	@Async
