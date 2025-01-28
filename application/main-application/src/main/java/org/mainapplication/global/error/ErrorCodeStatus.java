@@ -1,4 +1,4 @@
-package org.mainapplication.global.error.exception;
+package org.mainapplication.global.error;
 
 import org.springframework.http.HttpStatus;
 
