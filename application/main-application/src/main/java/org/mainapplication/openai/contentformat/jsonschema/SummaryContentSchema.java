@@ -1,7 +1,7 @@
 package org.mainapplication.openai.contentformat.jsonschema;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 import org.openaiclient.client.dto.request.type.ResponseFormat;
@@ -21,11 +21,13 @@ public class SummaryContentSchema implements ResponseSchema {
 
 	public SummaryContentSchema() throws IOException {
 		ObjectMapper objectMapper = new ObjectMapper();
-		File file = new ClassPathResource("jsonschema/summary-content-response.json").getFile();
-		this.schema = objectMapper.readValue(file, new TypeReference<Map<String, Object>>() {
-		});
+		ClassPathResource resource = new ClassPathResource("jsonschema/summary-content-response.json");
+		try (InputStream inputStream = resource.getInputStream()) {
+			this.schema = objectMapper.readValue(inputStream, new TypeReference<Map<String, Object>>() {
+			});
+		}
 	}
-	
+
 	public ResponseFormat getResponseFormat() {
 		return new ResponseFormat("json_schema", schema);
 	}

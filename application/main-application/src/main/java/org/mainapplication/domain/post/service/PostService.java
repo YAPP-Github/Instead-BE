@@ -230,6 +230,8 @@ public class PostService {
 		try {
 			return objectMapper.readValue(content, SummaryContentFormat.class);
 		} catch (JsonProcessingException e) {
+			System.out.println(e);
+			System.out.println(e.getMessage());
 			return SummaryContentFormat.createAlternativeFormat("생성된 게시물", content);
 		}
 	}
