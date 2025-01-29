@@ -1,4 +1,4 @@
-package org.mainapplication.domain.post.exception.code;
+package org.mainapplication.domain.post.exception;
 
 import org.mainapplication.global.error.ErrorCodeStatus;
 import org.springframework.http.HttpStatus;

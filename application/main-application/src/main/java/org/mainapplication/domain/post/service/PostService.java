@@ -15,10 +15,10 @@ import org.feedclient.service.dto.FeedPagingResult;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
-import org.mainapplication.domain.post.exception.NewsGetFailedException;
-import org.mainapplication.domain.post.exception.PostGenerateFailedException;
+import org.mainapplication.domain.post.exception.PostErrorCode;
 import org.mainapplication.domain.post.service.dto.SavePostGroupAndPostsDto;
 import org.mainapplication.domain.post.service.dto.SavePostGroupWithImagesAndPostsDto;
+import org.mainapplication.global.error.CustomException;
 import org.mainapplication.openai.contentformat.jsonschema.SummaryContentSchema;
 import org.mainapplication.openai.contentformat.response.SummaryContentFormat;
 import org.mainapplication.openai.prompt.CreatePostPrompt;
@@ -194,7 +194,7 @@ public class PostService {
 		try {
 			return openAiClient.getChatCompletion(request);
 		} catch (RuntimeException e) {
-			throw new PostGenerateFailedException();
+			throw new CustomException(PostErrorCode.POST_GENERATE_FAILED);
 		}
 	}
 
@@ -206,7 +206,7 @@ public class PostService {
 		try {
 			return openAiClient.getChatCompletionAsync(request);
 		} catch (RuntimeException e) {
-			throw new PostGenerateFailedException();
+			throw new CustomException(PostErrorCode.POST_GENERATE_FAILED);
 		}
 	}
 
@@ -218,7 +218,7 @@ public class PostService {
 		try {
 			return feedService.getPagedFeed(rssFeed.getUrl(), limit);
 		} catch (Exception e) {
-			throw new NewsGetFailedException();
+			throw new CustomException(PostErrorCode.NEWS_GET_FAILED);
 		}
 	}
 
