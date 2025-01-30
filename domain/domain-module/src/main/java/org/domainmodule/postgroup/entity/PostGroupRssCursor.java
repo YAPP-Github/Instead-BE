@@ -35,7 +35,7 @@ public class PostGroupRssCursor {
 		this.newsId = newsId;
 	}
 
-	public PostGroupRssCursor createPostGroupRssCursor(PostGroup postGroup, String newsId) {
+	public static PostGroupRssCursor createPostGroupRssCursor(PostGroup postGroup, String newsId) {
 		return PostGroupRssCursor.builder()
 			.postGroup(postGroup)
 			.newsId(newsId)
