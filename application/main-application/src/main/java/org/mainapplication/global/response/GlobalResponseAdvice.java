@@ -11,38 +11,39 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import jakarta.servlet.http.HttpServletResponse;
 
-@RestControllerAdvice(basePackages = "org.application")
+@RestControllerAdvice(basePackages = "org.mainapplication")
 public class GlobalResponseAdvice implements ResponseBodyAdvice {
-    @Override
-    public boolean supports(MethodParameter returnType, Class converterType) {
-        return true;
-    }
 
-    @Override
-    public Object beforeBodyWrite(
-        Object body,
-        MethodParameter returnType,
-        MediaType selectedContentType,
-        Class selectedConverterType,
-        ServerHttpRequest request,
-        ServerHttpResponse response) {
+	@Override
+	public boolean supports(MethodParameter returnType, Class converterType) {
+		return true;
+	}
 
-        HttpServletResponse servletResponse =
-            ((ServletServerHttpResponse)response).getServletResponse();
+	@Override
+	public Object beforeBodyWrite(
+		Object body,
+		MethodParameter returnType,
+		MediaType selectedContentType,
+		Class selectedConverterType,
+		ServerHttpRequest request,
+		ServerHttpResponse response) {
 
-        // http 상태 코드
-        int status = servletResponse.getStatus();
-        HttpStatus resolve = HttpStatus.resolve(status);
+		HttpServletResponse servletResponse =
+			((ServletServerHttpResponse)response).getServletResponse();
 
-        // 상태 코드가 null이거나 응답 바디가 문자열인 경우 원본 응답을 반환
-        if (resolve == null || body instanceof String) {
-            return body;
-        }
+		// http 상태 코드
+		int status = servletResponse.getStatus();
+		HttpStatus resolve = HttpStatus.resolve(status);
 
-        // 2xx 범위인 경우 응답 처리
-        if (resolve.series() == HttpStatus.Series.SUCCESSFUL) {
-            return GlobalResponse.success(status, body);
-        }
-        return body;
-    }
+		// 상태 코드가 null이거나 응답 바디가 문자열인 경우 원본 응답을 반환
+		if (resolve == null || body instanceof String) {
+			return body;
+		}
+
+		// 2xx 범위인 경우 응답 처리
+		if (resolve.series() == HttpStatus.Series.SUCCESSFUL) {
+			return GlobalResponse.success(status, body);
+		}
+		return body;
+	}
 }

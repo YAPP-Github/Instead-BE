@@ -25,7 +25,7 @@ public class CreatePostsRequest {
 	private FeedCategoryType newsCategory;
 
 	@Nullable
-	private List<String> images;
+	private List<String> imageUrls;
 
 	private PostLengthType length;
 
