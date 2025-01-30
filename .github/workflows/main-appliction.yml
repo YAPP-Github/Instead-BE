@@ -3,9 +3,10 @@ name: Main-Application CI/CD
 on:
   push:
     branches:
-      - chore/#51
+      - main
     paths:
       - 'application/main-application/**'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
