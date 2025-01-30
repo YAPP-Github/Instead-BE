@@ -6,7 +6,6 @@ on:
       - chore/#51
     paths:
       - 'application/main-application/**'
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
