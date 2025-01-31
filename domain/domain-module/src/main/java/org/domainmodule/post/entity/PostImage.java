@@ -36,7 +36,7 @@ public class PostImage {
 		this.url = url;
 	}
 
-	public static PostImage createPostImage(Post post, String url) {
+	public static PostImage create(Post post, String url) {
 		return PostImage.builder()
 			.post(post)
 			.url(url)

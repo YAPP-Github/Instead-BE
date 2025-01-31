@@ -4,7 +4,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.domainmodule.post.entity.Post;
+import org.domainmodule.post.entity.PostImage;
 import org.domainmodule.post.entity.type.PostStatusType;
+import org.domainmodule.post.repository.PostImageRepository;
 import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
@@ -25,9 +27,10 @@ import lombok.RequiredArgsConstructor;
 public class PostTransactionService {
 
 	private final PostGroupRepository postGroupRepository;
-	private final PostRepository postRepository;
 	private final PostGroupRssCursorRepository postGroupRssCursorRepository;
 	private final PostGroupImageRepository postGroupImageRepository;
+	private final PostRepository postRepository;
+	private final PostImageRepository postImageRepository;
 
 	/**
 	 * 생성된 Post 엔티티 리스트를 DB에 저장하는 메서드
@@ -146,5 +149,21 @@ public class PostTransactionService {
 	@Transactional
 	public void deletePosts(List<Post> posts) {
 		postRepository.deleteAll(posts);
+	}
+
+	/**
+	 * PostImage 리스트를 DB에 저장하는 메서드
+	 */
+	@Transactional
+	public void savePostImages(List<PostImage> postImages) {
+		postImageRepository.saveAll(postImages);
+	}
+
+	/**
+	 * PostImage 리스트를 삭제하는 메서드
+	 */
+	@Transactional
+	public void deletePostImages(List<PostImage> postImages) {
+		postImageRepository.deleteAll(postImages);
 	}
 }

@@ -4,7 +4,9 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.domainmodule.post.entity.Post;
+import org.domainmodule.post.entity.PostImage;
 import org.domainmodule.post.entity.type.PostStatusType;
+import org.domainmodule.post.repository.PostImageRepository;
 import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
@@ -54,6 +56,7 @@ public class PostService {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final PostRepository postRepository;
 	private final PostGroupRepository postGroupRepository;
+	private final PostImageRepository postImageRepository;
 	private final PostGroupRssCursorRepository postGroupRssCursorRepository;
 
 	@Value("${client.openai.model}")
@@ -470,7 +473,27 @@ public class PostService {
 	 * 게시물의 내용과 이미지를 수정하는 메서드
 	 */
 	private void updatePostContentWithImage(Post post, UpdatePostRequest request) {
+		// Post 엔티티 수정
+		postTransactionService.updatePostContent(post, request.getContent());
 
+		// PostImage 엔티티 조회
+		List<PostImage> postImages = postImageRepository.findAllByPost(post);
+		List<String> savedImageUrls = postImages.stream()
+			.map(PostImage::getUrl)
+			.toList();
+
+		// 요청에만 존재하는 PostImage 엔티티 생성
+		List<PostImage> newPostImages = request.getImageUrls().stream()
+			.filter(imageUrl -> !savedImageUrls.contains(imageUrl))
+			.map(newImageUrl -> PostImage.create(post, newImageUrl))
+			.toList();
+		postTransactionService.savePostImages(newPostImages);
+
+		// DB에만 존재하는 PostImage 엔티티 제거
+		List<PostImage> removedPostImages = postImages.stream()
+			.filter(postImage -> !request.getImageUrls().contains(postImage.getUrl()))
+			.toList();
+		postTransactionService.deletePostImages(removedPostImages);
 	}
 
 	/**
