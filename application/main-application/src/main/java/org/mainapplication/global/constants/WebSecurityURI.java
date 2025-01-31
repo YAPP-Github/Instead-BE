@@ -13,6 +13,7 @@ public final class WebSecurityURI {
 		"/swagger-ui/**",
 		"/v3/api-docs/**",
 		"/swagger-resources/**",
+		"/twitter/**",
 		"/common/health/**"
 	);
 
