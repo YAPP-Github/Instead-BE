@@ -104,7 +104,7 @@ public class TwitterApiService {
 			return TwitterV2ExKt.getV2(twitter);
 		} catch (Exception e) {
 			log.error("TwitterV2 클라이언트 생성 중 오류 발생: {}", e.getMessage());
-			throw new RuntimeException("TTwitterV2 클라이언트 생성 중 오류 발생", e);
+			throw new RuntimeException("TwitterV2 클라이언트 생성 중 오류 발생", e);
 		}
 	}
 

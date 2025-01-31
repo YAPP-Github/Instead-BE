@@ -6,7 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"org.mainapplication", "org.domainmodule", "org.feedclient", "org.openaiclient"})
+@ComponentScan(basePackages = {"org.mainapplication", "org.domainmodule", "org.feedclient", "org.openaiclient", "org.snsclient"})
 @EnableAsync
 public class MainApplication {
 
