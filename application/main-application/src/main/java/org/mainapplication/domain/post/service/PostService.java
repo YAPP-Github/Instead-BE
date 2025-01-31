@@ -8,6 +8,10 @@ import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
 import org.domainmodule.postgroup.entity.PostGroupRssCursor;
+import org.domainmodule.postgroup.exception.PostGroupNotFoundException;
+import org.domainmodule.postgroup.exception.PostGroupRssCursorNotFoundException;
+import org.domainmodule.postgroup.repository.PostGroupRepository;
+import org.domainmodule.postgroup.repository.PostGroupRssCursorRepository;
 import org.domainmodule.rssfeed.entity.RssFeed;
 import org.domainmodule.rssfeed.exception.RssFeedNotFoundException;
 import org.domainmodule.rssfeed.repository.RssFeedRepository;
@@ -48,6 +52,8 @@ public class PostService {
 	private final SummaryContentSchema summaryContentSchema;
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final PostGroupRepository postGroupRepository;
+	private final PostGroupRssCursorRepository postGroupRssCursorRepository;
 
 	@Value("${client.openai.model}")
 	private String openAiModel;
@@ -88,7 +94,7 @@ public class PostService {
 	public CreatePostsResponse createPostsByNews(CreatePostsRequest request, Integer limit) {
 		// 피드 받아오기
 		RssFeed rssFeed = rssFeedRepository.findByCategory(request.getNewsCategory())
-			.orElseThrow(() -> new RssFeedNotFoundException("뉴스 카테고리를 찾을 수 없습니다."));
+			.orElseThrow(() -> new RssFeedNotFoundException(request.getNewsCategory()));
 		FeedPagingResult feedPagingResult = getPagedNews(rssFeed, null, limit);
 
 		// 게시물 생성
@@ -161,13 +167,112 @@ public class PostService {
 	}
 
 	/**
-	 * 게시물 추가 생성 메서드
+	 * 게시물 추가 생성 메서드.
+	 * postGroupId를 바탕으로 DB에서 PostGroup을 조회한 뒤, referenceType에 맞는 메서드 호출
 	 */
-	// public CreatePostsResponse createAdditionalPosts(Long postGroupId, Integer limit) {
-	// 	// PostGroup 조회
-	//
-	// 	//
-	// }
+	public CreatePostsResponse createAdditionalPosts(Long postGroupId, Integer limit) {
+		// PostGroup 조회
+		PostGroup postGroup = postGroupRepository.findById(postGroupId)
+			.orElseThrow(() -> new PostGroupNotFoundException(postGroupId));
+
+		// referenceType에 따라 분기
+		return switch (postGroup.getReference()) {
+			case NONE -> createAdditionalPostsWithoutRef(postGroup, limit);
+			case NEWS -> createAdditionalPostsByNews(postGroup, limit);
+			case IMAGE -> createAdditionalPostsByImage(postGroup, limit);
+		};
+	}
+
+	/**
+	 * 게시물 추가 생성: 참고자료 없는 게시물 생성 및 저장 메서드
+	 */
+	public CreatePostsResponse createAdditionalPostsWithoutRef(PostGroup postGroup, Integer limit) {
+		// 게시물 생성
+		ChatCompletionResponse result = generatePostsWithoutRef(GeneratePostsVo.of(postGroup, limit));
+
+		// Post 엔티티 리스트 생성
+		List<Post> posts = result.getChoices().stream()
+			.map(choice -> {
+				SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
+				return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
+					PostStatusType.GENERATED, null);
+			})
+			.toList();
+
+		// 엔티티 저장
+		List<Post> savedPosts = postTransactionService.savePosts(posts);
+
+		// 결과 반환
+		List<PostResponse> postResponses = savedPosts.stream()
+			.map(PostResponse::from)
+			.toList();
+		return new CreatePostsResponse(postGroup.getId(), null, postResponses);
+	}
+
+	/**
+	 * 게시물 추가 생성: 뉴스 기사 기반 게시물 생성 및 저장 메서드
+	 */
+	public CreatePostsResponse createAdditionalPostsByNews(PostGroup postGroup, Integer limit) {
+		// 피드 받아오기: RssFeed와 PostGroupRssCursor를 DB에서 조회
+		RssFeed rssFeed = rssFeedRepository.findByCategory(postGroup.getFeed().getCategory())
+			.orElseThrow(() -> new RssFeedNotFoundException(postGroup.getFeed().getCategory()));
+		PostGroupRssCursor rssCursor = postGroupRssCursorRepository.findByPostGroup(postGroup)
+			.orElseThrow(() -> new PostGroupRssCursorNotFoundException(postGroup));
+		FeedPagingResult feedPagingResult = getPagedNews(rssFeed, rssCursor.getNewsId(), limit);
+
+		// 게시물 생성
+		List<ChatCompletionResponse> results = generatePostsByNews(
+			GeneratePostsVo.of(postGroup, limit), feedPagingResult);
+
+		// PostGroupRssCursor 업데이트
+		String cursor = feedPagingResult.getFeedItems().get(feedPagingResult.getFeedItems().size() - 1).getId();
+		rssCursor.updateNewsId(cursor);
+
+		// Post 엔티티 생성
+		List<Post> posts = results.stream()
+			.map(result -> {
+				SummaryContentFormat content = parseSummaryContentFormat(
+					result.getChoices().get(0).getMessage().getContent());
+				return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
+					PostStatusType.GENERATED, null);
+			})
+			.toList();
+
+		// 엔티티 저장
+		List<Post> savedPosts = postTransactionService.savePosts(posts);
+
+		// 결과 반환하기
+		List<PostResponse> postResponses = savedPosts.stream()
+			.map(PostResponse::from)
+			.toList();
+		return new CreatePostsResponse(postGroup.getId(), feedPagingResult.isEof(), postResponses);
+	}
+
+	/**
+	 * 게시물 추가 생성: 이미지 기반 게시물 생성 및 저장 메서드
+	 */
+	public CreatePostsResponse createAdditionalPostsByImage(PostGroup postGroup, Integer limit) {
+		// 게시물 생성
+		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(postGroup, limit));
+
+		// Post 엔티티 리스트 생성
+		List<Post> posts = result.getChoices().stream()
+			.map(choice -> {
+				SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
+				return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
+					PostStatusType.GENERATED, null);
+			})
+			.toList();
+
+		// 엔티티 저장
+		List<Post> savedPosts = postTransactionService.savePosts(posts);
+
+		// 결과 반환
+		List<PostResponse> postResponses = savedPosts.stream()
+			.map(PostResponse::from)
+			.toList();
+		return new CreatePostsResponse(postGroup.getId(), null, postResponses);
+	}
 
 	/**
 	 * 참고자료 없는 게시물 생성 메서드.
