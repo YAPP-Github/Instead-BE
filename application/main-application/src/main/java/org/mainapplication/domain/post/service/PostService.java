@@ -357,16 +357,22 @@ public class PostService {
 
 	/**
 	 * 요청한 뉴스 카테고리에 따라 뉴스 피드를 가져오는 메서드
-	 * 피드 가져오기 실패 시 NewsGetFailedException
+	 * 피드 고갈 시 NEWS_FEED_EXHAUSTED
+	 * 피드 가져오기 실패 시 NEWS_GET_FAILED
 	 */
 	// TODO: 메서드 분리 없애기. 해당 client에서 RuntimeException이 아닌 구분되는 예외를 던지도록 수정하기
 	private FeedPagingResult getPagedNews(RssFeed rssFeed, String cursor, Integer limit) {
 		try {
+			FeedPagingResult feedPagingResult;
 			if (cursor == null) {
-				return feedService.getPagedFeed(rssFeed.getUrl(), limit);
+				feedPagingResult = feedService.getPagedFeed(rssFeed.getUrl(), limit);
 			} else {
-				return feedService.getPagedFeed(rssFeed.getUrl(), cursor, limit);
+				feedPagingResult = feedService.getPagedFeed(rssFeed.getUrl(), cursor, limit);
 			}
+			if (feedPagingResult.getFeedItems().isEmpty()) {
+				throw new CustomException(PostErrorCode.NEWS_FEED_EXHAUSTED);
+			}
+			return feedPagingResult;
 		} catch (Exception e) {
 			throw new CustomException(PostErrorCode.NEWS_GET_FAILED);
 		}
