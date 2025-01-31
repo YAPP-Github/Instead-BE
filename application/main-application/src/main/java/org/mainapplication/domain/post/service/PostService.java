@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
+import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
 import org.domainmodule.postgroup.entity.PostGroupRssCursor;
@@ -52,6 +53,7 @@ public class PostService {
 	private final SummaryContentSchema summaryContentSchema;
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final PostRepository postRepository;
 	private final PostGroupRepository postGroupRepository;
 	private final PostGroupRssCursorRepository postGroupRssCursorRepository;
 
@@ -398,5 +400,23 @@ public class PostService {
 		} catch (JsonProcessingException e) {
 			return SummaryContentFormat.createAlternativeFormat("생성된 게시물", content);
 		}
+	}
+
+	/**
+	 * postGroupId를 바탕으로 게시물 그룹 존재 여부를 확인하고, 해당 그룹의 게시물 목록을 반환하는 메서드
+	 * 게시물 그룹 조회 실패 시 PostGroupNotFoundException
+	 */
+	public List<PostResponse> getPostsByPostGroup(Long postGroupId) {
+		// PostGroup 엔티티 조회
+		PostGroup postGroup = postGroupRepository.findById(postGroupId)
+			.orElseThrow(() -> new PostGroupNotFoundException(postGroupId));
+
+		// Post 엔티티 리스트 조회
+		List<Post> posts = postRepository.findAllByPostGroup(postGroup);
+
+		// 결과 반환
+		return posts.stream()
+			.map(PostResponse::from)
+			.toList();
 	}
 }

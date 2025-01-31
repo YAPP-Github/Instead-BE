@@ -1,10 +1,14 @@
 package org.mainapplication.domain.post.controller;
 
+import java.util.List;
+
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
+import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.service.PostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,5 +50,14 @@ public class PostController {
 		@RequestParam(defaultValue = "5") Integer limit
 	) {
 		return ResponseEntity.ok(postService.createAdditionalPosts(postGroupId, limit));
+	}
+
+	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
+	@GetMapping("/{postGroupId}/posts")
+	public ResponseEntity<List<PostResponse>> getPostsByPostGroup(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId
+	) {
+		return ResponseEntity.ok(postService.getPostsByPostGroup(postGroupId));
 	}
 }
