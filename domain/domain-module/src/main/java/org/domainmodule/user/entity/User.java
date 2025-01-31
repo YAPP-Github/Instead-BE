@@ -29,10 +29,9 @@ public class User extends BaseAuditEntity {
 	private String email;
 
 	@Builder
-	private User (
+	private User(
 		String email,
 		String name
-
 	) {
 		this.email = email;
 		this.name = name;

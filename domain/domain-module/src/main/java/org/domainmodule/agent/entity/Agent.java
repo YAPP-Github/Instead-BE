@@ -1,6 +1,6 @@
 package org.domainmodule.agent.entity;
 
-import org.domainmodule.agent.entity.type.AgentPlatform;
+import org.domainmodule.agent.entity.type.AgentPlatformType;
 import org.domainmodule.agent.entity.type.AgentType;
 import org.domainmodule.common.entity.BaseTimeEntity;
 import org.domainmodule.snstoken.entity.SnsToken;
@@ -38,7 +38,7 @@ public class Agent extends BaseTimeEntity {
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private AgentPlatform platform;
+	private AgentPlatformType platform;
 
 	@Column(nullable = false, unique = true, length = 100)
 	private String accountId;

@@ -1,5 +1,5 @@
 package org.domainmodule.agent.entity.type;
 
-public enum AgentPlatform {
+public enum AgentPlatformType {
 	X, THREADS, INSTAGRAM
 }

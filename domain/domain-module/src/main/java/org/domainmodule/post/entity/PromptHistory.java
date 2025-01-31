@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -40,4 +41,26 @@ public class PromptHistory extends BaseTimeEntity {
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private PostPromptType promptType;
+
+	@Builder
+	private PromptHistory(Post post, String prompt, String response, PostPromptType promptType) {
+		this.post = post;
+		this.prompt = prompt;
+		this.response = response;
+		this.promptType = promptType;
+	}
+
+	public static PromptHistory createPromptHistory(
+		Post post,
+		String prompt,
+		String response,
+		PostPromptType promptType
+	) {
+		return PromptHistory.builder()
+			.post(post)
+			.prompt(prompt)
+			.response(response)
+			.promptType(promptType)
+			.build();
+	}
 }
