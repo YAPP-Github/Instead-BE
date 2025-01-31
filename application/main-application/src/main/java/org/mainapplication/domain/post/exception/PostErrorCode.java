@@ -17,8 +17,9 @@ public enum PostErrorCode implements ErrorCodeStatus {
 	RSS_CURSOR_NOT_FOUND(HttpStatus.NOT_FOUND, "게시물 그룹에 RSS cursor가 존재하지 않습니다."),
 	RSS_FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "RSS 피드가 존재하지 않습니다."),
 	POST_GENERATE_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류로 게시물 생성에 실패했습니다. 관리자에게 문의하세요."),
-	NEWS_GET_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류로 뉴스 가져오기에 실패했습니다. 관리자에게 문의하세요.");
+	NEWS_GET_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류로 뉴스 가져오기에 실패했습니다. 관리자에게 문의하세요."),
 
+	PROMPT_HISTORIES_NOT_FOUND(HttpStatus.NOT_FOUND, "프롬프트 내역을 찾을 수 없습니다.");
 	private final HttpStatus httpStatus;
 	private final String message;
 }
