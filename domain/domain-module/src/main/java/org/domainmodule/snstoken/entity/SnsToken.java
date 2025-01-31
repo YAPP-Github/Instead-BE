@@ -75,6 +75,7 @@ public class SnsToken extends BaseAuditEntity {
 			.build();
 	}
 
+	//TODO refreshToken 만료일 6개월 고정인거 이후에 인자로 수정
 	public void update(
 		String newAccessToken,
 		String newRefreshToken,

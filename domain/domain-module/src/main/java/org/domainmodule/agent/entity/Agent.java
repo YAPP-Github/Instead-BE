@@ -16,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,6 +55,9 @@ public class Agent extends BaseTimeEntity {
 
 	@Column(nullable = false)
 	private Boolean isActivated;
+
+	@OneToOne(mappedBy = "agent", fetch = FetchType.LAZY)
+	private SnsToken snsToken;
 
 	@Builder(access = lombok.AccessLevel.PRIVATE)
 	private Agent(
