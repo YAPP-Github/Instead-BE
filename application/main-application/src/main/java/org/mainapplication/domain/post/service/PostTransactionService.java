@@ -6,10 +6,13 @@ import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
+import org.domainmodule.postgroup.entity.PostGroupRssCursor;
 import org.domainmodule.postgroup.repository.PostGroupImageRepository;
 import org.domainmodule.postgroup.repository.PostGroupRepository;
+import org.domainmodule.postgroup.repository.PostGroupRssCursorRepository;
 import org.mainapplication.domain.post.service.dto.SavePostGroupAndPostsDto;
 import org.mainapplication.domain.post.service.dto.SavePostGroupWithImagesAndPostsDto;
+import org.mainapplication.domain.post.service.dto.SavePostGroupWithRssCursorAndPostsDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +24,7 @@ public class PostTransactionService {
 
 	private final PostGroupRepository postGroupRepository;
 	private final PostRepository postRepository;
+	private final PostGroupRssCursorRepository postGroupRssCursorRepository;
 	private final PostGroupImageRepository postGroupImageRepository;
 
 	/**
@@ -39,6 +43,14 @@ public class PostTransactionService {
 	@Transactional
 	public PostGroup savePostGroup(PostGroup postGroup) {
 		return postGroupRepository.save(postGroup);
+	}
+
+	/**
+	 * 생성된 PostGroupRssCursor 엔티티를 DB에 저장하는 메서드
+	 */
+	@Transactional
+	public PostGroupRssCursor savePostGroupRssCursor(PostGroupRssCursor postGroupRssCursor) {
+		return postGroupRssCursorRepository.save(postGroupRssCursor);
 	}
 
 	/**
@@ -62,6 +74,21 @@ public class PostTransactionService {
 		PostGroup savedPostGroup = savePostGroup(postGroup);
 		List<Post> savedPosts = savePosts(posts);
 		return new SavePostGroupAndPostsDto(savedPostGroup, savedPosts);
+	}
+
+	/**
+	 * PostGroup과 PostGroupRssCursor, 그리고 해당 PostGroup에서 생성된 Post 리스트를 DB에 저장하는 메서드
+	 */
+	@Transactional
+	public SavePostGroupWithRssCursorAndPostsDto savePostGroupWithRssCursorAndPosts(
+		PostGroup postGroup,
+		PostGroupRssCursor postGroupRssCursor,
+		List<Post> posts
+	) {
+		PostGroup savedPostGroup = savePostGroup(postGroup);
+		PostGroupRssCursor savedPostGroupRssCursor = savePostGroupRssCursor(postGroupRssCursor);
+		List<Post> savedPosts = savePosts(posts);
+		return new SavePostGroupWithRssCursorAndPostsDto(savedPostGroup, savedPostGroupRssCursor, savedPosts);
 	}
 
 	/**

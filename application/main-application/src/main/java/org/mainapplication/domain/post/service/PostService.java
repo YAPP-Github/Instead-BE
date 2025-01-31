@@ -7,6 +7,7 @@ import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
+import org.domainmodule.postgroup.entity.PostGroupRssCursor;
 import org.domainmodule.rssfeed.entity.RssFeed;
 import org.domainmodule.rssfeed.exception.RssFeedNotFoundException;
 import org.domainmodule.rssfeed.repository.RssFeedRepository;
@@ -18,6 +19,7 @@ import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.exception.PostErrorCode;
 import org.mainapplication.domain.post.service.dto.SavePostGroupAndPostsDto;
 import org.mainapplication.domain.post.service.dto.SavePostGroupWithImagesAndPostsDto;
+import org.mainapplication.domain.post.service.dto.SavePostGroupWithRssCursorAndPostsDto;
 import org.mainapplication.global.error.CustomException;
 import org.mainapplication.openai.contentformat.jsonschema.SummaryContentSchema;
 import org.mainapplication.openai.contentformat.response.SummaryContentFormat;
@@ -120,6 +122,10 @@ public class PostService {
 		PostGroup postGroup = PostGroup.createPostGroup(null, rssFeed, request.getTopic(), request.getPurpose(),
 			request.getReference(), request.getLength(), request.getContent());
 
+		// PostGroupRssCursor 엔티티 생성
+		String cursor = feedPagingResult.getFeedItems().get(feedPagingResult.getFeedItems().size() - 1).getId();
+		PostGroupRssCursor postGroupRssCursor = PostGroupRssCursor.createPostGroupRssCursor(postGroup, cursor);
+
 		// Post 엔티티 생성
 		List<Post> posts = results.stream()
 			.map(result -> {
@@ -131,7 +137,8 @@ public class PostService {
 			.toList();
 
 		// PostGroup 및 Post 리스트 엔티티 저장
-		SavePostGroupAndPostsDto saveResult = postTransactionService.savePostGroupAndPosts(postGroup, posts);
+		SavePostGroupWithRssCursorAndPostsDto saveResult = postTransactionService.savePostGroupWithRssCursorAndPosts(
+			postGroup, postGroupRssCursor, posts);
 
 		// 결과 반환하기
 		List<PostResponse> postResponses = saveResult.posts().stream()
