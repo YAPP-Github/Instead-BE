@@ -5,15 +5,13 @@ import java.util.concurrent.CompletableFuture;
 
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
+import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
 import org.domainmodule.postgroup.entity.PostGroupRssCursor;
-import org.domainmodule.postgroup.exception.PostGroupNotFoundException;
-import org.domainmodule.postgroup.exception.PostGroupRssCursorNotFoundException;
 import org.domainmodule.postgroup.repository.PostGroupRepository;
 import org.domainmodule.postgroup.repository.PostGroupRssCursorRepository;
 import org.domainmodule.rssfeed.entity.RssFeed;
-import org.domainmodule.rssfeed.exception.RssFeedNotFoundException;
 import org.domainmodule.rssfeed.repository.RssFeedRepository;
 import org.feedclient.service.FeedService;
 import org.feedclient.service.dto.FeedPagingResult;
@@ -52,6 +50,7 @@ public class PostService {
 	private final SummaryContentSchema summaryContentSchema;
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final PostRepository postRepository;
 	private final PostGroupRepository postGroupRepository;
 	private final PostGroupRssCursorRepository postGroupRssCursorRepository;
 
@@ -99,7 +98,7 @@ public class PostService {
 
 		// 피드 받아오기
 		RssFeed rssFeed = rssFeedRepository.findByCategory(request.getNewsCategory())
-			.orElseThrow(() -> new RssFeedNotFoundException(request.getNewsCategory()));
+			.orElseThrow(() -> new CustomException(PostErrorCode.RSS_FEED_NOT_FOUND));
 		FeedPagingResult feedPagingResult = getPagedNews(rssFeed, null, limit);
 
 		// 게시물 생성
@@ -183,7 +182,7 @@ public class PostService {
 	public CreatePostsResponse createAdditionalPosts(Long postGroupId, Integer limit) {
 		// PostGroup 조회
 		PostGroup postGroup = postGroupRepository.findById(postGroupId)
-			.orElseThrow(() -> new PostGroupNotFoundException(postGroupId));
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
 		// referenceType에 따라 분기
 		return switch (postGroup.getReference()) {
@@ -226,9 +225,9 @@ public class PostService {
 	private CreatePostsResponse createAdditionalPostsByNews(PostGroup postGroup, Integer limit) {
 		// 피드 받아오기: RssFeed와 PostGroupRssCursor를 DB에서 조회
 		RssFeed rssFeed = rssFeedRepository.findByCategory(postGroup.getFeed().getCategory())
-			.orElseThrow(() -> new RssFeedNotFoundException(postGroup.getFeed().getCategory()));
+			.orElseThrow(() -> new CustomException(PostErrorCode.RSS_FEED_NOT_FOUND));
 		PostGroupRssCursor rssCursor = postGroupRssCursorRepository.findByPostGroup(postGroup)
-			.orElseThrow(() -> new PostGroupRssCursorNotFoundException(postGroup));
+			.orElseThrow(() -> new CustomException(PostErrorCode.RSS_CURSOR_NOT_FOUND));
 		FeedPagingResult feedPagingResult = getPagedNews(rssFeed, rssCursor.getNewsId(), limit);
 
 		// 피드가 고갈된 경우 에러 응답
@@ -398,5 +397,23 @@ public class PostService {
 		} catch (JsonProcessingException e) {
 			return SummaryContentFormat.createAlternativeFormat("생성된 게시물", content);
 		}
+	}
+
+	/**
+	 * postGroupId를 바탕으로 게시물 그룹 존재 여부를 확인하고, 해당 그룹의 게시물 목록을 반환하는 메서드
+	 * 게시물 그룹 조회 실패 시 POST_GROUP_NOT_FOUND
+	 */
+	public List<PostResponse> getPostsByPostGroup(Long postGroupId) {
+		// PostGroup 엔티티 조회
+		PostGroup postGroup = postGroupRepository.findById(postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+
+		// Post 엔티티 리스트 조회
+		List<Post> posts = postRepository.findAllByPostGroup(postGroup);
+
+		// 결과 반환
+		return posts.stream()
+			.map(PostResponse::from)
+			.toList();
 	}
 }
