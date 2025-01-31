@@ -1,6 +1,7 @@
 package org.mainapplication.openai.prompt;
 
-import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
+import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
+import org.domainmodule.postgroup.entity.type.PostLengthType;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -19,17 +20,22 @@ public class CreatePostPrompt {
 	 * 게시물 그룹에 설정된 주제 Prompt.
 	 * 게시물 그룹의 정보를 받아서 게시물 주제에 대한 Prompt를 생성
 	 */
-	public String getBasicTopicPrompt(CreatePostsRequest request) {
+	public String getBasicTopicPrompt(
+		String topic,
+		PostGroupPurposeType purpose,
+		PostLengthType length,
+		String content
+	) {
 		return "지금부터 너가 생성해야 할 게시물의 내용을 알려줄게.\n"
-			+ request.getTopic()
+			+ topic
 			+ "라는 주제에 대해서 "
-			+ request.getPurpose().getValue()
+			+ purpose.getValue()
 			+ " 목적의 글을 생성해줘.\n"
 			+ "글자수는 "
-			+ request.getLength().getMaxLength()
+			+ length.getMaxLength()
 			+ "자 정도로 생성하고, 절대 초과해서는 안돼.\n"
 			+ "다음과 같은 내용을 반드시 포함해줘: \n"
-			+ request.getContent();
+			+ content;
 	}
 
 	/**

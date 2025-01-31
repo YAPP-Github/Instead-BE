@@ -20,6 +20,7 @@ import org.mainapplication.domain.post.exception.PostErrorCode;
 import org.mainapplication.domain.post.service.dto.SavePostGroupAndPostsDto;
 import org.mainapplication.domain.post.service.dto.SavePostGroupWithImagesAndPostsDto;
 import org.mainapplication.domain.post.service.dto.SavePostGroupWithRssCursorAndPostsDto;
+import org.mainapplication.domain.post.service.vo.GeneratePostsVo;
 import org.mainapplication.global.error.CustomException;
 import org.mainapplication.openai.contentformat.jsonschema.SummaryContentSchema;
 import org.mainapplication.openai.contentformat.response.SummaryContentFormat;
@@ -52,19 +53,11 @@ public class PostService {
 	private String openAiModel;
 
 	/**
-	 * 참고자료 없는 게시물 생성 메서드
+	 * 참고자료 없는 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createPostsWithoutRef(CreatePostsRequest request, Integer limit) {
-		// 프롬프트 생성: Instruction + 주제 Prompt
-		String instructionPrompt = createPostPrompt.getInstruction();
-		String topicPrompt = createPostPrompt.getBasicTopicPrompt(request);
-
 		// 게시물 생성
-		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(openAiModel,
-			summaryContentSchema.getResponseFormat(), limit, null)
-			.addDeveloperMessage(instructionPrompt)
-			.addUserTextMessage(topicPrompt);
-		ChatCompletionResponse result = generatePosts(chatCompletionRequest);
+		ChatCompletionResponse result = generatePostsWithoutRef(GeneratePostsVo.of(request, limit));
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(null, null, request.getTopic(), request.getPurpose(),
@@ -90,33 +83,17 @@ public class PostService {
 	}
 
 	/**
-	 * 뉴스 기사 기반 게시물 생성 메서드
+	 * 뉴스 기사 기반 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createPostsByNews(CreatePostsRequest request, Integer limit) {
 		// 피드 받아오기
 		RssFeed rssFeed = rssFeedRepository.findByCategory(request.getNewsCategory())
 			.orElseThrow(() -> new RssFeedNotFoundException("뉴스 카테고리를 찾을 수 없습니다."));
-		FeedPagingResult feedPagingResult = getNewsFeed(rssFeed, limit);
+		FeedPagingResult feedPagingResult = getPagedNews(rssFeed, null, limit);
 
-		// 프롬프트 생성
-		String instructionPrompt = createPostPrompt.getInstruction();
-		String topicPrompt = createPostPrompt.getBasicTopicPrompt(request);
-		List<String> refPrompts = feedPagingResult.getFeedItems().stream()
-			.map(news -> createPostPrompt.getNewsRefPrompt(news.getContentSummary(), news.getContent()))
-			.toList();
-
-		// 게시물 생성하기: 각 뉴스 기사별로 OpenAI API 호출 및 답변 생성
-		List<CompletableFuture<ChatCompletionResponse>> resultFutures = refPrompts.stream()
-			.map(refPrompt -> generatePostsAsync(
-				new ChatCompletionRequest(openAiModel, summaryContentSchema.getResponseFormat(), null, null)
-					.addDeveloperMessage(instructionPrompt)
-					.addUserTextMessage(topicPrompt)
-					.addUserTextMessage(refPrompt)
-			))
-			.toList();
-		List<ChatCompletionResponse> results = resultFutures.stream()
-			.map(CompletableFuture::join)
-			.toList();
+		// 게시물 생성
+		List<ChatCompletionResponse> results = generatePostsByNews(
+			GeneratePostsVo.of(request, limit), feedPagingResult);
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(null, rssFeed, request.getTopic(), request.getPurpose(),
@@ -136,7 +113,7 @@ public class PostService {
 			})
 			.toList();
 
-		// PostGroup 및 Post 리스트 엔티티 저장
+		// 엔티티 저장
 		SavePostGroupWithRssCursorAndPostsDto saveResult = postTransactionService.savePostGroupWithRssCursorAndPosts(
 			postGroup, postGroupRssCursor, posts);
 
@@ -148,21 +125,11 @@ public class PostService {
 	}
 
 	/**
-	 * 이미지 기반 게시물 생성 메서드
+	 * 이미지 기반 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createPostsByImage(CreatePostsRequest request, Integer limit) {
-		// 프롬프트 생성
-		String instructionPrompt = createPostPrompt.getInstruction();
-		String topicPrompt = createPostPrompt.getBasicTopicPrompt(request);
-		String imageRefPrompt = createPostPrompt.getImageRefPrompt();
-
 		// 게시물 생성
-		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(openAiModel,
-			summaryContentSchema.getResponseFormat(), limit, null)
-			.addDeveloperMessage(instructionPrompt)
-			.addUserTextMessage(topicPrompt)
-			.addUserImageMessage(imageRefPrompt, request.getImageUrls());
-		ChatCompletionResponse result = generatePosts(chatCompletionRequest);
+		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(request, limit));
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(null, null, request.getTopic(), request.getPurpose(),
@@ -194,24 +161,93 @@ public class PostService {
 	}
 
 	/**
-	 * OpenAiClient의 getChatCompletion 메서드를 호출하여 게시물 생성을 요청하는 메서드
+	 * 게시물 추가 생성 메서드
+	 */
+	// public CreatePostsResponse createAdditionalPosts(Long postGroupId, Integer limit) {
+	// 	// PostGroup 조회
+	//
+	// 	//
+	// }
+
+	/**
+	 * 참고자료 없는 게시물 생성 메서드.
+	 * 프롬프트 설정 + 게시물 생성 작업 수행
 	 * 예외 발생 시 PostGenerateFailedException 발생
 	 */
-	private ChatCompletionResponse generatePosts(ChatCompletionRequest request) {
+	public ChatCompletionResponse generatePostsWithoutRef(GeneratePostsVo vo) {
+		// 프롬프트 생성: Instruction + 주제 Prompt
+		String instructionPrompt = createPostPrompt.getInstruction();
+		String topicPrompt = createPostPrompt.getBasicTopicPrompt(vo.topic(), vo.purpose(), vo.length(), vo.content());
+
+		// 게시물 생성
+		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(
+			openAiModel, summaryContentSchema.getResponseFormat(), vo.limit(), null)
+			.addDeveloperMessage(instructionPrompt)
+			.addUserTextMessage(topicPrompt);
+
 		try {
-			return openAiClient.getChatCompletion(request);
+			return openAiClient.getChatCompletion(chatCompletionRequest);
 		} catch (RuntimeException e) {
 			throw new CustomException(PostErrorCode.POST_GENERATE_FAILED);
 		}
 	}
 
 	/**
-	 * OpenAiClient의 getChatCompletionAsync 메서드를 호출하여 게시물 생성을 요청하는 메서드
-	 * 예외 발생 시 PostGenerateFailedException
+	 * 뉴스 기사 기반 게시물 생성 메서드.
+	 * 프롬프트 설정 + 게시물 생성 작업 수행
+	 * 예외 발생 시 PostGenerateFailedException 발생
 	 */
-	private CompletableFuture<ChatCompletionResponse> generatePostsAsync(ChatCompletionRequest request) {
+	public List<ChatCompletionResponse> generatePostsByNews(GeneratePostsVo vo, FeedPagingResult feedPagingResult) {
+		// 프롬프트 생성
+		String instructionPrompt = createPostPrompt.getInstruction();
+		String topicPrompt = createPostPrompt.getBasicTopicPrompt(
+			vo.topic(), vo.purpose(), vo.length(), vo.content());
+		List<String> refPrompts = feedPagingResult.getFeedItems().stream()
+			.map(news -> createPostPrompt.getNewsRefPrompt(news.getContentSummary(), news.getContent()))
+			.toList();
+
+		// 게시물 생성하기: 각 뉴스 기사별로 OpenAI API 호출 및 답변 생성
+		List<CompletableFuture<ChatCompletionResponse>> resultFutures = refPrompts.stream()
+			.map(refPrompt -> openAiClient.getChatCompletionAsync(
+				new ChatCompletionRequest(openAiModel, summaryContentSchema.getResponseFormat(), null, null)
+					.addDeveloperMessage(instructionPrompt)
+					.addUserTextMessage(topicPrompt)
+					.addUserTextMessage(refPrompt)
+			))
+			.toList();
+
+		// TODO: 해당 client에서 RuntimeException이 아닌 구분되는 예외를 던지도록 수정하기
 		try {
-			return openAiClient.getChatCompletionAsync(request);
+			return resultFutures.stream()
+				.map(CompletableFuture::join)
+				.toList();
+		} catch (RuntimeException e) {
+			throw new CustomException(PostErrorCode.POST_GENERATE_FAILED);
+		}
+	}
+
+	/**
+	 * 이미지 기반 게시물 생성 메서드.
+	 * 프롬프트 설정 + 게시물 생성 작업 수행
+	 * 예외 발생 시 PostGenerateFailedException 발생
+	 */
+	public ChatCompletionResponse generatePostsByImage(GeneratePostsVo vo) {
+		// 프롬프트 생성
+		String instructionPrompt = createPostPrompt.getInstruction();
+		String topicPrompt = createPostPrompt.getBasicTopicPrompt(
+			vo.topic(), vo.purpose(), vo.length(), vo.content());
+		String imageRefPrompt = createPostPrompt.getImageRefPrompt();
+
+		// 게시물 생성
+		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(openAiModel,
+			summaryContentSchema.getResponseFormat(), vo.limit(), null)
+			.addDeveloperMessage(instructionPrompt)
+			.addUserTextMessage(topicPrompt)
+			.addUserImageMessage(imageRefPrompt, vo.imageUrls());
+
+		// TODO: 해당 client에서 RuntimeException이 아닌 구분되는 예외를 던지도록 수정하기
+		try {
+			return openAiClient.getChatCompletion(chatCompletionRequest);
 		} catch (RuntimeException e) {
 			throw new CustomException(PostErrorCode.POST_GENERATE_FAILED);
 		}
@@ -221,24 +257,27 @@ public class PostService {
 	 * 요청한 뉴스 카테고리에 따라 뉴스 피드를 가져오는 메서드
 	 * 피드 가져오기 실패 시 NewsGetFailedException
 	 */
-	private FeedPagingResult getNewsFeed(RssFeed rssFeed, Integer limit) {
+	// TODO: 메서드 분리 없애기. 해당 client에서 RuntimeException이 아닌 구분되는 예외를 던지도록 수정하기
+	private FeedPagingResult getPagedNews(RssFeed rssFeed, String cursor, Integer limit) {
 		try {
-			return feedService.getPagedFeed(rssFeed.getUrl(), limit);
+			if (cursor == null) {
+				return feedService.getPagedFeed(rssFeed.getUrl(), limit);
+			} else {
+				return feedService.getPagedFeed(rssFeed.getUrl(), cursor, limit);
+			}
 		} catch (Exception e) {
 			throw new CustomException(PostErrorCode.NEWS_GET_FAILED);
 		}
 	}
 
 	/**
-	 * OpenAI API의 응답 content를 SummaryContentFormat 형태로 파싱하는 메서드
+	 * String으로 응답되는 OpenAI API의 응답 content를 SummaryContentFormat 형태로 파싱하는 메서드
 	 * 파싱에 실패한 경우 대체 content를 반환
 	 */
 	private SummaryContentFormat parseSummaryContentFormat(String content) {
 		try {
 			return objectMapper.readValue(content, SummaryContentFormat.class);
 		} catch (JsonProcessingException e) {
-			System.out.println(e);
-			System.out.println(e.getMessage());
 			return SummaryContentFormat.createAlternativeFormat("생성된 게시물", content);
 		}
 	}
