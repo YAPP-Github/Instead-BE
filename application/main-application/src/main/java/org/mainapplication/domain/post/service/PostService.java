@@ -92,6 +92,11 @@ public class PostService {
 	 * 뉴스 기사 기반 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createPostsByNews(CreatePostsRequest request, Integer limit) {
+		// newsCategory 필드 검증
+		if (request.getNewsCategory() == null) {
+			throw new CustomException(PostErrorCode.NO_NEWS_CATEGORY);
+		}
+
 		// 피드 받아오기
 		RssFeed rssFeed = rssFeedRepository.findByCategory(request.getNewsCategory())
 			.orElseThrow(() -> new RssFeedNotFoundException(request.getNewsCategory()));
@@ -134,6 +139,11 @@ public class PostService {
 	 * 이미지 기반 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createPostsByImage(CreatePostsRequest request, Integer limit) {
+		// imageUrls 필드 검증
+		if (request.getImageUrls() == null) {
+			throw new CustomException(PostErrorCode.NO_IMAGE_URLS);
+		}
+
 		// 게시물 생성
 		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(request, limit));
 
