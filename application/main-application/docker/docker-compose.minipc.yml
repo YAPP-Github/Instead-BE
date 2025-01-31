@@ -1,4 +1,3 @@
-version: '3'
 services:
   animal-meeting-app:
     image: yapp-main-application:latest
