@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.domainmodule.post.entity.Post;
-import org.domainmodule.post.entity.type.PostStatus;
+import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.snstoken.entity.SnsToken;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.service.TwitterApiService;
@@ -74,7 +74,7 @@ public class UploadPostService {
 	}
 
 	private void handleUploadSuccess(UploadPostDto uploadPostDto, Long tweetId) {
-		postService.updatePostStatus(uploadPostDto.post(), PostStatus.UPLOADED);
+		postService.updatePostStatus(uploadPostDto.post(), PostStatusType.UPLOADED);
 		log.info("Tweet 업로드 성공! Post ID: {}, Tweet ID: {}", uploadPostDto.post().getId(), tweetId);
 	}
 
@@ -106,7 +106,7 @@ public class UploadPostService {
 			snsTokenService.updateSnsToken(snsToken, newSnsToken);
 
 			// 기존 Post DTO에 새로운 토큰 설정
-			UploadPostDto updatedDto = UploadPostDto.from(
+			UploadPostDto updatedDto = UploadPostDto.of(
 				uploadPostDto.post(),
 				snsToken
 			);

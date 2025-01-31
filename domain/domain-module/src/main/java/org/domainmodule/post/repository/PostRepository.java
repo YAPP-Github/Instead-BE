@@ -4,7 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.domainmodule.post.entity.Post;
-import org.domainmodule.post.entity.type.PostStatus;
+import org.domainmodule.post.entity.type.PostStatusType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,5 +20,5 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     WHERE p.uploadTime BETWEEN :startTime AND :endTime
     And p.status = :status
 """)
-	List<Post> findPostsWithSnsTokenByTimeRange(LocalDateTime startTime, LocalDateTime endTime, @Param("status") PostStatus status);
+	List<Post> findPostsWithSnsTokenByTimeRange(LocalDateTime startTime, LocalDateTime endTime, @Param("status") PostStatusType status);
 }

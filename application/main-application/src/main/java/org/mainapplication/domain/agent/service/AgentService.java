@@ -1,7 +1,7 @@
 package org.mainapplication.domain.agent.service;
 
 import org.domainmodule.agent.entity.Agent;
-import org.domainmodule.agent.entity.type.AgentPlatform;
+import org.domainmodule.agent.entity.type.AgentPlatformType;
 import org.domainmodule.agent.repository.AgentRepository;
 import org.domainmodule.user.entity.User;
 import org.mainapplication.domain.user.service.UserService;
@@ -27,12 +27,12 @@ public class AgentService {
 		User user = userService.findUserById(userId);
 
 		// Agent가 이미 존재하는지 확인
-		return agentRepository.findByAccountIdAndPlatform(userInfo.id(), AgentPlatform.X)
+		return agentRepository.findByAccountIdAndPlatform(userInfo.id(), AgentPlatformType.X)
 			.orElseGet(() -> createAndSaveAgent(user, userInfo));
 	}
 
 	private Agent createAndSaveAgent(User user, TwitterUserInfoDto userInfo) {
-		Agent newAgent = Agent.create(user, AgentPlatform.X, userInfo.id(), userInfo.description());
+		Agent newAgent = Agent.create(user, AgentPlatformType.X, userInfo.id(), userInfo.description());
 		return agentRepository.save(newAgent);
 	}
 }

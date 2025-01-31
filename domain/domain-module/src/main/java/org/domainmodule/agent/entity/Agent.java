@@ -62,7 +62,7 @@ public class Agent extends BaseTimeEntity {
 	@Builder(access = lombok.AccessLevel.PRIVATE)
 	private Agent(
 		User user,
-		AgentPlatform agentPlatform,
+		AgentPlatformType agentPlatform,
 		String accountId,
 		String bio
 	) {
@@ -77,7 +77,7 @@ public class Agent extends BaseTimeEntity {
 
 	public static Agent create(
 		User user,
-		AgentPlatform agentPlatform,
+		AgentPlatformType agentPlatform,
 		String accountId,
 		String bio) {
 		return Agent.builder()
