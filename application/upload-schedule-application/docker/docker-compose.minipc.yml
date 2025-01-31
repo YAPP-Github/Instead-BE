@@ -1,0 +1,14 @@
+services:
+  animal-meeting-app:
+    image: yapp-upload-schedule-application:latest
+    container_name: yapp-upload-schedule-application-container
+    networks:
+      - pricewagon-network
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+networks:
+  pricewagon-network:
+    external: true  # 이미 존재하는 네트워크를 사용

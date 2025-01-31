@@ -16,6 +16,7 @@ tasks.named('test') {
 }
 
 bootJar {
+	archiveFileName = 'yapp-upload-schedule-application.jar'
 	enabled = true
 }
 
