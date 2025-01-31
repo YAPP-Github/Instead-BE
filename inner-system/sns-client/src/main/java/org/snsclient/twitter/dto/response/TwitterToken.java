@@ -6,7 +6,7 @@ public record TwitterToken(
 	String refreshToken,
 	long expiresIn
 ) {
-	public static TwitterToken fromFields(String accessToken, String refreshToken, long expiresIn) {
+	public static TwitterToken of(String accessToken, String refreshToken, long expiresIn) {
 		return new TwitterToken(accessToken, refreshToken, expiresIn);
 	}
 }

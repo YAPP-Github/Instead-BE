@@ -15,7 +15,7 @@ public record UploadPostDto(
 		);
 	}
 
-	public static UploadPostDto from(Post post, SnsToken snsToken) {
+	public static UploadPostDto of(Post post, SnsToken snsToken) {
 		return new UploadPostDto(
 			post,
 			snsToken

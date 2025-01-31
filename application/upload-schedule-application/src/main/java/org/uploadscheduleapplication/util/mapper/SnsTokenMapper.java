@@ -5,7 +5,7 @@ import org.uploadscheduleapplication.util.dto.UploadPostDto;
 
 public class SnsTokenMapper {
 	public static TwitterToken toTwitterToken(UploadPostDto token) {
-		return TwitterToken.fromFields(token.snsToken().getAccessToken(), token.snsToken().getRefreshToken(), 0);
+		return TwitterToken.of(token.snsToken().getAccessToken(), token.snsToken().getRefreshToken(), 0);
 	}
 
 }

@@ -59,7 +59,7 @@ public class TwitterApiService {
 
 			validateTokenResult(result);
 
-			return TwitterToken.fromFields(
+			return TwitterToken.of(
 				result.getAccessToken(),
 				result.getRefreshToken(),
 				result.getExpiresIn()
@@ -119,7 +119,7 @@ public class TwitterApiService {
 		}
 		OAuth2TokenProvider.Result result = twitterOAuth2TokenProvider.refreshToken(clientId, refreshToken);
 		validateRefreshTokenProcess(result);
-		return TwitterToken.fromFields(result.getAccessToken(), result.getRefreshToken(), result.getExpiresIn());
+		return TwitterToken.of(result.getAccessToken(), result.getRefreshToken(), result.getExpiresIn());
 	}
 
 	private void validateRefreshTokenProcess(OAuth2TokenProvider.Result result) {
