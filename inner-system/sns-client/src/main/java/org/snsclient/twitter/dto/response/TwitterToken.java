@@ -9,9 +9,5 @@ public record TwitterToken(
 	public static TwitterToken fromFields(String accessToken, String refreshToken, long expiresIn) {
 		return new TwitterToken(accessToken, refreshToken, expiresIn);
 	}
-
-	public static TwitterToken fromTokens(String accessToken, String refreshToken) {
-		return new TwitterToken(accessToken, refreshToken, 0);
-	}
 }
 

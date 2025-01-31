@@ -8,9 +8,17 @@ public record UploadPostDto(
 	SnsToken snsToken
 ) {
 	public static UploadPostDto fromPost(Post post) {
+		SnsToken snsToken = post.getPostGroup().getAgent().getSnsToken();
 		return new UploadPostDto(
 			post,
-			post.getPostGroup().getAgent().getUser().getSnsToken()
+			snsToken
+		);
+	}
+
+	public static UploadPostDto from(Post post, SnsToken snsToken) {
+		return new UploadPostDto(
+			post,
+			snsToken
 		);
 	}
 }
