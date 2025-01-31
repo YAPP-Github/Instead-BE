@@ -41,4 +41,8 @@ public class PostGroupRssCursor {
 			.newsId(newsId)
 			.build();
 	}
+
+	public void updateNewsId(String newsId) {
+		this.newsId = newsId;
+	}
 }

@@ -1,5 +1,8 @@
 package org.domainmodule.postgroup.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.common.entity.BaseTimeEntity;
 import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
@@ -17,6 +20,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -56,6 +60,10 @@ public class PostGroup extends BaseTimeEntity {
 
 	@Column(columnDefinition = "TEXT")
 	private String content;
+
+	// TODO: PostGroupRepository에 fetch join 쿼리 구현해야 함
+	@OneToMany(mappedBy = "postGroup")
+	private List<PostGroupImage> postGroupImages = new ArrayList<>();
 
 	@Builder
 	private PostGroup(Agent agent, RssFeed feed, String topic, PostGroupPurposeType purpose,
