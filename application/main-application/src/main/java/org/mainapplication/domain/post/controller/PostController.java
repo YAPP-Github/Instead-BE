@@ -6,6 +6,7 @@ import org.mainapplication.domain.post.exception.PostErrorCode;
 import org.mainapplication.domain.post.service.PostService;
 import org.mainapplication.global.error.CustomException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -30,7 +31,7 @@ public class PostController {
 	public ResponseEntity<CreatePostsResponse> createPosts(
 		@PathVariable Long agentId,
 		@RequestParam(defaultValue = "5") Integer limit,
-		@RequestBody CreatePostsRequest createPostsRequest
+		@Validated @RequestBody CreatePostsRequest createPostsRequest
 	) {
 		return switch (createPostsRequest.getReference()) {
 			// referenceType이 NONE인 경우
