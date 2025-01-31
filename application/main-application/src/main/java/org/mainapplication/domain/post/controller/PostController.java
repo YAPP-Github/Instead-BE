@@ -8,6 +8,7 @@ import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.service.PostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -59,5 +60,16 @@ public class PostController {
 		@PathVariable Long postGroupId
 	) {
 		return ResponseEntity.ok(postService.getPostsByPostGroup(postGroupId));
+	}
+
+	@Operation(summary = "게시물 개별 삭제 API", description = "단건의 게시물을 개별 삭제합니다.")
+	@DeleteMapping("/{postGroupId}/posts/{postId}")
+	public ResponseEntity<Void> deletePost(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId,
+		@PathVariable Long postId
+	) {
+		postService.deletePost(postGroupId, postId);
+		return ResponseEntity.noContent().build();
 	}
 }

@@ -105,4 +105,12 @@ public class PostTransactionService {
 		List<Post> savedPosts = savePosts(posts);
 		return new SavePostGroupWithImagesAndPostsDto(savedPostGroup, savedPostGroupImages, savedPosts);
 	}
+
+	/**
+	 * Post를 삭제하는 메서드
+	 */
+	@Transactional
+	public void deletePost(Post post) {
+		postRepository.delete(post);
+	}
 }

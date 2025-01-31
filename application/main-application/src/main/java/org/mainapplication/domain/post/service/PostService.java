@@ -416,4 +416,32 @@ public class PostService {
 			.map(PostResponse::from)
 			.toList();
 	}
+
+	/**
+	 * 업로드가 확정되지 않은 상태의 게시물을 삭제하는 메서드
+	 */
+	public void deletePost(Long postGroupId, Long postId) {
+		// PostGroup 엔티티 조회
+		PostGroup postGroup = postGroupRepository.findById(postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+
+		// Post 엔티티 조회
+		Post post = postRepository.findById(postId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
+
+		// 검증: PostGroup에 해당하는 Post가 맞는지 검증
+		if (!post.getPostGroup().getId().equals(postGroupId)) {
+			throw new CustomException(PostErrorCode.INVALID_POST);
+		}
+
+		// 검증: 삭제하려는 Post의 상태 확인
+		List<PostStatusType> validStatuses = List.of(
+			PostStatusType.GENERATED, PostStatusType.EDITING, PostStatusType.READY_TO_UPLOAD);
+		if (!validStatuses.contains(post.getStatus())) {
+			throw new CustomException(PostErrorCode.INVALID_DELETE_POST_STATUS);
+		}
+
+		// Post 삭제
+		postTransactionService.deletePost(post);
+	}
 }
