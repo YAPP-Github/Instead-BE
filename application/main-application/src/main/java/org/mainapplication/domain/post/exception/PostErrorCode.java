@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum PostErrorCode implements ErrorCodeStatus {
 
+	// TODO: repository 계층 NotFound 에러코드는 특정 패키지 하위에서 관리하지 않도록 리팩토링하기
 	NO_NEWS_CATEGORY(HttpStatus.BAD_REQUEST, "뉴스와 함께 생성하려면, 뉴스 카테고리를 함께 선택해주세요."),
 	NO_IMAGE_URLS(HttpStatus.BAD_REQUEST, "이미지와 함께 생성하려면, 이미지를 첨부해주세요."),
 	NEWS_FEED_EXHAUSTED(HttpStatus.BAD_REQUEST, "현재 최신 피드를 전부 사용했습니다. 피드가 갱신될 때까지 시간이 걸릴 수 있습니다."),
