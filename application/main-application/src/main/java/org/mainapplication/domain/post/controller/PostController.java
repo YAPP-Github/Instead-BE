@@ -62,7 +62,7 @@ public class PostController {
 		return ResponseEntity.ok(postService.getPostsByPostGroup(postGroupId));
 	}
 
-	@Operation(summary = "게시물 개별 삭제 API", description = "단건의 게시물을 개별 삭제합니다.")
+	@Operation(summary = "게시물 개별 삭제 API", description = "업로드가 확정되지 않은 단건의 게시물을 개별 삭제합니다.")
 	@DeleteMapping("/{postGroupId}/posts/{postId}")
 	public ResponseEntity<Void> deletePost(
 		@PathVariable Long agentId,
@@ -70,6 +70,17 @@ public class PostController {
 		@PathVariable Long postId
 	) {
 		postService.deletePost(postGroupId, postId);
+		return ResponseEntity.noContent().build();
+	}
+
+	@Operation(summary = "게시물 일괄 삭제 API", description = "업로드가 확정되지 않은 여러 게시물들을 일괄 삭제합니다.")
+	@DeleteMapping("/{postGroupId}/posts")
+	public ResponseEntity<Void> deletePosts(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId,
+		@RequestBody List<Long> postIds
+	) {
+		postService.deletePosts(postGroupId, postIds);
 		return ResponseEntity.noContent().build();
 	}
 }
