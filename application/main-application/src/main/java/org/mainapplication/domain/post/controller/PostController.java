@@ -5,6 +5,7 @@ import java.util.List;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.PromptHistoriesRespone;
+import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.service.PostService;
 import org.mainapplication.domain.post.service.PromptHistoryService;
 import org.springframework.http.ResponseEntity;
@@ -62,5 +63,14 @@ public class PostController {
 		@PathVariable Long postId
 	) {
 		return ResponseEntity.ok(promptHistoryService.getPromptHistories(agentId, postGroupId, postId));
+  }
+  
+	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
+	@GetMapping("/{postGroupId}/posts")
+	public ResponseEntity<List<PostResponse>> getPostsByPostGroup(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId
+	) {
+		return ResponseEntity.ok(postService.getPostsByPostGroup(postGroupId));
 	}
 }
