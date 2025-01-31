@@ -186,7 +186,7 @@ public class PostService {
 	/**
 	 * 게시물 추가 생성: 참고자료 없는 게시물 생성 및 저장 메서드
 	 */
-	public CreatePostsResponse createAdditionalPostsWithoutRef(PostGroup postGroup, Integer limit) {
+	private CreatePostsResponse createAdditionalPostsWithoutRef(PostGroup postGroup, Integer limit) {
 		// 게시물 생성
 		ChatCompletionResponse result = generatePostsWithoutRef(GeneratePostsVo.of(postGroup, limit));
 
@@ -212,7 +212,7 @@ public class PostService {
 	/**
 	 * 게시물 추가 생성: 뉴스 기사 기반 게시물 생성 및 저장 메서드
 	 */
-	public CreatePostsResponse createAdditionalPostsByNews(PostGroup postGroup, Integer limit) {
+	private CreatePostsResponse createAdditionalPostsByNews(PostGroup postGroup, Integer limit) {
 		// 피드 받아오기: RssFeed와 PostGroupRssCursor를 DB에서 조회
 		RssFeed rssFeed = rssFeedRepository.findByCategory(postGroup.getFeed().getCategory())
 			.orElseThrow(() -> new RssFeedNotFoundException(postGroup.getFeed().getCategory()));
@@ -251,7 +251,7 @@ public class PostService {
 	/**
 	 * 게시물 추가 생성: 이미지 기반 게시물 생성 및 저장 메서드
 	 */
-	public CreatePostsResponse createAdditionalPostsByImage(PostGroup postGroup, Integer limit) {
+	private CreatePostsResponse createAdditionalPostsByImage(PostGroup postGroup, Integer limit) {
 		// 게시물 생성
 		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(postGroup, limit));
 
@@ -275,11 +275,10 @@ public class PostService {
 	}
 
 	/**
-	 * 참고자료 없는 게시물 생성 메서드.
-	 * 프롬프트 설정 + 게시물 생성 작업 수행
+	 * 참고자료 없는 게시물 생성 메서드. (프롬프트 설정 + 게시물 생성 작업 수행)
 	 * 예외 발생 시 PostGenerateFailedException 발생
 	 */
-	public ChatCompletionResponse generatePostsWithoutRef(GeneratePostsVo vo) {
+	private ChatCompletionResponse generatePostsWithoutRef(GeneratePostsVo vo) {
 		// 프롬프트 생성: Instruction + 주제 Prompt
 		String instructionPrompt = createPostPrompt.getInstruction();
 		String topicPrompt = createPostPrompt.getBasicTopicPrompt(vo.topic(), vo.purpose(), vo.length(), vo.content());
@@ -298,11 +297,10 @@ public class PostService {
 	}
 
 	/**
-	 * 뉴스 기사 기반 게시물 생성 메서드.
-	 * 프롬프트 설정 + 게시물 생성 작업 수행
+	 * 뉴스 기사 기반 게시물 생성 메서드. (프롬프트 설정 + 게시물 생성 작업 수행)
 	 * 예외 발생 시 PostGenerateFailedException 발생
 	 */
-	public List<ChatCompletionResponse> generatePostsByNews(GeneratePostsVo vo, FeedPagingResult feedPagingResult) {
+	private List<ChatCompletionResponse> generatePostsByNews(GeneratePostsVo vo, FeedPagingResult feedPagingResult) {
 		// 프롬프트 생성
 		String instructionPrompt = createPostPrompt.getInstruction();
 		String topicPrompt = createPostPrompt.getBasicTopicPrompt(
@@ -332,11 +330,10 @@ public class PostService {
 	}
 
 	/**
-	 * 이미지 기반 게시물 생성 메서드.
-	 * 프롬프트 설정 + 게시물 생성 작업 수행
+	 * 이미지 기반 게시물 생성 메서드. (프롬프트 설정 + 게시물 생성 작업 수행)
 	 * 예외 발생 시 PostGenerateFailedException 발생
 	 */
-	public ChatCompletionResponse generatePostsByImage(GeneratePostsVo vo) {
+	private ChatCompletionResponse generatePostsByImage(GeneratePostsVo vo) {
 		// 프롬프트 생성
 		String instructionPrompt = createPostPrompt.getInstruction();
 		String topicPrompt = createPostPrompt.getBasicTopicPrompt(
