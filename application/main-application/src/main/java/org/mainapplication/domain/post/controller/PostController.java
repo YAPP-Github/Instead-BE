@@ -6,6 +6,7 @@ import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.PromptHistoriesRespone;
 import org.mainapplication.domain.post.service.PostService;
+import org.mainapplication.domain.post.service.PromptHistoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 public class PostController {
 
 	private final PostService postService;
+	private final PromptHistoryService promptHistoryService;
 
 	@Operation(summary = "게시물 그룹 및 게시물 생성 API", description = "에이전트에 새 게시물 그룹을 추가하고 게시물을 생성합니다.")
 	@PostMapping("/posts")
@@ -59,6 +61,6 @@ public class PostController {
 		@PathVariable Long postGroupId,
 		@PathVariable Long postId
 	) {
-		return ResponseEntity.ok(postService.getPromptHistories(agentId, postGroupId, postId));
+		return ResponseEntity.ok(promptHistoryService.getPromptHistories(agentId, postGroupId, postId));
 	}
 }

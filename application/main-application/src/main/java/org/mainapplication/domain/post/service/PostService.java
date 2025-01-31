@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.domainmodule.post.entity.Post;
-import org.domainmodule.post.entity.PromptHistory;
 import org.domainmodule.post.entity.type.PostStatusType;
-import org.domainmodule.post.repository.PromptHistoryRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
 import org.domainmodule.postgroup.entity.PostGroupRssCursor;
@@ -58,7 +56,6 @@ public class PostService {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final PostGroupRepository postGroupRepository;
 	private final PostGroupRssCursorRepository postGroupRssCursorRepository;
-	private final PromptHistoryRepository promptHistoryRepository;
 
 	@Value("${client.openai.model}")
 	private String openAiModel;
@@ -403,22 +400,5 @@ public class PostService {
 		} catch (JsonProcessingException e) {
 			return SummaryContentFormat.createAlternativeFormat("생성된 게시물", content);
 		}
-	}
-
-	/**
-	 * 과거 프롬프트 내역 가져오기
-	 * @return
-	 */
-	public List<PromptHistoriesRespone> getPromptHistories(Long agentId, Long postGroupId, Long postId) {
-		//TODO 임시 설정한 부분 (이후 securityContext에서 userId가져오기)
-		long userId = 1L;
-
-		List<PromptHistory> histories = promptHistoryRepository.findPromptHistoriesWithValidation(userId, agentId, postGroupId, postId);
-
-		if (histories.isEmpty()) {
-			throw new EntityNotFoundException("해당 조건에 맞는 게시물 또는 프롬프트 내역이 없습니다.");
-		}
-
-		return PromptHistoriesRespone.fromList(histories);
 	}
 }
