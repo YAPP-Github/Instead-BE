@@ -113,9 +113,13 @@ public class TwitterApiService {
 	 * @param refreshToken 기존 Twitter RefreshToken
 	 */
 	public TwitterToken refreshTwitterToken(String refreshToken) {
-		OAuth2TokenProvider.Result result = twitterOAuth2TokenProvider.refreshToken(config.getClientId(), refreshToken);
+		final String clientId = config.getClientId();
+		if (clientId == null) {
+			throw new IllegalArgumentException("CientId를 가져올 수 없어요");
+		}
+		OAuth2TokenProvider.Result result = twitterOAuth2TokenProvider.refreshToken(clientId, refreshToken);
 		validateRefreshTokenProcess(result);
-		return TwitterToken.fromTokens(result.getAccessToken(), result.getRefreshToken());
+		return TwitterToken.fromFields(result.getAccessToken(), result.getRefreshToken(), result.getExpiresIn());
 	}
 
 	private void validateRefreshTokenProcess(OAuth2TokenProvider.Result result) {
@@ -168,27 +172,6 @@ public class TwitterApiService {
 	}
 
 	/**
-	 * 트윗 생성 API 호출 메서드
-	 * @param content 트윗 내용
-	 */
-	public Long postTweet(TwitterToken twitterTokens, String content) throws Exception {
-		try {
-			TwitterV2 twitterV2 = createTwitterV2(twitterTokens.accessToken());
-			CreateTweetResponse tweetResponse = twitterV2.createTweet(null, null, null, null, null, null, null, null, null, null, null, content);
-			return tweetResponse.getId();
-		}
-		catch (TwitterException e) {
-			if (e.getStatusCode() == 401) {
-				refreshTwitterToken(twitterTokens.refreshToken());
-				TwitterV2 twitterV2 = createTwitterV2(twitterTokens.accessToken());
-				CreateTweetResponse tweetResponse = twitterV2.createTweet(null, null, null, null, null, null, null, null, null, null, null, content);
-				return tweetResponse.getId();
-			}
-			throw e;
-		}
-	}
-
-	/**
 	 * 비동기로 트윗 생성 요청을 처리
 	 *
 	 * @param twitterTokens TwitterToken 객체
@@ -203,6 +186,21 @@ public class TwitterApiService {
 			return CompletableFuture.completedFuture(tweetId);
 		} catch (Exception e) {
 			return CompletableFuture.failedFuture(e);
+		}
+	}
+
+	/**
+	 * 트윗 생성 API 호출 메서드
+	 * @param content 트윗 내용
+	 */
+	public Long postTweet(TwitterToken twitterTokens, String content) throws TwitterException {
+		try {
+			TwitterV2 twitterV2 = createTwitterV2(twitterTokens.accessToken());
+			CreateTweetResponse tweetResponse = twitterV2.createTweet(null, null, null, null, null, null, null, null, null, null, null, content);
+			return tweetResponse.getId();
+		}
+		catch (TwitterException e) {
+			throw e;
 		}
 	}
 }
