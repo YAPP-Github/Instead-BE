@@ -10,6 +10,7 @@ import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.service.TwitterApiService;
 import org.springframework.stereotype.Service;
 import org.uploadscheduleapplication.post.PostService;
+import org.uploadscheduleapplication.snstoken.SnsTokenService;
 import org.uploadscheduleapplication.util.dto.UploadPostDto;
 import org.uploadscheduleapplication.util.mapper.SnsTokenMapper;
 
@@ -23,6 +24,7 @@ import twitter4j.TwitterException;
 public class UploadPostService {
 	private final TwitterApiService twitterApiService;
 	private final PostService postService;
+	private final SnsTokenService snsTokenService;
 
 	private static final int MAX_RETRY_COUNT = 1;
 
@@ -99,8 +101,9 @@ public class UploadPostService {
 			// 토큰 재발급
 			TwitterToken newSnsToken = twitterApiService.refreshTwitterToken(uploadPostDto.snsToken().getRefreshToken());
 
+			// Sns토큰 업데이트
 			SnsToken snsToken = uploadPostDto.snsToken();
-			snsToken.update(newSnsToken.accessToken(), newSnsToken.refreshToken(), newSnsToken.expiresIn());
+			snsTokenService.updateSnsToken(snsToken, newSnsToken);
 
 			// 기존 Post DTO에 새로운 토큰 설정
 			UploadPostDto updatedDto = UploadPostDto.from(
