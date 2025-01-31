@@ -16,6 +16,6 @@ import lombok.Getter;
 public class BaseAuditEntity extends BaseTimeEntity {
 
 	@LastModifiedDate
-	@Column(updatable = false)
+	@Column(updatable = true, nullable = false)
 	private LocalDateTime updatedAt;
 }
