@@ -9,6 +9,9 @@ services:
       - "8080:8080"
     build:
       context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
 networks:
   pricewagon-network:
     external: true  # 이미 존재하는 네트워크를 사용

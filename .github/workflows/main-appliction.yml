@@ -19,6 +19,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: ENV 파일 생성
+        run: |
+          touch .env
+          echo "$ENV" > .env
+        env:
+          ENV: ${{ secrets.ENV }}
+        shell: bash
+
       - name: Gradle 권한 부여
         run: chmod +x gradlew
 
@@ -29,9 +37,9 @@ jobs:
       - name: zip file 생성
         run: |
           mkdir deploy
-          cp ./application/docker/Dockerfile ./deploy/
-          cp ./application/docker/docker-compose.minipc.yml ./deploy/
-          cp ./application/scripts/minipc-docker-deploy.sh ./deploy/
+          cp ./application/main-application/docker/Dockerfile ./deploy/
+          cp ./application/main-application/docker/docker-compose.minipc.yml ./deploy/
+          cp ./application/main-application/scripts/minipc-docker-deploy.sh ./deploy/
           cp ./application/main-application/build/libs/*.jar ./deploy/
           chmod +x ./deploy/minipc-docker-deploy.sh
           zip -r -qq -j ./yapp-main-application.zip ./deploy
