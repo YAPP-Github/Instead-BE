@@ -2,7 +2,9 @@ package org.mainapplication.domain.post.controller;
 
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
+import org.mainapplication.domain.post.exception.PostErrorCode;
 import org.mainapplication.domain.post.service.PostService;
+import org.mainapplication.global.error.CustomException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,9 +33,24 @@ public class PostController {
 		@RequestBody CreatePostsRequest createPostsRequest
 	) {
 		return switch (createPostsRequest.getReference()) {
+			// referenceType이 NONE인 경우
 			case NONE -> ResponseEntity.ok(postService.createPostsWithoutRef(createPostsRequest, limit));
-			case NEWS -> ResponseEntity.ok(postService.createPostsByNews(createPostsRequest, limit));
-			case IMAGE -> ResponseEntity.ok(postService.createPostsByImage(createPostsRequest, limit));
+
+			// referenceType이 NEWS인 경우: newsCategory가 null이면 에러 응답
+			case NEWS -> {
+				if (createPostsRequest.getNewsCategory() == null) {
+					throw new CustomException(PostErrorCode.NO_NEWS_CATEGORY);
+				}
+				yield ResponseEntity.ok(postService.createPostsByNews(createPostsRequest, limit));
+			}
+
+			// referenceType이 IMAGE인 경우: imageUrls가 null이면 에러 응답
+			case IMAGE -> {
+				if (createPostsRequest.getImageUrls() == null) {
+					throw new CustomException(PostErrorCode.NO_IMAGE_URLS);
+				}
+				yield ResponseEntity.ok(postService.createPostsByImage(createPostsRequest, limit));
+			}
 		};
 	}
 
