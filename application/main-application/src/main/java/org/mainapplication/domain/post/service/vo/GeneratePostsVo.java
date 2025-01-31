@@ -32,6 +32,9 @@ public record GeneratePostsVo(
 	}
 
 	public static GeneratePostsVo of(PostGroup postGroup, Integer limit) {
+		// PostGroup의 feed가 null인 경우 처리
+		FeedCategoryType newsCategory = (postGroup.getFeed() == null) ? null : postGroup.getFeed().getCategory();
+
 		List<String> imageUrls = postGroup.getPostGroupImages().stream()
 			.map(PostGroupImage::getUrl)
 			.toList();
@@ -41,7 +44,7 @@ public record GeneratePostsVo(
 			postGroup.getPurpose(),
 			postGroup.getLength(),
 			postGroup.getContent(),
-			postGroup.getFeed().getCategory(),
+			newsCategory,
 			imageUrls,
 			limit
 		);
