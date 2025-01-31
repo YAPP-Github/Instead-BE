@@ -38,6 +38,7 @@ jobs:
       - name: zip file 생성
         run: |
           mkdir deploy
+          cp .env ./deploy/
           cp ./application/main-application/docker/Dockerfile ./deploy/
           cp ./application/main-application/docker/docker-compose.minipc.yml ./deploy/
           cp ./application/main-application/scripts/minipc-docker-deploy.sh ./deploy/
