@@ -92,6 +92,11 @@ public class PostService {
 	 * 뉴스 기사 기반 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createPostsByNews(CreatePostsRequest request, Integer limit) {
+		// newsCategory 필드 검증
+		if (request.getNewsCategory() == null) {
+			throw new CustomException(PostErrorCode.NO_NEWS_CATEGORY);
+		}
+
 		// 피드 받아오기
 		RssFeed rssFeed = rssFeedRepository.findByCategory(request.getNewsCategory())
 			.orElseThrow(() -> new RssFeedNotFoundException(request.getNewsCategory()));
@@ -134,6 +139,11 @@ public class PostService {
 	 * 이미지 기반 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createPostsByImage(CreatePostsRequest request, Integer limit) {
+		// imageUrls 필드 검증
+		if (request.getImageUrls() == null) {
+			throw new CustomException(PostErrorCode.NO_IMAGE_URLS);
+		}
+
 		// 게시물 생성
 		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(request, limit));
 
@@ -211,6 +221,7 @@ public class PostService {
 
 	/**
 	 * 게시물 추가 생성: 뉴스 기사 기반 게시물 생성 및 저장 메서드
+	 * 피드 고갈 시 NEWS_FEED_EXHAUSTED
 	 */
 	private CreatePostsResponse createAdditionalPostsByNews(PostGroup postGroup, Integer limit) {
 		// 피드 받아오기: RssFeed와 PostGroupRssCursor를 DB에서 조회
@@ -219,6 +230,11 @@ public class PostService {
 		PostGroupRssCursor rssCursor = postGroupRssCursorRepository.findByPostGroup(postGroup)
 			.orElseThrow(() -> new PostGroupRssCursorNotFoundException(postGroup));
 		FeedPagingResult feedPagingResult = getPagedNews(rssFeed, rssCursor.getNewsId(), limit);
+
+		// 피드가 고갈된 경우 에러 응답
+		if (feedPagingResult.getFeedItems().isEmpty()) {
+			throw new CustomException(PostErrorCode.NEWS_FEED_EXHAUSTED);
+		}
 
 		// 게시물 생성
 		List<ChatCompletionResponse> results = generatePostsByNews(
@@ -357,7 +373,7 @@ public class PostService {
 
 	/**
 	 * 요청한 뉴스 카테고리에 따라 뉴스 피드를 가져오는 메서드
-	 * 피드 가져오기 실패 시 NewsGetFailedException
+	 * 피드 가져오기 실패 시 NEWS_GET_FAILED
 	 */
 	// TODO: 메서드 분리 없애기. 해당 client에서 RuntimeException이 아닌 구분되는 예외를 던지도록 수정하기
 	private FeedPagingResult getPagedNews(RssFeed rssFeed, String cursor, Integer limit) {

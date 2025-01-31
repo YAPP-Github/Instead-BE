@@ -4,6 +4,7 @@ import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.service.PostService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,7 +29,7 @@ public class PostController {
 	public ResponseEntity<CreatePostsResponse> createPosts(
 		@PathVariable Long agentId,
 		@RequestParam(defaultValue = "5") Integer limit,
-		@RequestBody CreatePostsRequest createPostsRequest
+		@Validated @RequestBody CreatePostsRequest createPostsRequest
 	) {
 		return switch (createPostsRequest.getReference()) {
 			case NONE -> ResponseEntity.ok(postService.createPostsWithoutRef(createPostsRequest, limit));
