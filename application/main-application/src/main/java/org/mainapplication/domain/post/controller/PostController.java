@@ -1,10 +1,14 @@
 package org.mainapplication.domain.post.controller;
 
+import java.util.List;
+
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
+import org.mainapplication.domain.post.controller.response.PromptHistoriesRespone;
 import org.mainapplication.domain.post.service.PostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,5 +50,15 @@ public class PostController {
 		@RequestParam(defaultValue = "5") Integer limit
 	) {
 		return ResponseEntity.ok(postService.createAdditionalPosts(postGroupId, limit));
+	}
+
+	@Operation(summary = "게시물 프롬프트 내역 조회 API", description = "게시물 결과 수정 단계에서 프롬프트 내역을 조회합니다.")
+	@GetMapping("/{postGroupId}/posts/{postId}/prompt-histories")
+	public ResponseEntity<List<PromptHistoriesRespone>> getPromptHistories(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId,
+		@PathVariable Long postId
+	) {
+		return ResponseEntity.ok(postService.getPromptHistories(agentId, postGroupId, postId));
 	}
 }

@@ -20,7 +20,6 @@ public class AgentService {
 	 * X API 로그인을 성공한 후 Agent와 SnsToken 생성 및 저장
 	 * @return 생성된 Agent 엔티티
 	 */
-
 	public Agent findOrCreateAgent(TwitterUserInfoDto userInfo) {
 		//TODO 임시 설정한 부분 (이후 securityContext에서 userId가져오기)
 		long userId = 1L;
