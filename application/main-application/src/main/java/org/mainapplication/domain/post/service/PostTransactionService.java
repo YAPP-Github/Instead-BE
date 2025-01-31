@@ -1,8 +1,10 @@
 package org.mainapplication.domain.post.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.domainmodule.post.entity.Post;
+import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
@@ -104,6 +106,30 @@ public class PostTransactionService {
 		List<PostGroupImage> savedPostGroupImages = savePostGroupImages(postGroupImages);
 		List<Post> savedPosts = savePosts(posts);
 		return new SavePostGroupWithImagesAndPostsDto(savedPostGroup, savedPostGroupImages, savedPosts);
+	}
+
+	/**
+	 * 게시물의 상태를 수정하는 메서드
+	 */
+	@Transactional
+	public void updatePostStatus(Post post, PostStatusType status) {
+		post.updateStatus(status);
+	}
+
+	/**
+	 * 게시물의 업로드 예약 일시를 수정하는 메서드
+	 */
+	@Transactional
+	public void updatePostUploadTime(Post post, LocalDateTime uploadTime) {
+		post.updateUploadTime(uploadTime);
+	}
+
+	/**
+	 * 게시물의 내용을 수정하는 메서드
+	 */
+	@Transactional
+	public void updatePostContent(Post post, String content) {
+		post.updateContent(content);
 	}
 
 	/**
