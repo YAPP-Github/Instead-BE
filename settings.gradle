@@ -4,9 +4,6 @@ rootProject.name = 'yapp'
 include 'application:main-application'
 include 'application:upload-schedule-application'
 
-// common 모듈
-include 'common:common-module'
-
 // system domain 모듈
 include 'domain:domain-module'
 
@@ -14,5 +11,3 @@ include 'domain:domain-module'
 include 'inner-system:feed-client'
 include 'inner-system:open-ai-client'
 include 'inner-system:sns-client'
-include 'inner-system:security'
-

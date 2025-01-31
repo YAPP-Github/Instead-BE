@@ -40,3 +40,8 @@ out/
 *.env
 *.DS_Store
 /src/main/generated
+
+### image ###
+*.png
+*.jpg
+*.jpeg

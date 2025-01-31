@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: sns-client-module
+
+sns:
+  twitter:
+    client-id: ${TWITTER_CLIENT_ID}
+    client-secret: ${TWITTER_CLIENT_SECRET}
+    challenge: ${TWITTER_CODE_CHALLENGE}
+    redirect-url: ${TWITTER_REDIRECT_URL}
+

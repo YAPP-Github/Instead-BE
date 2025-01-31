@@ -1,0 +1,57 @@
+spring:
+    application:
+        name: main-application
+    profiles:
+        include:
+            - oauth
+
+    cloud:
+        aws:
+            region:
+                static: ${AWS_REGION}
+            credentials:
+                access-key: ${AWS_ACCESS_KEY}
+                secret-key: ${AWS_SECRET_KEY}
+            s3:
+                bucket-name: ${AWS_S3_BUCKET}
+                url-prefix: ${AWS_S3_URL_PREFIX}
+
+logging:
+    level:
+        org:
+            springframework:
+                security: debug
+                web: DEBUG
+        hibernate:
+            orm:
+                jdbc:
+                    bind: trace
+
+server:
+    servlet:
+        context-path: /yapp
+
+swagger:
+    version: ${SWAGGER_VERSION:0.0.1}
+springdoc:
+    default-consumes-media-type: application/json;charset=UTF-8
+    default-produces-media-type: application/json;charset=UTF-8
+    swagger-ui:
+        path: /swagger-ui
+        disable-swagger-default-url: true
+        display-request-duration: true
+        tags-sorter: alpha
+        operations-sorter: alpha
+        syntax-highlight:
+            theme: none
+        urls-primary-name: INSTEAD API DOCS
+
+# Client
+client:
+    news-parser:
+        url: ${NEWS_PARSER_URL}
+
+    openai:
+        url: https://api.openai.com/v1/chat/completions
+        key: ${OPENAI_API_KEY}
+        model: gpt-4o-mini

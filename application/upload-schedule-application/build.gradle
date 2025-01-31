@@ -7,9 +7,19 @@ plugins {
 version = '0.0.1-SNAPSHOT'
 
 dependencies {
-
+	api project(':domain:domain-module')
+	api project(':inner-system:sns-client')
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+bootJar {
+	archiveFileName = 'yapp-upload-schedule-application.jar'
+	enabled = true
+}
+
+jar {
+	enabled = false
 }

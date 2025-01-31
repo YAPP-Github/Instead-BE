@@ -7,9 +7,19 @@ plugins {
 version = '0.0.1-SNAPSHOT'
 
 dependencies {
-
+    // twitter
+    api 'org.twitter4j:twitter4j-core:4.0.7'
+    api 'io.github.takke:jp.takke.twitter4j-v2:1.4.4'
 }
 
 tasks.named('test') {
     useJUnitPlatform()
+}
+
+bootJar {
+    enabled = false
+}
+
+jar {
+    enabled = true
 }

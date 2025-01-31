@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'application/main-application/**'
-
+      
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -20,6 +20,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: ENV 파일 생성
+        run: |
+          touch .env
+          echo "$ENV" > .env
+        env:
+          ENV: ${{ secrets.ENV }}
+        shell: bash
+
       - name: Gradle 권한 부여
         run: chmod +x gradlew
 
@@ -30,6 +38,7 @@ jobs:
       - name: zip file 생성
         run: |
           mkdir deploy
+          cp .env ./deploy/
           cp ./application/main-application/docker/Dockerfile ./deploy/
           cp ./application/main-application/docker/docker-compose.minipc.yml ./deploy/
           cp ./application/main-application/scripts/minipc-docker-deploy.sh ./deploy/
