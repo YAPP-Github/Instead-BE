@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 배포 로그 파일 설정
-DEPLOY_LOG="/home/hong/app/yyapp-upload-schedule-application/deploy.log"
+DEPLOY_LOG="/home/hong/app/yapp-upload-schedule-application/deploy.log"
 COMPOSE_FILE="docker-compose.minipc.yml"
 
 # 현재 디렉토리 이동
