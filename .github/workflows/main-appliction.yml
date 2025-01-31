@@ -3,7 +3,8 @@ name: Main-Application CI/CD
 on:
   push:
     branches:
-      - chore/#51
+      - chore/#55
+
     paths:
       - 'application/main-application/**'
 jobs:
