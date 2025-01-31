@@ -50,7 +50,7 @@ public class Post extends BaseAuditEntity {
 	@Column(name = "upload_time")
 	private LocalDateTime uploadTime;
 
-	public void setStatus(PostStatusType status) {
+	public void updateStatus(PostStatusType status) {
 		this.status = status;
   }
   

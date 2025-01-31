@@ -27,7 +27,7 @@ public class PostService {
 	}
 
 	public void updatePostStatus(Post post, PostStatusType postStatus) {
-		post.setStatus(postStatus);
+		post.updateStatus(postStatus);
 		postRepository.save(post);
 	}
 }
