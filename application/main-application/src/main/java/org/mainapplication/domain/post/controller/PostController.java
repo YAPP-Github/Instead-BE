@@ -66,7 +66,7 @@ public class PostController {
 		@PathVariable Long postId
 	) {
 		return ResponseEntity.ok(promptHistoryService.getPromptHistories(agentId, postGroupId, postId));
-  }
+  	}
   
 	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
 	@GetMapping("/{postGroupId}/posts")
