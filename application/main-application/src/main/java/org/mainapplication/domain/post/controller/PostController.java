@@ -3,13 +3,16 @@ package org.mainapplication.domain.post.controller;
 import java.util.List;
 
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.PromptHistoriesRespone;
+import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.service.PostService;
 import org.mainapplication.domain.post.service.PromptHistoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -62,5 +65,16 @@ public class PostController {
 		@PathVariable Long postId
 	) {
 		return ResponseEntity.ok(promptHistoryService.getPromptHistories(agentId, postGroupId, postId));
+	}
+
+	@Operation(summary = "게시물 프롬프트 기반 수정 API: 개별 수정", description = "개별 게시물을 프롬프트 입력 수정합니다.")
+	@PatchMapping("/{postGroupId}/posts/{postId}/prompt")
+	public ResponseEntity<PostResponse> updatePostByPrompt(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId,
+		@PathVariable Long postId,
+		@RequestBody UpdatePostRequest updatePostRequest
+	) {
+		return ResponseEntity.ok(postService.updatePostByPrompt(updatePostRequest, agentId, postGroupId, postId));
 	}
 }
