@@ -136,7 +136,7 @@ public class PostController {
 		return ResponseEntity.noContent().build();
 	}
 
-	@Operation(summary = "게시물 프롬프트 기반 수정 API: 개별 수정", description = "개별 게시물을 프롬프트 입력 수정합니다.")
+	@Operation(summary = "게시물 프롬프트 기반 개별 수정 API", description = "개별 게시물에 대해 입력된 프롬프트를 바탕으로 수정합니다.")
 	@PatchMapping("/{postGroupId}/posts/{postId}/prompt")
 	public ResponseEntity<PostResponse> updatePostByPrompt(
 		@PathVariable Long agentId,
