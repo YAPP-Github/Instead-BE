@@ -3,8 +3,8 @@ package org.mainapplication.domain.post.controller;
 import java.util.List;
 
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostsRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostBasicRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostsBasicRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.PromptHistoriesRespone;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
@@ -65,9 +65,9 @@ public class PostController {
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
 		@PathVariable Long postId,
-		@RequestBody UpdatePostRequest updatePostRequest
+		@RequestBody UpdatePostBasicRequest updatePostBasicRequest
 	) {
-		postService.updatePost(postGroupId, postId, updatePostRequest);
+		postService.updatePost(postGroupId, postId, updatePostBasicRequest);
 		return ResponseEntity.ok().build();
 	}
 
@@ -76,9 +76,9 @@ public class PostController {
 	public ResponseEntity<Void> updatePosts(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
-		@RequestBody UpdatePostsRequest updatePostsRequest
+		@RequestBody UpdatePostsBasicRequest updatePostsBasicRequest
 	) {
-		postService.updatePosts(postGroupId, updatePostsRequest);
+		postService.updatePosts(postGroupId, updatePostsBasicRequest);
 		return ResponseEntity.ok().build();
 	}
 

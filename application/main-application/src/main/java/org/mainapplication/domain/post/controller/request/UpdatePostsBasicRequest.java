@@ -11,7 +11,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UpdatePostsRequest {
+public class UpdatePostsBasicRequest {
 
 	@NotNull(message = "게시물 수정 정보를 입력해주세요.")
 	private List<UpdatePostsRequestItem> posts;

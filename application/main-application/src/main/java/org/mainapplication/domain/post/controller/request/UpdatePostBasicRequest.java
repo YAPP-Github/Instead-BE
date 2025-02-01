@@ -13,7 +13,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class UpdatePostRequest {
+public class UpdatePostBasicRequest {
 
 	@NotNull(message = "게시물 수정 타입을 지정해주세요.")
 	private UpdatePostType updateType;

@@ -18,8 +18,8 @@ import org.domainmodule.rssfeed.repository.RssFeedRepository;
 import org.feedclient.service.FeedService;
 import org.feedclient.service.dto.FeedPagingResult;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostsRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostBasicRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostsBasicRequest;
 import org.mainapplication.domain.post.controller.request.type.UpdatePostsRequestItem;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
@@ -426,7 +426,7 @@ public class PostService {
 	/**
 	 * 게시물 수정 메서드. updateType에 따라 분기
 	 */
-	public void updatePost(Long postGroupId, Long postId, UpdatePostRequest request) {
+	public void updatePost(Long postGroupId, Long postId, UpdatePostBasicRequest request) {
 		// PostGroup 엔티티 조회
 		PostGroup postGroup = postGroupRepository.findById(postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
@@ -472,7 +472,7 @@ public class PostService {
 	/**
 	 * 게시물의 내용과 이미지를 수정하는 메서드
 	 */
-	private void updatePostContentWithImage(Post post, UpdatePostRequest request) {
+	private void updatePostContentWithImage(Post post, UpdatePostBasicRequest request) {
 		// Post 엔티티 수정
 		postTransactionService.updatePostContent(post, request.getContent());
 
@@ -499,7 +499,7 @@ public class PostService {
 	/**
 	 * 게시물 일괄 수정 메서드. updateType에 따라 분기
 	 */
-	public void updatePosts(Long postGroupId, UpdatePostsRequest request) {
+	public void updatePosts(Long postGroupId, UpdatePostsBasicRequest request) {
 		// PostGroup 엔티티 조회
 		PostGroup postGroup = postGroupRepository.findById(postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
