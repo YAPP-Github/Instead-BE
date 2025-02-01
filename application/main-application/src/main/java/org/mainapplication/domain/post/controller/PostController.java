@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostsRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.PromptHistoriesRespone;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
@@ -67,6 +68,17 @@ public class PostController {
 		@RequestBody UpdatePostRequest updatePostRequest
 	) {
 		postService.updatePost(postGroupId, postId, updatePostRequest);
+		return ResponseEntity.ok().build();
+	}
+
+	@Operation(summary = "게시물 일괄 일반 수정 API", description = "기존 여러 게시물들의 상태 / 업로드 예약 일시를 수정합니다.")
+	@PutMapping("/{postGroupId}/posts")
+	public ResponseEntity<Void> updatePosts(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId,
+		@RequestBody UpdatePostsRequest updatePostsRequest
+	) {
+		postService.updatePosts(postGroupId, updatePostsRequest);
 		return ResponseEntity.ok().build();
 	}
 

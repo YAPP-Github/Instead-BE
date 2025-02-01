@@ -15,7 +15,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public class UpdatePostRequest {
 
-	@NotNull(message = "수정 타입을 지정해주세요.")
+	@NotNull(message = "게시물 수정 타입을 지정해주세요.")
 	private UpdatePostType updateType;
 
 	@Nullable

@@ -19,6 +19,8 @@ import org.feedclient.service.FeedService;
 import org.feedclient.service.dto.FeedPagingResult;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostsRequest;
+import org.mainapplication.domain.post.controller.request.type.UpdatePostsRequestItem;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.exception.PostErrorCode;
@@ -35,7 +37,6 @@ import org.openaiclient.client.dto.request.ChatCompletionRequest;
 import org.openaiclient.client.dto.response.ChatCompletionResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -425,7 +426,6 @@ public class PostService {
 	/**
 	 * 게시물 수정 메서드. updateType에 따라 분기
 	 */
-	@Transactional
 	public void updatePost(Long postGroupId, Long postId, UpdatePostRequest request) {
 		// PostGroup 엔티티 조회
 		PostGroup postGroup = postGroupRepository.findById(postGroupId)
@@ -497,6 +497,50 @@ public class PostService {
 	}
 
 	/**
+	 * 게시물 일괄 수정 메서드. updateType에 따라 분기
+	 */
+	public void updatePosts(Long postGroupId, UpdatePostsRequest request) {
+		// PostGroup 엔티티 조회
+		PostGroup postGroup = postGroupRepository.findById(postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+
+		// Post 엔티티 리스트 조회
+		List<Long> postIds = request.getPosts().stream()
+			.map(UpdatePostsRequestItem::getPostId)
+			.toList();
+		List<Post> posts = postRepository.findAllById(postIds);
+
+		// 검증: PostGroup에 해당하는 Post가 맞는지 검증
+		posts.forEach(post -> {
+			if (!post.getPostGroup().getId().equals(postGroupId)) {
+				throw new CustomException(PostErrorCode.INVALID_POST);
+			}
+		});
+
+		// 수정 타입에 따라 분기
+		switch (request.getUpdateType()) {
+			case STATUS -> request.getPosts()
+				.forEach(postRequest -> {
+					Post post = postRepository.findById(postRequest.getPostId())  // 1차 캐시 조회
+						.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
+					if (postRequest.getStatus() == null) {
+						throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
+					}
+					postTransactionService.updatePostStatus(post, postRequest.getStatus());
+				});
+			case UPLOAD_TIME -> request.getPosts()
+				.forEach(postRequest -> {
+					Post post = postRepository.findById(postRequest.getPostId())  // 1차 캐시 조회
+						.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
+					if (postRequest.getUploadTime() == null) {
+						throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
+					}
+					postTransactionService.updatePostUploadTime(post, postRequest.getUploadTime());
+				});
+		}
+	}
+
+	/**
 	 * 업로드가 확정되지 않은 상태의 게시물을 단건 삭제하는 메서드
 	 */
 	public void deletePost(Long postGroupId, Long postId) {
@@ -531,7 +575,7 @@ public class PostService {
 		// Post 엔티티 리스트 조회
 		// TODO: 지금은 단순히 조회한 Post의 개수를 가지고 검증하고 있는데, 상세 postId를 반환하기 위해 로직을 수정할 필요가 있을듯. 지금은 에러메시지에 변수를 담을 수 없는 상황이라 단순한 로직으로 구현함
 		List<Post> posts = postRepository.findAllById(postIds);
-		if (posts.size() != postIds.size()) {
+		if (posts.size() < postIds.size()) {
 			throw new CustomException(PostErrorCode.POST_NOT_FOUND);
 		}
 
