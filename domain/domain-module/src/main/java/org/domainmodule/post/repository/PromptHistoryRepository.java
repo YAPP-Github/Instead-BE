@@ -22,7 +22,7 @@ public interface PromptHistoryRepository extends JpaRepository<PromptHistory, Lo
 	List<PromptHistory> findPromptHistoriesWithValidation(
 		@Param("userId") Long userId,
 		@Param("agentId") Long agentId,
-		@Param("groupId") Long groupId,
+		@Param("postGroupId") Long postGroupId,
 		@Param("postId") Long postId
 	);
 }
