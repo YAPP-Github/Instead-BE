@@ -34,7 +34,20 @@ public class PostController {
 	private final PostService postService;
 	private final PromptHistoryService promptHistoryService;
 
-	@Operation(summary = "게시물 그룹 및 게시물 생성 API", description = "에이전트에 새 게시물 그룹을 추가하고 게시물을 생성합니다.")
+	@Operation(
+		summary = "게시물 그룹 및 게시물 생성 API",
+		description = """
+			에이전트에 새 게시물 그룹을 추가하고 게시물을 생성합니다.
+
+			**1. 생성 방식을 나타내는 reference 필드 값에 따라 필요한 필드가 달라집니다.**
+			- NONE (참고자료 X): newsCategory, imageUrls 필드를 모두 비워주세요.
+			- NEWS (뉴스 참고): newsCategory를 지정하고, imageUrls를 비워주세요.
+			- IMAGE (이미지 참고): imageUrls를 설정하고, newsCategory를 비워주세요.
+
+			**2. 뉴스를 참고해 생성하는 경우, 응답 본문에 eof가 포함됩니다.**
+
+			한 시점에 사용 가능한 피드 수에 제한이 있기 때문에, 추가 생성이 가능한지 여부를 eof로 구분합니다."""
+	)
 	@PostMapping("/posts")
 	public ResponseEntity<CreatePostsResponse> createPosts(
 		@PathVariable Long agentId,
@@ -66,8 +79,8 @@ public class PostController {
 		@PathVariable Long postId
 	) {
 		return ResponseEntity.ok(promptHistoryService.getPromptHistories(agentId, postGroupId, postId));
-  }
-  
+	}
+
 	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
 	@GetMapping("/{postGroupId}/posts")
 	public ResponseEntity<List<PostResponse>> getPostsByPostGroup(
