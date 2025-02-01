@@ -61,7 +61,15 @@ public class PostController {
 		};
 	}
 
-	@Operation(summary = "게시물 추가 생성 API", description = "기존 게시물 그룹에 새 게시물을 추가합니다.")
+	@Operation(
+		summary = "게시물 추가 생성 API",
+		description = """
+			기존 게시물 그룹에 새 게시물을 추가합니다.
+
+			**뉴스를 참고해 생성하는 게시물 그룹의 경우, 응답 본문에 eof가 포함됩니다.**
+
+			한 시점에 사용 가능한 피드 수에 제한이 있기 때문에, 추가 생성이 가능한지 여부를 eof로 구분합니다."""
+	)
 	@PostMapping("/{postGroupId}/posts")
 	public ResponseEntity<CreatePostsResponse> createAdditionalPosts(
 		@PathVariable Long agentId,
