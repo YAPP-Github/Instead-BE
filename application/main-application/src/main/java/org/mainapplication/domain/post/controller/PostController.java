@@ -98,7 +98,15 @@ public class PostController {
 		return ResponseEntity.ok(postService.getPostsByPostGroup(postGroupId));
 	}
 
-	@Operation(summary = "게시물 개별 삭제 API", description = "업로드가 확정되지 않은 단건의 게시물을 개별 삭제합니다.")
+	@Operation(
+		summary = "게시물 개별 삭제 API",
+		description = """
+			업로드가 확정되지 않은 단건의 게시물을 개별 삭제합니다. (생성됨, 수정 중, 수정 완료)
+
+			게시물 수정 단계에서 게시물을 삭제할 때 사용됩니다.
+
+			**업로드가 확정된 상태의 게시물은 삭제할 수 없습니다. (예약 완료, 업로드 완료, 업로드 실패)**"""
+	)
 	@DeleteMapping("/{postGroupId}/posts/{postId}")
 	public ResponseEntity<Void> deletePost(
 		@PathVariable Long agentId,
@@ -109,7 +117,15 @@ public class PostController {
 		return ResponseEntity.noContent().build();
 	}
 
-	@Operation(summary = "게시물 일괄 삭제 API", description = "업로드가 확정되지 않은 여러 게시물들을 일괄 삭제합니다.")
+	@Operation(
+		summary = "게시물 일괄 삭제 API",
+		description = """
+			업로드가 확정되지 않은 여러 게시물들을 일괄 삭제합니다. (생성됨, 수정 중, 수정 완료)
+
+			게시물 수정 완료 후 예약 단계로 넘어갈 때 사용됩니다.
+
+			**업로드가 확정된 상태의 게시물은 삭제할 수 없습니다. (예약 완료, 업로드 완료, 업로드 실패)**"""
+	)
 	@DeleteMapping("/{postGroupId}/posts")
 	public ResponseEntity<Void> deletePosts(
 		@PathVariable Long agentId,
