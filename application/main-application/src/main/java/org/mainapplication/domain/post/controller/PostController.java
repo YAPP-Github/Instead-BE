@@ -5,7 +5,7 @@ import java.util.List;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
-import org.mainapplication.domain.post.controller.response.PromptHistoriesRespone;
+import org.mainapplication.domain.post.controller.response.PromptHistoriesResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.service.PostService;
 import org.mainapplication.domain.post.service.PromptHistoryService;
@@ -81,7 +81,7 @@ public class PostController {
 
 	@Operation(summary = "게시물 프롬프트 내역 조회 API", description = "게시물 결과 수정 단계에서 프롬프트 내역을 조회합니다.")
 	@GetMapping("/{postGroupId}/posts/{postId}/prompt-histories")
-	public ResponseEntity<List<PromptHistoriesRespone>> getPromptHistories(
+	public ResponseEntity<List<PromptHistoriesResponse>> getPromptHistories(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
 		@PathVariable Long postId
