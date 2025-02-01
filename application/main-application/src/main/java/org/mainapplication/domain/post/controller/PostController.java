@@ -11,6 +11,7 @@ import org.mainapplication.domain.post.service.PostService;
 import org.mainapplication.domain.post.service.PromptHistoryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -65,6 +66,37 @@ public class PostController {
 		@PathVariable Long postId
 	) {
 		return ResponseEntity.ok(promptHistoryService.getPromptHistories(agentId, postGroupId, postId));
+  }
+  
+	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
+	@GetMapping("/{postGroupId}/posts")
+	public ResponseEntity<List<PostResponse>> getPostsByPostGroup(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId
+	) {
+		return ResponseEntity.ok(postService.getPostsByPostGroup(postGroupId));
+	}
+
+	@Operation(summary = "게시물 개별 삭제 API", description = "업로드가 확정되지 않은 단건의 게시물을 개별 삭제합니다.")
+	@DeleteMapping("/{postGroupId}/posts/{postId}")
+	public ResponseEntity<Void> deletePost(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId,
+		@PathVariable Long postId
+	) {
+		postService.deletePost(postGroupId, postId);
+		return ResponseEntity.noContent().build();
+	}
+
+	@Operation(summary = "게시물 일괄 삭제 API", description = "업로드가 확정되지 않은 여러 게시물들을 일괄 삭제합니다.")
+	@DeleteMapping("/{postGroupId}/posts")
+	public ResponseEntity<Void> deletePosts(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId,
+		@RequestBody List<Long> postIds
+	) {
+		postService.deletePosts(postGroupId, postIds);
+		return ResponseEntity.noContent().build();
 	}
 
 	@Operation(summary = "게시물 프롬프트 기반 수정 API: 개별 수정", description = "개별 게시물을 프롬프트 입력 수정합니다.")

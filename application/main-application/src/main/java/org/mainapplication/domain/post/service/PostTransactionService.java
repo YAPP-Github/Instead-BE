@@ -119,7 +119,6 @@ public class PostTransactionService {
 			.orElseThrow(()-> new CustomException(PostErrorCode.POST_NOT_FOUND));
 	}
 
-
 	@Transactional
 	public PostResponse updatePostAndPromptyHistory(Post post, String prompt, SummaryContentFormat newContent) {
 		// 프롬프트 기록 저장
@@ -128,5 +127,21 @@ public class PostTransactionService {
 		post.updatePostContent(newContent.getSummary(), newContent.getContent(), PostStatusType.EDITING);
 
 		return PostResponse.from(post);
+  }
+
+	/**
+	 * Post를 단건 삭제하는 메서드
+	 */
+	@Transactional
+	public void deletePost(Post post) {
+		postRepository.delete(post);
+	}
+
+	/**
+	 * Post 리스트를 삭제하는 메서드
+	 */
+	@Transactional
+	public void deletePosts(List<Post> posts) {
+		postRepository.deleteAll(posts);
 	}
 }
