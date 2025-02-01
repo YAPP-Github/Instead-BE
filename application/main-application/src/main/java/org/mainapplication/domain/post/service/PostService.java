@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
+import org.domainmodule.post.repository.PromptHistoryRepository;
 import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
@@ -16,8 +17,8 @@ import org.domainmodule.rssfeed.repository.RssFeedRepository;
 import org.feedclient.service.FeedService;
 import org.feedclient.service.dto.FeedPagingResult;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
-import org.mainapplication.domain.post.controller.response.PromptHistoriesRespone;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.exception.PostErrorCode;
 import org.mainapplication.domain.post.service.dto.SavePostGroupAndPostsDto;
@@ -37,7 +38,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -55,6 +55,7 @@ public class PostService {
 	private final PostRepository postRepository;
 	private final PostGroupRepository postGroupRepository;
 	private final PostGroupRssCursorRepository postGroupRssCursorRepository;
+	private final PromptHistoryRepository promptHistoryRepository;
 
 	@Value("${client.openai.model}")
 	private String openAiModel;
@@ -399,6 +400,41 @@ public class PostService {
 		} catch (JsonProcessingException e) {
 			return SummaryContentFormat.createAlternativeFormat("생성된 게시물", content);
 		}
+	}
+
+	private ChatCompletionResponse applyPrompt(String prompt, String previousResponse) {
+		// 프롬프트 생성: Instruction
+		String instructionPrompt = createPostPrompt.getInstruction();
+
+		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(
+			openAiModel, summaryContentSchema.getResponseFormat(), 1, null)
+			.addDeveloperMessage(instructionPrompt)
+			.addAssistantMessage(previousResponse)
+			.addUserTextMessage(prompt);
+
+		try {
+			return openAiClient.getChatCompletion(chatCompletionRequest);
+		} catch (RuntimeException e) {
+			throw new CustomException(PostErrorCode.POST_GENERATE_FAILED);
+		}
+
+	}
+
+	public PostResponse updatePostByPrompt(UpdatePostRequest request, Long agentId, Long postGroupId, Long postId) {
+		// post 찾기
+		Post post = postTransactionService.getPostOrThrow(postId);
+
+		// 이전 응답값, 프롬프트
+		String previousResponse = post.getContent();
+		String prompt = request.prompt();
+
+		// 응답 생성 -이전 응답을 assistant, 새로운 프롬프트를 user에 넣음
+		ChatCompletionResponse result = applyPrompt(prompt, previousResponse);
+
+		// JSON으로 파싱하여 새로운 요약과 본문 생성
+		SummaryContentFormat newContent = parseSummaryContentFormat(result.getChoices().get(0).getMessage().getContent());
+
+		return postTransactionService.updatePostAndPromptyHistory(post, prompt, newContent);
 	}
 
 	/**
