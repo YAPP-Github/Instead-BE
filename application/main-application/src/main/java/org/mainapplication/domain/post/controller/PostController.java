@@ -7,7 +7,7 @@ import org.mainapplication.domain.post.controller.request.UpdatePostBasicRequest
 import org.mainapplication.domain.post.controller.request.UpdatePostsBasicRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
-import org.mainapplication.domain.post.controller.response.PromptHistoriesRespone;
+import org.mainapplication.domain.post.controller.response.PromptHistoriesResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.service.PostService;
 import org.mainapplication.domain.post.service.PromptHistoryService;
@@ -37,7 +37,20 @@ public class PostController {
 	private final PostService postService;
 	private final PromptHistoryService promptHistoryService;
 
-	@Operation(summary = "게시물 그룹 및 게시물 생성 API", description = "에이전트에 새 게시물 그룹을 추가하고 게시물을 생성합니다.")
+	@Operation(
+		summary = "게시물 그룹 및 게시물 생성 API",
+		description = """
+			에이전트에 새 게시물 그룹을 추가하고 게시물을 생성합니다.
+
+			**1. 생성 방식을 나타내는 reference 필드 값에 따라 필요한 필드가 달라집니다.**
+			- NONE (참고자료 X): newsCategory, imageUrls 필드를 모두 비워주세요.
+			- NEWS (뉴스 참고): newsCategory를 지정하고, imageUrls를 비워주세요.
+			- IMAGE (이미지 참고): imageUrls를 설정하고, newsCategory를 비워주세요.
+
+			**2. 뉴스를 참고해 생성하는 경우, 응답 본문에 eof가 포함됩니다.**
+
+			한 시점에 사용 가능한 피드 수에 제한이 있기 때문에, 추가 생성이 가능한지 여부를 eof로 구분합니다."""
+	)
 	@PostMapping("/posts")
 	public ResponseEntity<CreatePostsResponse> createPosts(
 		@PathVariable Long agentId,
@@ -51,7 +64,15 @@ public class PostController {
 		};
 	}
 
-	@Operation(summary = "게시물 추가 생성 API", description = "기존 게시물 그룹에 새 게시물을 추가합니다.")
+	@Operation(
+		summary = "게시물 추가 생성 API",
+		description = """
+			기존 게시물 그룹에 새 게시물을 추가합니다.
+
+			**뉴스를 참고해 생성하는 게시물 그룹의 경우, 응답 본문에 eof가 포함됩니다.**
+
+			한 시점에 사용 가능한 피드 수에 제한이 있기 때문에, 추가 생성이 가능한지 여부를 eof로 구분합니다."""
+	)
 	@PostMapping("/{postGroupId}/posts")
 	public ResponseEntity<CreatePostsResponse> createAdditionalPosts(
 		@PathVariable Long agentId,
@@ -86,7 +107,7 @@ public class PostController {
 
 	@Operation(summary = "게시물 프롬프트 내역 조회 API", description = "게시물 결과 수정 단계에서 프롬프트 내역을 조회합니다.")
 	@GetMapping("/{postGroupId}/posts/{postId}/prompt-histories")
-	public ResponseEntity<List<PromptHistoriesRespone>> getPromptHistories(
+	public ResponseEntity<List<PromptHistoriesResponse>> getPromptHistories(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
 		@PathVariable Long postId
@@ -103,7 +124,15 @@ public class PostController {
 		return ResponseEntity.ok(postService.getPostsByPostGroup(postGroupId));
 	}
 
-	@Operation(summary = "게시물 개별 삭제 API", description = "업로드가 확정되지 않은 단건의 게시물을 개별 삭제합니다.")
+	@Operation(
+		summary = "게시물 개별 삭제 API",
+		description = """
+			업로드가 확정되지 않은 단건의 게시물을 개별 삭제합니다. (생성됨, 수정 중, 수정 완료)
+
+			게시물 수정 단계에서 게시물을 삭제할 때 사용됩니다.
+
+			**업로드가 확정된 상태의 게시물은 삭제할 수 없습니다. (예약 완료, 업로드 완료, 업로드 실패)**"""
+	)
 	@DeleteMapping("/{postGroupId}/posts/{postId}")
 	public ResponseEntity<Void> deletePost(
 		@PathVariable Long agentId,
@@ -114,7 +143,15 @@ public class PostController {
 		return ResponseEntity.noContent().build();
 	}
 
-	@Operation(summary = "게시물 일괄 삭제 API", description = "업로드가 확정되지 않은 여러 게시물들을 일괄 삭제합니다.")
+	@Operation(
+		summary = "게시물 일괄 삭제 API",
+		description = """
+			업로드가 확정되지 않은 여러 게시물들을 일괄 삭제합니다. (생성됨, 수정 중, 수정 완료)
+
+			게시물 수정 완료 후 예약 단계로 넘어갈 때 사용됩니다.
+
+			**업로드가 확정된 상태의 게시물은 삭제할 수 없습니다. (예약 완료, 업로드 완료, 업로드 실패)**"""
+	)
 	@DeleteMapping("/{postGroupId}/posts")
 	public ResponseEntity<Void> deletePosts(
 		@PathVariable Long agentId,
@@ -125,7 +162,7 @@ public class PostController {
 		return ResponseEntity.noContent().build();
 	}
 
-	@Operation(summary = "게시물 프롬프트 기반 수정 API: 개별 수정", description = "개별 게시물을 프롬프트 입력 수정합니다.")
+	@Operation(summary = "게시물 프롬프트 기반 개별 수정 API", description = "개별 게시물에 대해 입력된 프롬프트를 바탕으로 수정합니다.")
 	@PatchMapping("/{postGroupId}/posts/{postId}/prompt")
 	public ResponseEntity<PostResponse> updatePostByPrompt(
 		@PathVariable Long agentId,
