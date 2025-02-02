@@ -50,10 +50,6 @@ public class Post extends BaseAuditEntity {
 	@Column(name = "upload_time")
 	private LocalDateTime uploadTime;
 
-	public void updateStatus(PostStatusType status) {
-		this.status = status;
-  }
-  
 	@Builder
 	private Post(
 		PostGroup postGroup,
@@ -71,7 +67,7 @@ public class Post extends BaseAuditEntity {
 		this.uploadTime = uploadTime;
 	}
 
-	public static Post createPost(
+	public static Post create(
 		PostGroup postGroup,
 		String title,
 		String summary,
@@ -87,6 +83,18 @@ public class Post extends BaseAuditEntity {
 			.status(status)
 			.uploadTime(uploadTime)
 			.build();
+	}
+
+	public void updateStatus(PostStatusType status) {
+		this.status = status;
+	}
+
+	public void updateUploadTime(LocalDateTime uploadTime) {
+		this.uploadTime = uploadTime;
+	}
+
+	public void updateContent(String content) {
+		this.content = content;
 	}
 
 	@Override

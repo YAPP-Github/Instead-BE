@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.domainmodule.post.entity.Post;
+import org.domainmodule.post.entity.PostImage;
 import org.domainmodule.post.entity.type.PostStatusType;
-import org.domainmodule.post.repository.PromptHistoryRepository;
+import org.domainmodule.post.repository.PostImageRepository;
 import org.domainmodule.post.repository.PostRepository;
+import org.domainmodule.post.repository.PromptHistoryRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
 import org.domainmodule.postgroup.entity.PostGroupRssCursor;
@@ -17,7 +19,10 @@ import org.domainmodule.rssfeed.repository.RssFeedRepository;
 import org.feedclient.service.FeedService;
 import org.feedclient.service.dto.FeedPagingResult;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostBasicRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostsBasicRequest;
+import org.mainapplication.domain.post.controller.request.type.UpdatePostsBasicRequestItem;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.exception.PostErrorCode;
@@ -54,6 +59,7 @@ public class PostService {
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final PostRepository postRepository;
 	private final PostGroupRepository postGroupRepository;
+	private final PostImageRepository postImageRepository;
 	private final PostGroupRssCursorRepository postGroupRssCursorRepository;
 	private final PromptHistoryRepository promptHistoryRepository;
 
@@ -75,7 +81,7 @@ public class PostService {
 		List<Post> posts = result.getChoices().stream()
 			.map(choice -> {
 				SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
-				return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
+				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
 					PostStatusType.GENERATED, null);
 			})
 			.toList();
@@ -121,7 +127,7 @@ public class PostService {
 			.map(result -> {
 				SummaryContentFormat content = parseSummaryContentFormat(
 					result.getChoices().get(0).getMessage().getContent());
-				return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
+				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
 					PostStatusType.GENERATED, null);
 			})
 			.toList();
@@ -162,7 +168,7 @@ public class PostService {
 		List<Post> posts = result.getChoices().stream()
 			.map(choice -> {
 				SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
-				return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
+				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
 					PostStatusType.GENERATED, null);
 			})
 			.toList();
@@ -206,7 +212,7 @@ public class PostService {
 		List<Post> posts = result.getChoices().stream()
 			.map(choice -> {
 				SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
-				return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
+				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
 					PostStatusType.GENERATED, null);
 			})
 			.toList();
@@ -251,7 +257,7 @@ public class PostService {
 			.map(result -> {
 				SummaryContentFormat content = parseSummaryContentFormat(
 					result.getChoices().get(0).getMessage().getContent());
-				return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
+				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
 					PostStatusType.GENERATED, null);
 			})
 			.toList();
@@ -277,7 +283,7 @@ public class PostService {
 		List<Post> posts = result.getChoices().stream()
 			.map(choice -> {
 				SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
-				return Post.createPost(postGroup, null, content.getSummary(), content.getContent(),
+				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
 					PostStatusType.GENERATED, null);
 			})
 			.toList();
@@ -432,7 +438,8 @@ public class PostService {
 		ChatCompletionResponse result = applyPrompt(prompt, previousResponse);
 
 		// JSON으로 파싱하여 새로운 요약과 본문 생성
-		SummaryContentFormat newContent = parseSummaryContentFormat(result.getChoices().get(0).getMessage().getContent());
+		SummaryContentFormat newContent = parseSummaryContentFormat(
+			result.getChoices().get(0).getMessage().getContent());
 
 		return postTransactionService.updatePostAndPromptyHistory(post, prompt, newContent);
 	}
@@ -453,6 +460,123 @@ public class PostService {
 		return posts.stream()
 			.map(PostResponse::from)
 			.toList();
+	}
+
+	/**
+	 * 게시물 수정 메서드. updateType에 따라 분기
+	 */
+	public void updatePost(Long postGroupId, Long postId, UpdatePostBasicRequest request) {
+		// PostGroup 엔티티 조회
+		PostGroup postGroup = postGroupRepository.findById(postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+
+		// Post 엔티티 조회
+		Post post = postRepository.findById(postId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
+
+		// 검증: PostGroup에 해당하는 Post가 맞는지 검증
+		if (!post.getPostGroup().getId().equals(postGroupId)) {
+			throw new CustomException(PostErrorCode.INVALID_POST);
+		}
+
+		// 수정 타입 검증
+		switch (request.getUpdateType()) {
+			case STATUS -> {
+				if (request.getStatus() == null) {
+					throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
+				}
+				postTransactionService.updatePostStatus(post, request.getStatus());
+			}
+			case UPLOAD_TIME -> {
+				if (request.getUploadTime() == null) {
+					throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
+				}
+				postTransactionService.updatePostUploadTime(post, request.getUploadTime());
+			}
+			case CONTENT -> {
+				if (request.getContent() == null) {
+					throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
+				}
+				postTransactionService.updatePostContent(post, request.getContent());
+			}
+			case CONTENT_WITH_IMAGE -> {
+				if (request.getContent() == null || request.getImageUrls() == null) {
+					throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
+				}
+				updatePostContentWithImage(post, request);
+			}
+		}
+	}
+
+	/**
+	 * 게시물의 내용과 이미지를 수정하는 메서드
+	 */
+	private void updatePostContentWithImage(Post post, UpdatePostBasicRequest request) {
+		// Post 엔티티 수정
+		postTransactionService.updatePostContent(post, request.getContent());
+
+		// PostImage 엔티티 조회
+		List<PostImage> postImages = postImageRepository.findAllByPost(post);
+		List<String> savedImageUrls = postImages.stream()
+			.map(PostImage::getUrl)
+			.toList();
+
+		// 요청에만 존재하는 PostImage 엔티티 생성
+		List<PostImage> newPostImages = request.getImageUrls().stream()
+			.filter(imageUrl -> !savedImageUrls.contains(imageUrl))
+			.map(newImageUrl -> PostImage.create(post, newImageUrl))
+			.toList();
+		postTransactionService.savePostImages(newPostImages);
+
+		// DB에만 존재하는 PostImage 엔티티 제거
+		List<PostImage> removedPostImages = postImages.stream()
+			.filter(postImage -> !request.getImageUrls().contains(postImage.getUrl()))
+			.toList();
+		postTransactionService.deletePostImages(removedPostImages);
+	}
+
+	/**
+	 * 게시물 일괄 수정 메서드. updateType에 따라 분기
+	 */
+	public void updatePosts(Long postGroupId, UpdatePostsBasicRequest request) {
+		// PostGroup 엔티티 조회
+		PostGroup postGroup = postGroupRepository.findById(postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+
+		// Post 엔티티 리스트 조회
+		List<Long> postIds = request.getPosts().stream()
+			.map(UpdatePostsBasicRequestItem::getPostId)
+			.toList();
+		List<Post> posts = postRepository.findAllById(postIds);
+
+		// 검증: PostGroup에 해당하는 Post가 맞는지 검증
+		posts.forEach(post -> {
+			if (!post.getPostGroup().getId().equals(postGroupId)) {
+				throw new CustomException(PostErrorCode.INVALID_POST);
+			}
+		});
+
+		// 수정 타입에 따라 분기
+		switch (request.getUpdateType()) {
+			case STATUS -> request.getPosts()
+				.forEach(postRequest -> {
+					Post post = postRepository.findById(postRequest.getPostId())  // 1차 캐시 조회
+						.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
+					if (postRequest.getStatus() == null) {
+						throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
+					}
+					postTransactionService.updatePostStatus(post, postRequest.getStatus());
+				});
+			case UPLOAD_TIME -> request.getPosts()
+				.forEach(postRequest -> {
+					Post post = postRepository.findById(postRequest.getPostId())  // 1차 캐시 조회
+						.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
+					if (postRequest.getUploadTime() == null) {
+						throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
+					}
+					postTransactionService.updatePostUploadTime(post, postRequest.getUploadTime());
+				});
+		}
 	}
 
 	/**
@@ -490,7 +614,7 @@ public class PostService {
 		// Post 엔티티 리스트 조회
 		// TODO: 지금은 단순히 조회한 Post의 개수를 가지고 검증하고 있는데, 상세 postId를 반환하기 위해 로직을 수정할 필요가 있을듯. 지금은 에러메시지에 변수를 담을 수 없는 상황이라 단순한 로직으로 구현함
 		List<Post> posts = postRepository.findAllById(postIds);
-		if (posts.size() != postIds.size()) {
+		if (posts.size() < postIds.size()) {
 			throw new CustomException(PostErrorCode.POST_NOT_FOUND);
 		}
 

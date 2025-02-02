@@ -6,7 +6,7 @@ import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.PromptHistory;
 import org.domainmodule.post.entity.type.PostPromptType;
 import org.domainmodule.post.repository.PromptHistoryRepository;
-import org.mainapplication.domain.post.controller.response.PromptHistoriesRespone;
+import org.mainapplication.domain.post.controller.response.PromptHistoriesResponse;
 import org.mainapplication.domain.post.exception.PostErrorCode;
 import org.mainapplication.global.error.CustomException;
 import org.springframework.stereotype.Service;
@@ -24,16 +24,17 @@ public class PromptHistoryService {
 	 * @return
 	 */
 	@Transactional(readOnly = true)
-	public List<PromptHistoriesRespone> getPromptHistories(Long agentId, Long postGroupId, Long postId) {
+	public List<PromptHistoriesResponse> getPromptHistories(Long agentId, Long postGroupId, Long postId) {
 		//TODO 임시 설정한 부분 (이후 securityContext에서 userId가져오기)
 		long userId = 1L;
 
-		List<PromptHistory> histories = promptHistoryRepository.findPromptHistoriesWithValidation(userId, agentId, postGroupId, postId);
+		List<PromptHistory> histories = promptHistoryRepository.findPromptHistoriesWithValidation(userId, agentId,
+			postGroupId, postId);
 
 		if (histories.isEmpty()) {
 			throw new CustomException(PostErrorCode.PROMPT_HISTORIES_NOT_FOUND);
 		}
-		return PromptHistoriesRespone.fromList(histories);
+		return PromptHistoriesResponse.fromList(histories);
 	}
 
 	@Transactional
