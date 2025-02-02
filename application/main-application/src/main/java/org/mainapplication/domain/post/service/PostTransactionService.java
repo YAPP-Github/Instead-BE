@@ -1,10 +1,13 @@
 package org.mainapplication.domain.post.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.domainmodule.post.entity.Post;
-import org.domainmodule.post.entity.type.PostPromptType;
+import org.domainmodule.post.entity.PostImage;
 import org.domainmodule.post.entity.type.PostStatusType;
+import org.domainmodule.post.repository.PostImageRepository;
+import org.domainmodule.post.entity.type.PostPromptType;
 import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
@@ -29,9 +32,10 @@ import lombok.RequiredArgsConstructor;
 public class PostTransactionService {
 
 	private final PostGroupRepository postGroupRepository;
-	private final PostRepository postRepository;
 	private final PostGroupRssCursorRepository postGroupRssCursorRepository;
 	private final PostGroupImageRepository postGroupImageRepository;
+	private final PostRepository postRepository;
+	private final PostImageRepository postImageRepository;
 	private final PromptHistoryService promptHistoryService;
 
 	/**
@@ -130,6 +134,30 @@ public class PostTransactionService {
   }
 
 	/**
+	 * 게시물의 상태를 수정하는 메서드
+	 */
+	@Transactional
+	public void updatePostStatus(Post post, PostStatusType status) {
+		post.updateStatus(status);
+	}
+
+	/**
+	 * 게시물의 업로드 예약 일시를 수정하는 메서드
+	 */
+	@Transactional
+	public void updatePostUploadTime(Post post, LocalDateTime uploadTime) {
+		post.updateUploadTime(uploadTime);
+	}
+
+	/**
+	 * 게시물의 내용을 수정하는 메서드
+	 */
+	@Transactional
+	public void updatePostContent(Post post, String content) {
+		post.updateContent(content);
+	}
+
+	/**
 	 * Post를 단건 삭제하는 메서드
 	 */
 	@Transactional
@@ -143,5 +171,21 @@ public class PostTransactionService {
 	@Transactional
 	public void deletePosts(List<Post> posts) {
 		postRepository.deleteAll(posts);
+	}
+
+	/**
+	 * PostImage 리스트를 DB에 저장하는 메서드
+	 */
+	@Transactional
+	public void savePostImages(List<PostImage> postImages) {
+		postImageRepository.saveAll(postImages);
+	}
+
+	/**
+	 * PostImage 리스트를 삭제하는 메서드
+	 */
+	@Transactional
+	public void deletePostImages(List<PostImage> postImages) {
+		postImageRepository.deleteAll(postImages);
 	}
 }

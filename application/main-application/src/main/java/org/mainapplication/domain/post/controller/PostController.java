@@ -3,6 +3,8 @@ package org.mainapplication.domain.post.controller;
 import java.util.List;
 
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostBasicRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostsBasicRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.PromptHistoriesRespone;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -58,6 +61,29 @@ public class PostController {
 		return ResponseEntity.ok(postService.createAdditionalPosts(postGroupId, limit));
 	}
 
+	@Operation(summary = "게시물 개별 일반 수정 API", description = "기존 게시물의 상태 / 업로드 예약 일시 / 내용 / 내용과 이미지를 수정합니다.")
+	@PutMapping("/{postGroupId}/posts/{postId}")
+	public ResponseEntity<Void> updatePost(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId,
+		@PathVariable Long postId,
+		@RequestBody UpdatePostBasicRequest updatePostBasicRequest
+	) {
+		postService.updatePost(postGroupId, postId, updatePostBasicRequest);
+		return ResponseEntity.ok().build();
+	}
+
+	@Operation(summary = "게시물 일괄 일반 수정 API", description = "기존 여러 게시물들의 상태 / 업로드 예약 일시를 수정합니다.")
+	@PutMapping("/{postGroupId}/posts")
+	public ResponseEntity<Void> updatePosts(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId,
+		@RequestBody UpdatePostsBasicRequest updatePostsBasicRequest
+	) {
+		postService.updatePosts(postGroupId, updatePostsBasicRequest);
+		return ResponseEntity.ok().build();
+	}
+
 	@Operation(summary = "게시물 프롬프트 내역 조회 API", description = "게시물 결과 수정 단계에서 프롬프트 내역을 조회합니다.")
 	@GetMapping("/{postGroupId}/posts/{postId}/prompt-histories")
 	public ResponseEntity<List<PromptHistoriesRespone>> getPromptHistories(
@@ -66,8 +92,8 @@ public class PostController {
 		@PathVariable Long postId
 	) {
 		return ResponseEntity.ok(promptHistoryService.getPromptHistories(agentId, postGroupId, postId));
-  }
-  
+	}
+
 	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
 	@GetMapping("/{postGroupId}/posts")
 	public ResponseEntity<List<PostResponse>> getPostsByPostGroup(
