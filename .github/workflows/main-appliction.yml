@@ -4,9 +4,9 @@ on:
   push:
     branches:
       - main
-
     paths:
       - 'application/main-application/**'
+      
 jobs:
   deploy:
     runs-on: ubuntu-latest

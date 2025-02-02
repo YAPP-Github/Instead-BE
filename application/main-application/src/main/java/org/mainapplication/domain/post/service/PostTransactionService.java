@@ -7,6 +7,7 @@ import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.PostImage;
 import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.post.repository.PostImageRepository;
+import org.domainmodule.post.entity.type.PostPromptType;
 import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
@@ -14,9 +15,13 @@ import org.domainmodule.postgroup.entity.PostGroupRssCursor;
 import org.domainmodule.postgroup.repository.PostGroupImageRepository;
 import org.domainmodule.postgroup.repository.PostGroupRepository;
 import org.domainmodule.postgroup.repository.PostGroupRssCursorRepository;
+import org.mainapplication.domain.post.controller.response.type.PostResponse;
+import org.mainapplication.domain.post.exception.PostErrorCode;
 import org.mainapplication.domain.post.service.dto.SavePostGroupAndPostsDto;
 import org.mainapplication.domain.post.service.dto.SavePostGroupWithImagesAndPostsDto;
 import org.mainapplication.domain.post.service.dto.SavePostGroupWithRssCursorAndPostsDto;
+import org.mainapplication.global.error.CustomException;
+import org.mainapplication.openai.contentformat.response.SummaryContentFormat;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +36,7 @@ public class PostTransactionService {
 	private final PostGroupImageRepository postGroupImageRepository;
 	private final PostRepository postRepository;
 	private final PostImageRepository postImageRepository;
+	private final PromptHistoryService promptHistoryService;
 
 	/**
 	 * 생성된 Post 엔티티 리스트를 DB에 저장하는 메서드
@@ -110,6 +116,22 @@ public class PostTransactionService {
 		List<Post> savedPosts = savePosts(posts);
 		return new SavePostGroupWithImagesAndPostsDto(savedPostGroup, savedPostGroupImages, savedPosts);
 	}
+
+	@Transactional(readOnly = true)
+	public Post getPostOrThrow(Long postId) {
+		return postRepository.findById(postId)
+			.orElseThrow(()-> new CustomException(PostErrorCode.POST_NOT_FOUND));
+	}
+
+	@Transactional
+	public PostResponse updatePostAndPromptyHistory(Post post, String prompt, SummaryContentFormat newContent) {
+		// 프롬프트 기록 저장
+		promptHistoryService.createPromptHistories(post, prompt, newContent.getContent(), PostPromptType.EACH);
+		// post 상태값 개별 프롬프트 수정 상태로 변경 및 본문 업데이트
+		post.updatePostContent(newContent.getSummary(), newContent.getContent(), PostStatusType.EDITING);
+
+		return PostResponse.from(post);
+  }
 
 	/**
 	 * 게시물의 상태를 수정하는 메서드

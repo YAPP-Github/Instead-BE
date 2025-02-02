@@ -107,4 +107,10 @@ public class Post extends BaseAuditEntity {
 			+ ", uploadTime=" + uploadTime
 			+ '}';
 	}
+
+	public void updatePostContent(String summary, String content, PostStatusType status) {
+		this.summary = summary;
+		this.content = content;
+		this.status = status;
+	}
 }
