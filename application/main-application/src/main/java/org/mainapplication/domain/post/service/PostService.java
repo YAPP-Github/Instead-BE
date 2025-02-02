@@ -7,8 +7,8 @@ import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.PostImage;
 import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.post.repository.PostImageRepository;
-import org.domainmodule.post.repository.PromptHistoryRepository;
 import org.domainmodule.post.repository.PostRepository;
+import org.domainmodule.post.repository.PromptHistoryRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
 import org.domainmodule.postgroup.entity.PostGroupRssCursor;
@@ -20,9 +20,9 @@ import org.feedclient.service.FeedService;
 import org.feedclient.service.dto.FeedPagingResult;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostBasicRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostsBasicRequest;
-import org.mainapplication.domain.post.controller.request.type.UpdatePostsRequestItem;
 import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostsBasicRequest;
+import org.mainapplication.domain.post.controller.request.type.UpdatePostsBasicRequestItem;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.exception.PostErrorCode;
@@ -438,7 +438,8 @@ public class PostService {
 		ChatCompletionResponse result = applyPrompt(prompt, previousResponse);
 
 		// JSON으로 파싱하여 새로운 요약과 본문 생성
-		SummaryContentFormat newContent = parseSummaryContentFormat(result.getChoices().get(0).getMessage().getContent());
+		SummaryContentFormat newContent = parseSummaryContentFormat(
+			result.getChoices().get(0).getMessage().getContent());
 
 		return postTransactionService.updatePostAndPromptyHistory(post, prompt, newContent);
 	}
@@ -544,7 +545,7 @@ public class PostService {
 
 		// Post 엔티티 리스트 조회
 		List<Long> postIds = request.getPosts().stream()
-			.map(UpdatePostsRequestItem::getPostId)
+			.map(UpdatePostsBasicRequestItem::getPostId)
 			.toList();
 		List<Post> posts = postRepository.findAllById(postIds);
 
