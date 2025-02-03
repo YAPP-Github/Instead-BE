@@ -25,6 +25,9 @@ public class PostResponse {
 	@Schema(description = "게시물 마지막 수정 일시", example = "2025-01-01T00:00:00.000Z")
 	private LocalDateTime updatedAt;
 
+	@Schema(description = "게시물 정렬 순서 (status 별로 구분)", example = "1")
+	private Integer displayOrder;
+
 	@Schema(description = "게시물 한 줄 요약", example = "오늘 점심 메뉴는 두부김치")
 	private String summary;
 
