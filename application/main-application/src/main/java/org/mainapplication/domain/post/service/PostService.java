@@ -3,6 +3,7 @@ package org.mainapplication.domain.post.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.PostImage;
@@ -24,6 +25,8 @@ import org.mainapplication.domain.post.controller.request.UpdatePostContentReque
 import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostsRequest;
 import org.mainapplication.domain.post.controller.request.type.UpdatePostsRequestItem;
+import org.mainapplication.domain.post.controller.request.MultiplePostUpdateRequest;
+import org.mainapplication.domain.post.controller.request.SinglePostUpdateRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.exception.PostErrorCode;
@@ -41,6 +44,7 @@ import org.openaiclient.client.dto.response.ChatCompletionResponse;
 import org.openaiclient.client.dto.response.type.Choice;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -439,22 +443,56 @@ public class PostService {
 
 	}
 
-	public PostResponse updatePostByPrompt(UpdatePostRequest request, Long agentId, Long postGroupId, Long postId) {
-		// post 찾기
+	/**
+	 * 단일 게시물을 prompt를 적용하여 업데하는 메서드
+	 * @return
+	 */
+	@Transactional
+	public PostResponse updateSinglePostByPrompt(SinglePostUpdateRequest request, Long agentId, Long postGroupId,
+		Long postId) {
 		Post post = postTransactionService.getPostOrThrow(postId);
+		// 프롬프트 적용
+		SummaryContentFormat newContent = updatePostContent(post, request.prompt());
+		// DB값 업데이트
+		return postTransactionService.updateSinglePostAndPromptyHistory(post, request.prompt(), newContent);
+	}
 
-		// 이전 응답값, 프롬프트
-		String previousResponse = post.getContent();
+	/**
+	 * 일괄로 게시물들을 prompt 적용 후 업데이트 하는 메서드
+	 * @return
+	 */
+	public List<PostResponse> updateMultiplePostsByPrompt(MultiplePostUpdateRequest request, Long agentId,
+		Long postGroupId) {
+		List<Long> postIds = request.postsId();
 		String prompt = request.prompt();
 
-		// 응답 생성 -이전 응답을 assistant, 새로운 프롬프트를 user에 넣음
+		List<Post> posts = postIds.stream()
+			.map(postTransactionService::getPostOrThrow)
+			.toList();
+
+		List<CompletableFuture<SummaryContentFormat>> futures = posts.stream()
+			.map(post -> CompletableFuture.supplyAsync(() -> updatePostContent(post, prompt)))
+			.toList();
+
+		// 모든 프롬프트 처리 완료 대기
+		List<SummaryContentFormat> newContents = futures.stream()
+			.map(CompletableFuture::join)
+			.toList();
+
+		// DB 업데이트 및 결과 반환
+		return postTransactionService.updateMutiplePostAndPromptyHistory(posts, prompt, newContents);
+	}
+
+	private SummaryContentFormat updatePostContent(Post post, String prompt) {
+		String previousResponse = post.getContent();
+
+		// ChatGPT 프롬프트 실행
 		ChatCompletionResponse result = applyPrompt(prompt, previousResponse);
 
-		// JSON으로 파싱하여 새로운 요약과 본문 생성
-		SummaryContentFormat newContent = parseSummaryContentFormat(
-			result.getChoices().get(0).getMessage().getContent());
-
-		return postTransactionService.updatePostAndPromptyHistory(post, prompt, newContent);
+		// 결과 파싱하여 새로운 요약 + 본문 생성
+		return parseSummaryContentFormat(
+			result.getChoices().get(0).getMessage().getContent()
+		);
 	}
 
 	/**
