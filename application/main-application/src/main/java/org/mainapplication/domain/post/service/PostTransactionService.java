@@ -1,7 +1,9 @@
 package org.mainapplication.domain.post.service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.PostImage;
@@ -124,14 +126,31 @@ public class PostTransactionService {
 	}
 
 	@Transactional
-	public PostResponse updatePostAndPromptyHistory(Post post, String prompt, SummaryContentFormat newContent) {
+	public PostResponse updateSinglePostAndPromptyHistory(Post post, String prompt, SummaryContentFormat newContent) {
 		// 프롬프트 기록 저장
 		promptHistoryService.createPromptHistories(post, prompt, newContent.getContent(), PostPromptType.EACH);
 		// post 상태값 개별 프롬프트 수정 상태로 변경 및 본문 업데이트
 		post.updatePostContent(newContent.getSummary(), newContent.getContent(), PostStatusType.EDITING);
 
 		return PostResponse.from(post);
-  }
+  	}
+
+	@Transactional
+	public List<PostResponse> updateMutiplePostAndPromptyHistory(List<Post> posts, String prompt, List<SummaryContentFormat> newContents) {
+		return IntStream.range(0, posts.size())
+			.mapToObj(i -> {
+				Post post = posts.get(i);
+				SummaryContentFormat newContent = newContents.get(i);
+
+				promptHistoryService.createPromptHistories(post, prompt, newContent.getContent(), PostPromptType.ALL);
+
+				post.updatePostContent(newContent.getSummary(), newContent.getContent(), PostStatusType.EDITING);
+
+				return PostResponse.from(post);
+			})
+			.toList();
+
+	}
 
 	/**
 	 * 게시물의 상태를 수정하는 메서드

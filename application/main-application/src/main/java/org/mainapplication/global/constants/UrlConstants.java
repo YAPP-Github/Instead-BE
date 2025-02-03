@@ -7,6 +7,7 @@ public final class UrlConstants {
 
 	// Prod 환경 상수
 	public static final String PROD_DOMAIN_URL = "https://instd.vercel.app";
+	public static final String SERVER_DOMAIN_URL = "https://hong-nuri.shop";
 
 	// 공통 상수
 	public static final String BASE_URI = "/yapp";

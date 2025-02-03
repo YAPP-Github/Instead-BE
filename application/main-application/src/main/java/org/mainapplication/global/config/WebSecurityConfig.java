@@ -87,6 +87,7 @@ public class WebSecurityConfig {
 		configuration.setAllowedOrigins(WebSecurityURI.CORS_ALLOW_URIS);
 		configuration.addAllowedOriginPattern(UrlConstants.LOCAL_DOMAIN_URL);
 		configuration.addAllowedOriginPattern(UrlConstants.PROD_DOMAIN_URL);
+		configuration.addAllowedOriginPattern(UrlConstants.SERVER_DOMAIN_URL);
 		configuration.addAllowedMethod("*");
 		configuration.addAllowedHeader("*");
 		configuration.setAllowCredentials(true);

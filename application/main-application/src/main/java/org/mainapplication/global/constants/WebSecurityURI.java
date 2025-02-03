@@ -18,5 +18,5 @@ public final class WebSecurityURI {
 	);
 
 	public static final List<String> CORS_ALLOW_URIS =
-		List.of(UrlConstants.LOCAL_DOMAIN_URL, UrlConstants.PROD_DOMAIN_URL);
+		List.of(UrlConstants.LOCAL_DOMAIN_URL, UrlConstants.PROD_DOMAIN_URL, UrlConstants.SERVER_DOMAIN_URL);
 }
