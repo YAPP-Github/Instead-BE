@@ -2,6 +2,7 @@ package org.mainapplication.domain.post.service;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.PostImage;
@@ -19,8 +20,9 @@ import org.domainmodule.rssfeed.repository.RssFeedRepository;
 import org.feedclient.service.FeedService;
 import org.feedclient.service.dto.FeedPagingResult;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
+import org.mainapplication.domain.post.controller.request.MultiplePostUpdateRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostBasicRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
+import org.mainapplication.domain.post.controller.request.SinglePostUpdateRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostsBasicRequest;
 import org.mainapplication.domain.post.controller.request.type.UpdatePostsBasicRequestItem;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
@@ -426,7 +428,15 @@ public class PostService {
 
 	}
 
-	public PostResponse updatePostByPrompt(UpdatePostRequest request, Long agentId, Long postGroupId, Long postId) {
+	/**
+	 * 단일 게시물을 prompt를 적용하여 업데하는 메서드
+	 * @param request
+	 * @param agentId
+	 * @param postGroupId
+	 * @param postId
+	 * @return
+	 */
+	public PostResponse updateSinglePostByPrompt(SinglePostUpdateRequest request, Long agentId, Long postGroupId, Long postId) {
 		// post 찾기
 		Post post = postTransactionService.getPostOrThrow(postId);
 
@@ -443,6 +453,31 @@ public class PostService {
 
 		return postTransactionService.updatePostAndPromptyHistory(post, prompt, newContent);
 	}
+
+	public List<PostResponse> updateMultiplePostsByPrompt(MultiplePostUpdateRequest request, Long agentId, Long postGroupId) {
+
+		// 요청에서 postIds와 prompt 추출
+		List<Long> postIds = request.postsId();
+		String prompt = request.prompt();
+
+		// postId 리스트를 기반으로 해당하는 게시물 조회
+		List<Post> posts = postIds.stream()
+			.map(postTransactionService::getPostOrThrow)
+			.toList();
+
+		// 각 게시물에 대해 ChatGPT 프롬프트 적용 및 업데이트
+		return posts.stream().map(post -> {
+			String previousResponse = post.getContent();
+
+			ChatCompletionResponse result = applyPrompt(prompt, previousResponse);
+
+			SummaryContentFormat newContent = parseSummaryContentFormat(
+				result.getChoices().get(0).getMessage().getContent());
+
+			return postTransactionService.updatePostAndPromptyHistory(post, prompt, newContent);
+		}).toList();
+	}
+
 
 	/**
 	 * postGroupId를 바탕으로 게시물 그룹 존재 여부를 확인하고, 해당 그룹의 게시물 목록을 반환하는 메서드
