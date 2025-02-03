@@ -3,7 +3,7 @@ package org.mainapplication.domain.post.controller;
 import java.util.List;
 
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostBasicRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostContentRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostsBasicRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
@@ -83,19 +83,17 @@ public class PostController {
 	}
 
 	@Operation(
-		summary = "게시물 개별 일반 수정 API",
+		summary = "게시물 내용 및 이미지 수정 API",
 		description = """
-			기존 게시물의 상태 / 업로드 예약 일시 / 내용 / 내용과 이미지를 수정합니다.
+			기존 게시물의 내용 및 이미지를 수정합니다.
 
 			**1. 수정 타입을 나타내는 updateType 필드에 따라 필요한 필드가 달라집니다.**
-			- STATUS (게시물 상태 수정): status 필드를 설정하고, 나머지 필드는 비워주세요.
-			- UPLOAD_TIME (게시물 업로드 예약일시 수정): uploadTime 필드를 설정하고, 나머지 필드는 비워주세요.
-			- CONTENT (게시물 본문 내용 수정): content 필드를 설정하고, 나머지 필드는 비워주세요.
-			- CONTENT_WITH_IMAGE (게시물 본문 내용과 이미지 수정): content 필드와 imageUrls 필드를 설정해주세요. 이미지만 변경하는 경우에도 content 필드를 설정해주어야 합니다.
+			- CONTENT (게시물 본문 내용 수정): content 필드를 설정하고, imageUrls 필드는 비워주세요.
+			- CONTENT_IMAGE (게시물 본문 내용과 이미지 수정): content 필드와 imageUrls 필드를 설정해주세요. 이미지만 변경하는 경우에도 content 필드를 설정해주어야 합니다.
 
 			**2. 게시물의 이미지 추가나 삭제를 해당 API에서 처리합니다.**
 
-			게시물 이미지에 수정 사항이 있다면, updateType을 CONTENT_WITH_IMAGE로 설정하고 수정된 이미지 URL 리스트를 imageUrls 필드에 담아주시면 됩니다.
+			게시물 이미지에 수정 사항이 있다면, updateType을 CONTENT_IMAGE로 설정하고 수정된 이미지 URL 리스트를 imageUrls 필드에 담아주시면 됩니다.
 
 			이미지 리스트를 보내주시면, 서버에서 DB에 저장된 기존 이미지 리스트를 조회해 두 버전을 비교하고 반영합니다."""
 	)
@@ -104,9 +102,9 @@ public class PostController {
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
 		@PathVariable Long postId,
-		@RequestBody UpdatePostBasicRequest updatePostBasicRequest
+		@RequestBody UpdatePostContentRequest updatePostContentRequest
 	) {
-		postService.updatePost(postGroupId, postId, updatePostBasicRequest);
+		postService.updatePost(postGroupId, postId, updatePostContentRequest);
 		return ResponseEntity.ok().build();
 	}
 
