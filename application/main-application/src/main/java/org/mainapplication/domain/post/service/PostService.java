@@ -41,6 +41,7 @@ import org.openaiclient.client.dto.request.ChatCompletionRequest;
 import org.openaiclient.client.dto.response.ChatCompletionResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -430,54 +431,55 @@ public class PostService {
 
 	/**
 	 * 단일 게시물을 prompt를 적용하여 업데하는 메서드
-	 * @param request
-	 * @param agentId
-	 * @param postGroupId
-	 * @param postId
 	 * @return
 	 */
-	public PostResponse updateSinglePostByPrompt(SinglePostUpdateRequest request, Long agentId, Long postGroupId, Long postId) {
-		// post 찾기
+	@Transactional
+	public PostResponse updateSinglePostByPrompt(SinglePostUpdateRequest request, Long agentId, Long postGroupId,
+		Long postId) {
 		Post post = postTransactionService.getPostOrThrow(postId);
-
-		// 이전 응답값, 프롬프트
-		String previousResponse = post.getContent();
-		String prompt = request.prompt();
-
-		// 응답 생성 -이전 응답을 assistant, 새로운 프롬프트를 user에 넣음
-		ChatCompletionResponse result = applyPrompt(prompt, previousResponse);
-
-		// JSON으로 파싱하여 새로운 요약과 본문 생성
-		SummaryContentFormat newContent = parseSummaryContentFormat(
-			result.getChoices().get(0).getMessage().getContent());
-
-		return postTransactionService.updatePostAndPromptyHistory(post, prompt, newContent);
+		// 프롬프트 적용
+		SummaryContentFormat newContent = updatePostContent(post, request.prompt());
+		// DB값 업데이트
+		return postTransactionService.updateSinglePostAndPromptyHistory(post, request.prompt(), newContent);
 	}
 
-	public List<PostResponse> updateMultiplePostsByPrompt(MultiplePostUpdateRequest request, Long agentId, Long postGroupId) {
-
-		// 요청에서 postIds와 prompt 추출
+	/**
+	 * 일괄로 게시물들을 prompt 적용 후 업데이트 하는 메서드
+	 * @return
+	 */
+	public List<PostResponse> updateMultiplePostsByPrompt(MultiplePostUpdateRequest request, Long agentId,
+		Long postGroupId) {
 		List<Long> postIds = request.postsId();
 		String prompt = request.prompt();
 
-		// postId 리스트를 기반으로 해당하는 게시물 조회
 		List<Post> posts = postIds.stream()
 			.map(postTransactionService::getPostOrThrow)
 			.toList();
 
-		// 각 게시물에 대해 ChatGPT 프롬프트 적용 및 업데이트
-		return posts.stream().map(post -> {
-			String previousResponse = post.getContent();
+		List<CompletableFuture<SummaryContentFormat>> futures = posts.stream()
+			.map(post -> CompletableFuture.supplyAsync(() -> updatePostContent(post, prompt)))
+			.toList();
 
-			ChatCompletionResponse result = applyPrompt(prompt, previousResponse);
+		// 모든 프롬프트 처리 완료 대기
+		List<SummaryContentFormat> newContents = futures.stream()
+			.map(CompletableFuture::join)
+			.toList();
 
-			SummaryContentFormat newContent = parseSummaryContentFormat(
-				result.getChoices().get(0).getMessage().getContent());
-
-			return postTransactionService.updatePostAndPromptyHistory(post, prompt, newContent);
-		}).toList();
+		// DB 업데이트 및 결과 반환
+		return postTransactionService.updateMutiplePostAndPromptyHistory(posts, prompt, newContents);
 	}
 
+	private SummaryContentFormat updatePostContent(Post post, String prompt) {
+		String previousResponse = post.getContent();
+
+		// ChatGPT 프롬프트 실행
+		ChatCompletionResponse result = applyPrompt(prompt, previousResponse);
+
+		// 결과 파싱하여 새로운 요약 + 본문 생성
+		return parseSummaryContentFormat(
+			result.getChoices().get(0).getMessage().getContent()
+		);
+	}
 
 	/**
 	 * postGroupId를 바탕으로 게시물 그룹 존재 여부를 확인하고, 해당 그룹의 게시물 목록을 반환하는 메서드
