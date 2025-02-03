@@ -98,13 +98,13 @@ public class PostController {
 			이미지 리스트를 보내주시면, 서버에서 DB에 저장된 기존 이미지 리스트를 조회해 두 버전을 비교하고 반영합니다."""
 	)
 	@PutMapping("/{postGroupId}/posts/{postId}")
-	public ResponseEntity<Void> updatePost(
+	public ResponseEntity<Void> updatePostContent(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
 		@PathVariable Long postId,
 		@RequestBody UpdatePostContentRequest updatePostContentRequest
 	) {
-		postService.updatePost(postGroupId, postId, updatePostContentRequest);
+		postService.updatePostContent(postGroupId, postId, updatePostContentRequest);
 		return ResponseEntity.ok().build();
 	}
 

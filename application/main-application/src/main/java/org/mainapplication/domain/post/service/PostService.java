@@ -476,9 +476,9 @@ public class PostService {
 	}
 
 	/**
-	 * 게시물 수정 메서드. updateType에 따라 분기
+	 * 게시물 내용 수정 메서드. updateType에 따라 분기
 	 */
-	public void updatePost(Long postGroupId, Long postId, UpdatePostContentRequest request) {
+	public void updatePostContent(Long postGroupId, Long postId, UpdatePostContentRequest request) {
 		// PostGroup 엔티티 조회
 		PostGroup postGroup = postGroupRepository.findById(postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
@@ -492,29 +492,27 @@ public class PostService {
 			throw new CustomException(PostErrorCode.INVALID_POST);
 		}
 
-		// 수정 타입 검증
+		// content 필드 검증 및 Post 엔티티 수정
+		if (request.getContent() == null) {
+			throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
+		}
+		postTransactionService.updatePostContent(post, request.getContent());
+
+		// 수정 타입에 따라 분기
 		switch (request.getUpdateType()) {
-			case CONTENT -> {
-				if (request.getContent() == null) {
-					throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
-				}
-				postTransactionService.updatePostContent(post, request.getContent());
-			}
-			case CONTENT_IMAGE -> {
-				if (request.getContent() == null || request.getImageUrls() == null) {
-					throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
-				}
-				updatePostContentWithImage(post, request);
-			}
+			case CONTENT -> postTransactionService.updatePostContent(post, request.getContent());
+			case CONTENT_IMAGE -> updatePostImages(post, request);
 		}
 	}
 
 	/**
-	 * 게시물의 내용과 이미지를 수정하는 메서드
+	 * 게시물의 내용 및 이미지를 수정 메서드.
 	 */
-	private void updatePostContentWithImage(Post post, UpdatePostContentRequest request) {
-		// Post 엔티티 수정
-		postTransactionService.updatePostContent(post, request.getContent());
+	private void updatePostImages(Post post, UpdatePostContentRequest request) {
+		// 수정 타입 검증
+		if (request.getContent() == null || request.getImageUrls() == null) {
+			throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
+		}
 
 		// PostImage 엔티티 조회
 		List<PostImage> postImages = postImageRepository.findAllByPost(post);
