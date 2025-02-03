@@ -1,5 +1,6 @@
 package org.mainapplication.domain.post.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,6 +38,7 @@ import org.mainapplication.openai.prompt.CreatePostPrompt;
 import org.openaiclient.client.OpenAiClient;
 import org.openaiclient.client.dto.request.ChatCompletionRequest;
 import org.openaiclient.client.dto.response.ChatCompletionResponse;
+import org.openaiclient.client.dto.response.type.Choice;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -67,7 +69,7 @@ public class PostService {
 	private String openAiModel;
 
 	/**
-	 * 참고자료 없는 게시물 생성 및 저장 메서드
+	 * 참고자료 없는 게시물 그룹과 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createPostsWithoutRef(CreatePostsRequest request, Integer limit) {
 		// 게시물 생성
@@ -78,13 +80,14 @@ public class PostService {
 			request.getReference(), request.getLength(), request.getContent());
 
 		// Post 엔티티 생성: OpenAI API 응답의 choices에서 답변 꺼내 json으로 파싱 후 엔티티 생성
-		List<Post> posts = result.getChoices().stream()
-			.map(choice -> {
-				SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
-				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
-					PostStatusType.GENERATED, null);
-			})
-			.toList();
+		// displayOrder 지정에 사용할 반복변수를 위해 for문 사용
+		List<Post> posts = new ArrayList<>();
+		for (int i = 0; i < result.getChoices().size(); i++) {
+			Choice choice = result.getChoices().get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
+			posts.add(Post.create(postGroup, null, content.getSummary(),
+				content.getContent(), PostStatusType.GENERATED, null, i + 1));
+		}
 
 		// PostGroup 및 Post 리스트 저장
 		SavePostGroupAndPostsDto saveResult = postTransactionService.savePostGroupAndPosts(postGroup, posts);
@@ -97,7 +100,7 @@ public class PostService {
 	}
 
 	/**
-	 * 뉴스 기사 기반 게시물 생성 및 저장 메서드
+	 * 뉴스 기사 기반 게시물 그룹과 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createPostsByNews(CreatePostsRequest request, Integer limit) {
 		// newsCategory 필드 검증
@@ -123,14 +126,15 @@ public class PostService {
 		PostGroupRssCursor postGroupRssCursor = PostGroupRssCursor.createPostGroupRssCursor(postGroup, cursor);
 
 		// Post 엔티티 생성
-		List<Post> posts = results.stream()
-			.map(result -> {
-				SummaryContentFormat content = parseSummaryContentFormat(
-					result.getChoices().get(0).getMessage().getContent());
-				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
-					PostStatusType.GENERATED, null);
-			})
-			.toList();
+		// displayOrder 지정에 사용할 반복변수를 위해 for문 사용
+		List<Post> posts = new ArrayList<>();
+		for (int i = 0; i < results.size(); i++) {
+			ChatCompletionResponse result = results.get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(
+				result.getChoices().get(0).getMessage().getContent());
+			posts.add(Post.create(postGroup, null, content.getSummary(),
+				content.getContent(), PostStatusType.GENERATED, null, i + 1));
+		}
 
 		// 엔티티 저장
 		SavePostGroupWithRssCursorAndPostsDto saveResult = postTransactionService.savePostGroupWithRssCursorAndPosts(
@@ -144,7 +148,7 @@ public class PostService {
 	}
 
 	/**
-	 * 이미지 기반 게시물 생성 및 저장 메서드
+	 * 이미지 기반 게시물 그룹과 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createPostsByImage(CreatePostsRequest request, Integer limit) {
 		// imageUrls 필드 검증
@@ -165,13 +169,14 @@ public class PostService {
 			.toList();
 
 		// Post 엔티티 리스트 생성
-		List<Post> posts = result.getChoices().stream()
-			.map(choice -> {
-				SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
-				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
-					PostStatusType.GENERATED, null);
-			})
-			.toList();
+		// displayOrder 지정에 사용할 반복변수를 위해 for문 사용
+		List<Post> posts = new ArrayList<>();
+		for (int i = 0; i < result.getChoices().size(); i++) {
+			Choice choice = result.getChoices().get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
+			posts.add(Post.create(postGroup, null, content.getSummary(),
+				content.getContent(), PostStatusType.GENERATED, null, i + 1));
+		}
 
 		// 엔티티 저장
 		SavePostGroupWithImagesAndPostsDto saveResult = postTransactionService.savePostGroupWithImagesAndPosts(
@@ -193,29 +198,35 @@ public class PostService {
 		PostGroup postGroup = postGroupRepository.findById(postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
+		// displayOrder 설정을 위해 Post 조회
+		Integer order = postRepository.findLastGeneratedPost(postGroup, PostStatusType.GENERATED)
+			.map(Post::getDisplayOrder)
+			.orElse(0);
+
 		// referenceType에 따라 분기
 		return switch (postGroup.getReference()) {
-			case NONE -> createAdditionalPostsWithoutRef(postGroup, limit);
-			case NEWS -> createAdditionalPostsByNews(postGroup, limit);
-			case IMAGE -> createAdditionalPostsByImage(postGroup, limit);
+			case NONE -> createAdditionalPostsWithoutRef(postGroup, limit, order);
+			case NEWS -> createAdditionalPostsByNews(postGroup, limit, order);
+			case IMAGE -> createAdditionalPostsByImage(postGroup, limit, order);
 		};
 	}
 
 	/**
 	 * 게시물 추가 생성: 참고자료 없는 게시물 생성 및 저장 메서드
 	 */
-	private CreatePostsResponse createAdditionalPostsWithoutRef(PostGroup postGroup, Integer limit) {
+	private CreatePostsResponse createAdditionalPostsWithoutRef(PostGroup postGroup, Integer limit, Integer order) {
 		// 게시물 생성
 		ChatCompletionResponse result = generatePostsWithoutRef(GeneratePostsVo.of(postGroup, limit));
 
 		// Post 엔티티 리스트 생성
-		List<Post> posts = result.getChoices().stream()
-			.map(choice -> {
-				SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
-				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
-					PostStatusType.GENERATED, null);
-			})
-			.toList();
+		// order 지정에 사용할 반복변수를 위해 for문 사용
+		List<Post> posts = new ArrayList<>();
+		for (int i = 0; i < result.getChoices().size(); i++) {
+			Choice choice = result.getChoices().get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
+			posts.add(Post.create(postGroup, null, content.getSummary(),
+				content.getContent(), PostStatusType.GENERATED, null, order + i + 1));
+		}
 
 		// 엔티티 저장
 		List<Post> savedPosts = postTransactionService.savePosts(posts);
@@ -231,7 +242,7 @@ public class PostService {
 	 * 게시물 추가 생성: 뉴스 기사 기반 게시물 생성 및 저장 메서드
 	 * 피드 고갈 시 NEWS_FEED_EXHAUSTED
 	 */
-	private CreatePostsResponse createAdditionalPostsByNews(PostGroup postGroup, Integer limit) {
+	private CreatePostsResponse createAdditionalPostsByNews(PostGroup postGroup, Integer limit, Integer order) {
 		// 피드 받아오기: RssFeed와 PostGroupRssCursor를 DB에서 조회
 		RssFeed rssFeed = rssFeedRepository.findByCategory(postGroup.getFeed().getCategory())
 			.orElseThrow(() -> new CustomException(PostErrorCode.RSS_FEED_NOT_FOUND));
@@ -253,14 +264,15 @@ public class PostService {
 		rssCursor.updateNewsId(cursor);
 
 		// Post 엔티티 생성
-		List<Post> posts = results.stream()
-			.map(result -> {
-				SummaryContentFormat content = parseSummaryContentFormat(
-					result.getChoices().get(0).getMessage().getContent());
-				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
-					PostStatusType.GENERATED, null);
-			})
-			.toList();
+		// order 지정에 사용할 반복변수를 위해 for문 사용
+		List<Post> posts = new ArrayList<>();
+		for (int i = 0; i < results.size(); i++) {
+			ChatCompletionResponse result = results.get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(
+				result.getChoices().get(0).getMessage().getContent());
+			posts.add(Post.create(postGroup, null, content.getSummary(),
+				content.getContent(), PostStatusType.GENERATED, null, order + i + 1));
+		}
 
 		// 엔티티 저장
 		List<Post> savedPosts = postTransactionService.savePosts(posts);
@@ -275,18 +287,19 @@ public class PostService {
 	/**
 	 * 게시물 추가 생성: 이미지 기반 게시물 생성 및 저장 메서드
 	 */
-	private CreatePostsResponse createAdditionalPostsByImage(PostGroup postGroup, Integer limit) {
+	private CreatePostsResponse createAdditionalPostsByImage(PostGroup postGroup, Integer limit, Integer order) {
 		// 게시물 생성
 		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(postGroup, limit));
 
 		// Post 엔티티 리스트 생성
-		List<Post> posts = result.getChoices().stream()
-			.map(choice -> {
-				SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
-				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
-					PostStatusType.GENERATED, null);
-			})
-			.toList();
+		// order 지정에 사용할 반복변수를 위해 for문 사용
+		List<Post> posts = new ArrayList<>();
+		for (int i = 0; i < result.getChoices().size(); i++) {
+			Choice choice = result.getChoices().get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
+			posts.add(Post.create(postGroup, null, content.getSummary(),
+				content.getContent(), PostStatusType.GENERATED, null, order + i + 1));
+		}
 
 		// 엔티티 저장
 		List<Post> savedPosts = postTransactionService.savePosts(posts);
