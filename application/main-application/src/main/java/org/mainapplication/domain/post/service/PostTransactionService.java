@@ -1,13 +1,12 @@
 package org.mainapplication.domain.post.service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.PostImage;
+import org.domainmodule.post.entity.type.PostPromptType;
 import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.post.repository.PostImageRepository;
-import org.domainmodule.post.entity.type.PostPromptType;
 import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
@@ -39,13 +38,11 @@ public class PostTransactionService {
 	private final PromptHistoryService promptHistoryService;
 
 	/**
-	 * 생성된 Post 엔티티 리스트를 DB에 저장하는 메서드
+	 * Post 엔티티 리스트를 DB에 저장하는 메서드
 	 */
 	@Transactional
 	public List<Post> savePosts(List<Post> posts) {
-		return posts.stream()
-			.map(postRepository::save)
-			.toList();
+		return postRepository.saveAll(posts);
 	}
 
 	/**
@@ -120,7 +117,7 @@ public class PostTransactionService {
 	@Transactional(readOnly = true)
 	public Post getPostOrThrow(Long postId) {
 		return postRepository.findById(postId)
-			.orElseThrow(()-> new CustomException(PostErrorCode.POST_NOT_FOUND));
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
 	}
 
 	@Transactional
@@ -131,22 +128,6 @@ public class PostTransactionService {
 		post.updatePostContent(newContent.getSummary(), newContent.getContent(), PostStatusType.EDITING);
 
 		return PostResponse.from(post);
-  }
-
-	/**
-	 * 게시물의 상태를 수정하는 메서드
-	 */
-	@Transactional
-	public void updatePostStatus(Post post, PostStatusType status) {
-		post.updateStatus(status);
-	}
-
-	/**
-	 * 게시물의 업로드 예약 일시를 수정하는 메서드
-	 */
-	@Transactional
-	public void updatePostUploadTime(Post post, LocalDateTime uploadTime) {
-		post.updateUploadTime(uploadTime);
 	}
 
 	/**

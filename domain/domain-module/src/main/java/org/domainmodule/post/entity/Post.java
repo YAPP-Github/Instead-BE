@@ -95,16 +95,28 @@ public class Post extends BaseAuditEntity {
 		this.status = status;
 	}
 
-	public void updateDisplayOrder(Integer displayOrder) {
-		this.displayOrder = displayOrder;
-	}
-
 	public void updateUploadTime(LocalDateTime uploadTime) {
 		this.uploadTime = uploadTime;
 	}
 
+	public void updateDisplayOrder(Integer displayOrder) {
+		this.displayOrder = displayOrder;
+	}
+
 	public void updateContent(String content) {
 		this.content = content;
+	}
+
+	public void updateMetadata(PostStatusType status, LocalDateTime uploadTime, Integer displayOrder) {
+		if (status != null) {
+			this.status = status;
+		}
+		if (uploadTime != null) {
+			this.uploadTime = uploadTime;
+		}
+		if (displayOrder != null) {
+			this.displayOrder = displayOrder;
+		}
 	}
 
 	@Override

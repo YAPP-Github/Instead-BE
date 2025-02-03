@@ -22,8 +22,8 @@ import org.feedclient.service.dto.FeedPagingResult;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostContentRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostsBasicRequest;
-import org.mainapplication.domain.post.controller.request.type.UpdateAllPostsBasicRequestItem;
+import org.mainapplication.domain.post.controller.request.UpdatePostsRequest;
+import org.mainapplication.domain.post.controller.request.type.UpdatePostsRequestItem;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.exception.PostErrorCode;
@@ -535,16 +535,16 @@ public class PostService {
 	}
 
 	/**
-	 * 게시물 일괄 수정 메서드. updateType에 따라 분기
+	 * 게시물 기타 정보 수정 메서드.
 	 */
-	public void updatePosts(Long postGroupId, UpdatePostsBasicRequest request) {
+	public void updatePosts(Long postGroupId, UpdatePostsRequest request) {
 		// PostGroup 엔티티 조회
 		PostGroup postGroup = postGroupRepository.findById(postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
 		// Post 엔티티 리스트 조회
 		List<Long> postIds = request.getPosts().stream()
-			.map(UpdateAllPostsBasicRequestItem::getPostId)
+			.map(UpdatePostsRequestItem::getPostId)
 			.toList();
 		List<Post> posts = postRepository.findAllById(postIds);
 
@@ -555,27 +555,17 @@ public class PostService {
 			}
 		});
 
-		// 수정 타입에 따라 분기
-		switch (request.getUpdateType()) {
-			case STATUS_ORDER -> request.getPosts()
-				.forEach(postRequest -> {
-					Post post = postRepository.findById(postRequest.getPostId())  // 1차 캐시 조회
-						.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
-					if (postRequest.getStatus() == null) {
-						throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
-					}
-					postTransactionService.updatePostStatus(post, postRequest.getStatus());
-				});
-			case UPLOAD_TIME -> request.getPosts()
-				.forEach(postRequest -> {
-					Post post = postRepository.findById(postRequest.getPostId())  // 1차 캐시 조회
-						.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
-					if (postRequest.getUploadTime() == null) {
-						throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
-					}
-					postTransactionService.updatePostUploadTime(post, postRequest.getUploadTime());
-				});
-		}
+		// Post 엔티티 리스트 수정
+		request.getPosts()
+			.forEach(postRequest -> {
+				Post post = postRepository.findById(postRequest.getPostId())  // 1차 캐시 조회
+					.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
+				post.updateMetadata(
+					postRequest.getStatus(), postRequest.getUploadTime(), postRequest.getDisplayOrder());
+			});
+
+		// 수정 내용 저장
+		postTransactionService.savePosts(posts);
 	}
 
 	/**

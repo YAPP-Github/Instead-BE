@@ -5,7 +5,7 @@ import java.util.List;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostContentRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostsBasicRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostsRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.PromptHistoriesResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
@@ -83,7 +83,7 @@ public class PostController {
 	}
 
 	@Operation(
-		summary = "게시물 내용 및 이미지 수정 API",
+		summary = "게시물 내용 수정 API",
 		description = """
 			기존 게시물의 내용 및 이미지를 수정합니다.
 
@@ -109,25 +109,19 @@ public class PostController {
 	}
 
 	@Operation(
-		summary = "게시물 일괄 일반 수정 API",
+		summary = "게시물 기타 정보 수정 API",
 		description = """
-			기존 여러 게시물들의 상태 / 업로드 예약 일시를 수정합니다.
+			기존 여러 게시물들의 상태 / 업로드 예약 일시 / 순서를 수정합니다.
 
-			**1. 수정 타입을 나타내는 updateType 필드에 따라 필요한 필드가 달라집니다.**
-			- STATUS (게시물 상태 수정): status 필드를 설정하고, 나머지 필드는 비워주세요.
-			- UPLOAD_TIME (게시물 업로드 예약일시 수정): uploadTime 필드를 설정하고, 나머지 필드는 비워주세요.
-
-			**2. 일괄 수정에 경우에는 게시물 내용 또는 이미지 변경을 지원하지 않습니다.**
-
-			현재는 게시물 예약 단계에서 예약 일시 설정이 마무리되어 적용될 때만 사용될 API입니다."""
+			**변경이 필요한 필드에만 값을 넣어주시고, 변경이 없는 필드는 비워주시면 됩니다.**"""
 	)
 	@PutMapping("/{postGroupId}/posts")
 	public ResponseEntity<Void> updatePosts(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
-		@RequestBody UpdatePostsBasicRequest updatePostsBasicRequest
+		@RequestBody UpdatePostsRequest updatePostsRequest
 	) {
-		postService.updatePosts(postGroupId, updatePostsBasicRequest);
+		postService.updatePosts(postGroupId, updatePostsRequest);
 		return ResponseEntity.ok().build();
 	}
 

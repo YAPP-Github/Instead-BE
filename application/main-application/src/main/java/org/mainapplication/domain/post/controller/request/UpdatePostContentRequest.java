@@ -12,7 +12,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-@Schema(description = "게시물 내용 및 이미지 수정 API 요청 본문")
+@Schema(description = "게시물 내용 수정 API 요청 본문")
 public class UpdatePostContentRequest {
 
 	@Schema(description = "게시물 수정 타입에 대한 Enum (내용 수정, 내용과 이미지 수정)", example = "CONTENT")
