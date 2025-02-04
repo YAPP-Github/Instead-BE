@@ -28,7 +28,7 @@ public class UploadPostService {
 	private final PostService postService;
 	private final SnsTokenService snsTokenService;
 
-
+	private static final int MAX_RETRY_COUNT = 1;
 
 	/**
 	 * post의 upload_time을 확인하여 sns 게시물 업로드
@@ -42,7 +42,7 @@ public class UploadPostService {
 
 			// CompletableFuture 리스트 생성
 			List<CompletableFuture<Void>> futures = uploadPostInfoList.stream()
-				.map(post -> processUploadPost(post))
+				.map(post -> processUploadPost(post, 0))
 				.toList();
 
 			// 모든 업로드가 완료될 때까지 대기
@@ -57,17 +57,21 @@ public class UploadPostService {
 	 * @Async 비동기 업로드 수행
 	 */
 	@Async("threadPoolTaskExecutor")
-	public CompletableFuture<Void> processUploadPost(UploadPostDto uploadPostDto) {
+	public CompletableFuture<Void> processUploadPost(UploadPostDto uploadPostDto, int retryCount) {
+		if (retryCount > MAX_RETRY_COUNT) {
+			log.error("Post ID: {} 업로드 실패 (최대 재시도 횟수 초과)", uploadPostDto.post().getId());
+			return CompletableFuture.completedFuture(null);
+		}
+
 		try {
-			Long tweetId = twitterApiService.postTweetWithRetry(
+			Long tweetId = twitterApiService.postTweet(
 				uploadPostDto.snsToken().getAccessToken(),
-				uploadPostDto.snsToken().getRefreshToken(),
 				uploadPostDto.post().getContent()
 			);
 			handleUploadSuccess(uploadPostDto, tweetId);
 			return CompletableFuture.completedFuture(null);
 		} catch (Exception ex) {
-			handleUploadError(uploadPostDto, ex);
+			handleUploadError(uploadPostDto, ex, retryCount);
 			return CompletableFuture.failedFuture(ex);
 		}
 	}
@@ -77,13 +81,13 @@ public class UploadPostService {
 		log.info("Tweet 업로드 성공 Post ID: {}, Tweet ID: {}", uploadPostDto.post().getId(), tweetId);
 	}
 
-	private void handleUploadError(UploadPostDto uploadPostDto, Throwable exception) {
+	private void handleUploadError(UploadPostDto uploadPostDto, Throwable exception, int retryCount) {
 		if (exception instanceof TwitterException twitterException) {
 			int statusCode = twitterException.getStatusCode();
 			log.error("TwitterException 발생. 상태 코드: {}, 메시지: {}", statusCode, twitterException.getMessage());
 
 			switch (statusCode) {
-				case 401 -> handleUnauthorizedError(uploadPostDto);
+				case 401 -> handleUnauthorizedError(uploadPostDto, retryCount);
 				case 403 -> handleForbiddenError(uploadPostDto);
 				case 429 -> handleRateLimitError(uploadPostDto);
 				case 500, 503 -> handleServerError(uploadPostDto);

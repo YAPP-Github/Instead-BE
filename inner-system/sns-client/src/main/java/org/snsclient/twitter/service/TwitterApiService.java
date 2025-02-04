@@ -3,11 +3,9 @@ package org.snsclient.twitter.service;
 import org.snsclient.twitter.config.TwitterConfig;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
-import org.snsclient.twitter.exception.ThrowingFunction;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import twitter4j.CreateTweetResponse;
 import twitter4j.OAuth2TokenProvider;
@@ -138,55 +136,9 @@ public class TwitterApiService {
 	/**
 	 * X로 부터 유저 본인의 정보 받아오기 (401시 토큰 재발급 후 요청)
 	 * @param accessToken
-	 * @param refreshToken
 	 * @return 트위터 유저 기본 정보
 	 */
-
-	@SneakyThrows
-	public TwitterUserInfoDto getUserInfoWithRetry(String accessToken, String refreshToken) {
-		return executeWithTokenRetry(accessToken, refreshToken, newToken -> {
-			try {
-				return getUserInfo(newToken);
-			} catch (TwitterException e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
-
-	@SneakyThrows
-	public Long postTweetWithRetry(String accessToken, String refreshToken, String content) {
-		return executeWithTokenRetry(accessToken, refreshToken, newToken -> {
-			try {
-				return PostTweet(newToken, content);
-			} catch (TwitterException e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
-
-	private <T> T executeWithTokenRetry(String accessToken, String refreshToken, ThrowingFunction<String, T, TwitterException> apiCall) throws TwitterException {
-		try {
-			return apiCall.apply(accessToken);
-		} catch (TwitterException e) {
-			if (e.getStatusCode() == 401) {
-				return handleTokenRefreshAndRetry(refreshToken, apiCall);
-			}
-			throw e;
-		} catch (Exception e) {
-			throw new RuntimeException("토큰 재발급 중 예상치 못한 오류가 발생하였습니다.", e);
-		}
-	}
-
-	private <T> T handleTokenRefreshAndRetry(String refreshToken, ThrowingFunction<String, T, TwitterException> apiCall) {
-		try {
-			TwitterToken newTokenResponse = refreshTwitterToken(refreshToken);
-			return apiCall.apply(newTokenResponse.accessToken());
-		} catch (TwitterException e) {
-			throw new RuntimeException("토큰 갱신 및 요청 재시도 실패", e);
-		}
-	}
-
-	private TwitterUserInfoDto getUserInfo(String accessToken) throws TwitterException {
+	public TwitterUserInfoDto getUserInfo(String accessToken) throws TwitterException {
 		TwitterV2 twitterV2 = createTwitterV2(accessToken);
 		UsersResponse usersResponse = twitterV2.getMe("", null, "description");
 		return mapToUserInfoDto(usersResponse);
@@ -204,7 +156,7 @@ public class TwitterApiService {
 	 * 트윗 생성 API 호출 메서드
 	 * @param content 트윗 내용
 	 */
-	public Long PostTweet(String accessToken, String content) throws TwitterException {
+	public Long postTweet(String accessToken, String content) throws TwitterException {
 		TwitterV2 twitterV2 = createTwitterV2(accessToken);
 		CreateTweetResponse tweetResponse = twitterV2.createTweet(null, null, null, null, null, null, null, null, null, null, null, content);
 		return tweetResponse.getId();

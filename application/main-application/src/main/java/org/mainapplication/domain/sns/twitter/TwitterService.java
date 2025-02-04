@@ -5,6 +5,7 @@ import java.net.URI;
 import org.domainmodule.agent.entity.Agent;
 import org.mainapplication.domain.agent.service.AgentService;
 import org.mainapplication.domain.sns.token.SnsTokenService;
+import org.mainapplication.global.error.CustomException;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.snsclient.twitter.service.TwitterApiService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import twitter4j.TwitterException;
 
 @Service
 @RequiredArgsConstructor
@@ -40,9 +42,17 @@ public class TwitterService {
 	@Transactional
 	public void loginOrRegister(String code) {
 		TwitterToken tokenResponse = twitterApiService.getTwitterAuthorizationToken(code);
-		TwitterUserInfoDto userInfo = twitterApiService.getUserInfoWithRetry(tokenResponse.accessToken(), tokenResponse.refreshToken());
+		TwitterUserInfoDto userInfo = getUserInfo(tokenResponse);
 
 		Agent agent = agentService.findOrCreateAgent(userInfo);
 		snsTokenService.createOrUpdateSnsToken(agent, tokenResponse);
+	}
+
+	private TwitterUserInfoDto getUserInfo(TwitterToken token) {
+		try {
+			return twitterApiService.getUserInfo(token.accessToken());
+		} catch (TwitterException e) {
+			throw new RuntimeException("Twitter 유저 기본정보를 가져오지 못했습니다.", e);
+		}
 	}
 }
