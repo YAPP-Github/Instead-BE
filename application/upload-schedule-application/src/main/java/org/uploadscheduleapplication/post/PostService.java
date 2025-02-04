@@ -7,6 +7,7 @@ import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.post.repository.PostRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.uploadscheduleapplication.util.TimeUtil;
 import org.uploadscheduleapplication.util.dto.TimeRange;
 
@@ -26,6 +27,7 @@ public class PostService {
 		return postRepository.findPostsWithSnsTokenByTimeRange(timeRange.startTime(), timeRange.endTime(), PostStatusType.UPLOAD_RESERVED);
 	}
 
+	@Transactional
 	public void updatePostStatus(Post post, PostStatusType postStatus) {
 		post.updateStatus(postStatus);
 		postRepository.save(post);

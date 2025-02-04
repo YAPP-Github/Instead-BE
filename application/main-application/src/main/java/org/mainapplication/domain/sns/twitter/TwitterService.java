@@ -40,7 +40,7 @@ public class TwitterService {
 	@Transactional
 	public void loginOrRegister(String code) {
 		TwitterToken tokenResponse = twitterApiService.getTwitterAuthorizationToken(code);
-		TwitterUserInfoDto userInfo = twitterApiService.getUserInfo(tokenResponse.accessToken(), tokenResponse.refreshToken());
+		TwitterUserInfoDto userInfo = twitterApiService.getUserInfoWithRetry(tokenResponse.accessToken(), tokenResponse.refreshToken());
 
 		Agent agent = agentService.findOrCreateAgent(userInfo);
 		snsTokenService.createOrUpdateSnsToken(agent, tokenResponse);
