@@ -3,11 +3,10 @@ package org.mainapplication.domain.post.controller;
 import java.util.List;
 
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostContentRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostsRequest;
 import org.mainapplication.domain.post.controller.request.MultiplePostUpdateRequest;
 import org.mainapplication.domain.post.controller.request.SinglePostUpdateRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostContentRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostsRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.PromptHistoriesResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
@@ -192,7 +191,8 @@ public class PostController {
 		@PathVariable Long postId,
 		@RequestBody SinglePostUpdateRequest singlePostUpdateRequest
 	) {
-		return ResponseEntity.ok(postService.updateSinglePostByPrompt(singlePostUpdateRequest, agentId, postGroupId, postId));
+		return ResponseEntity.ok(
+			postService.updateSinglePostByPrompt(singlePostUpdateRequest, agentId, postGroupId, postId));
 	}
 
 	@Operation(summary = "게시물 프롬프트 기반 일괄 수정 API", description = "일괄 게시물에 대해 입력된 프롬프트를 바탕으로 수정합니다.")
@@ -202,6 +202,7 @@ public class PostController {
 		@PathVariable Long postGroupId,
 		@RequestBody MultiplePostUpdateRequest multiplePostUpdateRequest
 	) {
-		return ResponseEntity.ok(postService.updateMultiplePostsByPrompt(multiplePostUpdateRequest, agentId, postGroupId));
+		return ResponseEntity.ok(
+			postService.updateMultiplePostsByPrompt(multiplePostUpdateRequest, agentId, postGroupId));
 	}
 }

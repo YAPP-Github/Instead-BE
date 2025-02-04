@@ -3,7 +3,6 @@ package org.mainapplication.domain.post.service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.PostImage;
@@ -21,12 +20,11 @@ import org.domainmodule.rssfeed.repository.RssFeedRepository;
 import org.feedclient.service.FeedService;
 import org.feedclient.service.dto.FeedPagingResult;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostContentRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostsRequest;
-import org.mainapplication.domain.post.controller.request.type.UpdatePostsRequestItem;
 import org.mainapplication.domain.post.controller.request.MultiplePostUpdateRequest;
 import org.mainapplication.domain.post.controller.request.SinglePostUpdateRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostContentRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostsRequest;
+import org.mainapplication.domain.post.controller.request.type.UpdatePostsRequestItem;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.exception.PostErrorCode;
@@ -598,8 +596,18 @@ public class PostService {
 			.forEach(postRequest -> {
 				Post post = postRepository.findById(postRequest.getPostId())  // 1차 캐시 조회
 					.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
-				post.updateMetadata(
-					postRequest.getStatus(), postRequest.getUploadTime(), postRequest.getDisplayOrder());
+
+				if (postRequest.getStatus() != null) {
+					post.updateStatus(postRequest.getStatus());
+				}
+				if (postRequest.getUploadTime() != null) {
+					// 업로드 예약일시가 변경되는 경우는 업로드 예약 상태가 되는 경우만 존재
+					post.updateStatus(PostStatusType.UPLOAD_RESERVED);
+					post.updateUploadTime(postRequest.getUploadTime());
+				}
+				if (postRequest.getDisplayOrder() != null) {
+					post.updateDisplayOrder(postRequest.getDisplayOrder());
+				}
 			});
 
 		// 수정 내용 저장

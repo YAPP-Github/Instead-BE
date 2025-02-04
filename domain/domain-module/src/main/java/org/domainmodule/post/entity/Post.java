@@ -107,18 +107,6 @@ public class Post extends BaseAuditEntity {
 		this.content = content;
 	}
 
-	public void updateMetadata(PostStatusType status, LocalDateTime uploadTime, Integer displayOrder) {
-		if (status != null) {
-			this.status = status;
-		}
-		if (uploadTime != null) {
-			this.uploadTime = uploadTime;
-		}
-		if (displayOrder != null) {
-			this.displayOrder = displayOrder;
-		}
-	}
-
 	@Override
 	public String toString() {
 		return "Post{"
