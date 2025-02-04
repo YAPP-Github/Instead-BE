@@ -50,6 +50,8 @@ public class Post extends BaseAuditEntity {
 	@Column(name = "upload_time")
 	private LocalDateTime uploadTime;
 
+	private Integer displayOrder;
+
 	@Builder
 	private Post(
 		PostGroup postGroup,
@@ -57,7 +59,8 @@ public class Post extends BaseAuditEntity {
 		String summary,
 		String content,
 		PostStatusType status,
-		LocalDateTime uploadTime
+		LocalDateTime uploadTime,
+		Integer displayOrder
 	) {
 		this.postGroup = postGroup;
 		this.title = title;
@@ -65,6 +68,7 @@ public class Post extends BaseAuditEntity {
 		this.content = content;
 		this.status = status;
 		this.uploadTime = uploadTime;
+		this.displayOrder = displayOrder;
 	}
 
 	public static Post create(
@@ -73,7 +77,8 @@ public class Post extends BaseAuditEntity {
 		String summary,
 		String content,
 		PostStatusType status,
-		LocalDateTime uploadTime
+		LocalDateTime uploadTime,
+		Integer displayOrder
 	) {
 		return Post.builder()
 			.postGroup(postGroup)
@@ -82,6 +87,7 @@ public class Post extends BaseAuditEntity {
 			.content(content)
 			.status(status)
 			.uploadTime(uploadTime)
+			.displayOrder(displayOrder)
 			.build();
 	}
 
@@ -91,6 +97,10 @@ public class Post extends BaseAuditEntity {
 
 	public void updateUploadTime(LocalDateTime uploadTime) {
 		this.uploadTime = uploadTime;
+	}
+
+	public void updateDisplayOrder(Integer displayOrder) {
+		this.displayOrder = displayOrder;
 	}
 
 	public void updateContent(String content) {
@@ -104,7 +114,8 @@ public class Post extends BaseAuditEntity {
 			+ ", summary='" + summary + '\''
 			+ ", content='" + content + '\''
 			+ ", status=" + status
-			+ ", uploadTime=" + uploadTime
+			+ ", uploadTime=" + uploadTime + '\''
+			+ ", displayOrder=" + displayOrder
 			+ '}';
 	}
 

@@ -1,8 +1,8 @@
 package org.mainapplication.domain.post.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.PostImage;
@@ -21,10 +21,10 @@ import org.feedclient.service.FeedService;
 import org.feedclient.service.dto.FeedPagingResult;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 import org.mainapplication.domain.post.controller.request.MultiplePostUpdateRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostBasicRequest;
 import org.mainapplication.domain.post.controller.request.SinglePostUpdateRequest;
-import org.mainapplication.domain.post.controller.request.UpdatePostsBasicRequest;
-import org.mainapplication.domain.post.controller.request.type.UpdatePostsBasicRequestItem;
+import org.mainapplication.domain.post.controller.request.UpdatePostContentRequest;
+import org.mainapplication.domain.post.controller.request.UpdatePostsRequest;
+import org.mainapplication.domain.post.controller.request.type.UpdatePostsRequestItem;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.exception.PostErrorCode;
@@ -39,6 +39,7 @@ import org.mainapplication.openai.prompt.CreatePostPrompt;
 import org.openaiclient.client.OpenAiClient;
 import org.openaiclient.client.dto.request.ChatCompletionRequest;
 import org.openaiclient.client.dto.response.ChatCompletionResponse;
+import org.openaiclient.client.dto.response.type.Choice;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,7 +71,7 @@ public class PostService {
 	private String openAiModel;
 
 	/**
-	 * 참고자료 없는 게시물 생성 및 저장 메서드
+	 * 참고자료 없는 게시물 그룹과 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createPostsWithoutRef(CreatePostsRequest request, Integer limit) {
 		// 게시물 생성
@@ -81,13 +82,14 @@ public class PostService {
 			request.getReference(), request.getLength(), request.getContent());
 
 		// Post 엔티티 생성: OpenAI API 응답의 choices에서 답변 꺼내 json으로 파싱 후 엔티티 생성
-		List<Post> posts = result.getChoices().stream()
-			.map(choice -> {
-				SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
-				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
-					PostStatusType.GENERATED, null);
-			})
-			.toList();
+		// displayOrder 지정에 사용할 반복변수를 위해 for문 사용
+		List<Post> posts = new ArrayList<>();
+		for (int i = 0; i < result.getChoices().size(); i++) {
+			Choice choice = result.getChoices().get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
+			posts.add(Post.create(postGroup, null, content.getSummary(),
+				content.getContent(), PostStatusType.GENERATED, null, i + 1));
+		}
 
 		// PostGroup 및 Post 리스트 저장
 		SavePostGroupAndPostsDto saveResult = postTransactionService.savePostGroupAndPosts(postGroup, posts);
@@ -100,7 +102,7 @@ public class PostService {
 	}
 
 	/**
-	 * 뉴스 기사 기반 게시물 생성 및 저장 메서드
+	 * 뉴스 기사 기반 게시물 그룹과 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createPostsByNews(CreatePostsRequest request, Integer limit) {
 		// newsCategory 필드 검증
@@ -126,14 +128,15 @@ public class PostService {
 		PostGroupRssCursor postGroupRssCursor = PostGroupRssCursor.createPostGroupRssCursor(postGroup, cursor);
 
 		// Post 엔티티 생성
-		List<Post> posts = results.stream()
-			.map(result -> {
-				SummaryContentFormat content = parseSummaryContentFormat(
-					result.getChoices().get(0).getMessage().getContent());
-				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
-					PostStatusType.GENERATED, null);
-			})
-			.toList();
+		// displayOrder 지정에 사용할 반복변수를 위해 for문 사용
+		List<Post> posts = new ArrayList<>();
+		for (int i = 0; i < results.size(); i++) {
+			ChatCompletionResponse result = results.get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(
+				result.getChoices().get(0).getMessage().getContent());
+			posts.add(Post.create(postGroup, null, content.getSummary(),
+				content.getContent(), PostStatusType.GENERATED, null, i + 1));
+		}
 
 		// 엔티티 저장
 		SavePostGroupWithRssCursorAndPostsDto saveResult = postTransactionService.savePostGroupWithRssCursorAndPosts(
@@ -147,7 +150,7 @@ public class PostService {
 	}
 
 	/**
-	 * 이미지 기반 게시물 생성 및 저장 메서드
+	 * 이미지 기반 게시물 그룹과 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createPostsByImage(CreatePostsRequest request, Integer limit) {
 		// imageUrls 필드 검증
@@ -168,13 +171,14 @@ public class PostService {
 			.toList();
 
 		// Post 엔티티 리스트 생성
-		List<Post> posts = result.getChoices().stream()
-			.map(choice -> {
-				SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
-				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
-					PostStatusType.GENERATED, null);
-			})
-			.toList();
+		// displayOrder 지정에 사용할 반복변수를 위해 for문 사용
+		List<Post> posts = new ArrayList<>();
+		for (int i = 0; i < result.getChoices().size(); i++) {
+			Choice choice = result.getChoices().get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
+			posts.add(Post.create(postGroup, null, content.getSummary(),
+				content.getContent(), PostStatusType.GENERATED, null, i + 1));
+		}
 
 		// 엔티티 저장
 		SavePostGroupWithImagesAndPostsDto saveResult = postTransactionService.savePostGroupWithImagesAndPosts(
@@ -196,29 +200,35 @@ public class PostService {
 		PostGroup postGroup = postGroupRepository.findById(postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
+		// displayOrder 설정을 위해 Post 조회
+		Integer order = postRepository.findLastGeneratedPost(postGroup, PostStatusType.GENERATED)
+			.map(Post::getDisplayOrder)
+			.orElse(0);
+
 		// referenceType에 따라 분기
 		return switch (postGroup.getReference()) {
-			case NONE -> createAdditionalPostsWithoutRef(postGroup, limit);
-			case NEWS -> createAdditionalPostsByNews(postGroup, limit);
-			case IMAGE -> createAdditionalPostsByImage(postGroup, limit);
+			case NONE -> createAdditionalPostsWithoutRef(postGroup, limit, order);
+			case NEWS -> createAdditionalPostsByNews(postGroup, limit, order);
+			case IMAGE -> createAdditionalPostsByImage(postGroup, limit, order);
 		};
 	}
 
 	/**
 	 * 게시물 추가 생성: 참고자료 없는 게시물 생성 및 저장 메서드
 	 */
-	private CreatePostsResponse createAdditionalPostsWithoutRef(PostGroup postGroup, Integer limit) {
+	private CreatePostsResponse createAdditionalPostsWithoutRef(PostGroup postGroup, Integer limit, Integer order) {
 		// 게시물 생성
 		ChatCompletionResponse result = generatePostsWithoutRef(GeneratePostsVo.of(postGroup, limit));
 
 		// Post 엔티티 리스트 생성
-		List<Post> posts = result.getChoices().stream()
-			.map(choice -> {
-				SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
-				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
-					PostStatusType.GENERATED, null);
-			})
-			.toList();
+		// order 지정에 사용할 반복변수를 위해 for문 사용
+		List<Post> posts = new ArrayList<>();
+		for (int i = 0; i < result.getChoices().size(); i++) {
+			Choice choice = result.getChoices().get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
+			posts.add(Post.create(postGroup, null, content.getSummary(),
+				content.getContent(), PostStatusType.GENERATED, null, order + i + 1));
+		}
 
 		// 엔티티 저장
 		List<Post> savedPosts = postTransactionService.savePosts(posts);
@@ -234,7 +244,7 @@ public class PostService {
 	 * 게시물 추가 생성: 뉴스 기사 기반 게시물 생성 및 저장 메서드
 	 * 피드 고갈 시 NEWS_FEED_EXHAUSTED
 	 */
-	private CreatePostsResponse createAdditionalPostsByNews(PostGroup postGroup, Integer limit) {
+	private CreatePostsResponse createAdditionalPostsByNews(PostGroup postGroup, Integer limit, Integer order) {
 		// 피드 받아오기: RssFeed와 PostGroupRssCursor를 DB에서 조회
 		RssFeed rssFeed = rssFeedRepository.findByCategory(postGroup.getFeed().getCategory())
 			.orElseThrow(() -> new CustomException(PostErrorCode.RSS_FEED_NOT_FOUND));
@@ -256,14 +266,15 @@ public class PostService {
 		rssCursor.updateNewsId(cursor);
 
 		// Post 엔티티 생성
-		List<Post> posts = results.stream()
-			.map(result -> {
-				SummaryContentFormat content = parseSummaryContentFormat(
-					result.getChoices().get(0).getMessage().getContent());
-				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
-					PostStatusType.GENERATED, null);
-			})
-			.toList();
+		// order 지정에 사용할 반복변수를 위해 for문 사용
+		List<Post> posts = new ArrayList<>();
+		for (int i = 0; i < results.size(); i++) {
+			ChatCompletionResponse result = results.get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(
+				result.getChoices().get(0).getMessage().getContent());
+			posts.add(Post.create(postGroup, null, content.getSummary(),
+				content.getContent(), PostStatusType.GENERATED, null, order + i + 1));
+		}
 
 		// 엔티티 저장
 		List<Post> savedPosts = postTransactionService.savePosts(posts);
@@ -278,18 +289,19 @@ public class PostService {
 	/**
 	 * 게시물 추가 생성: 이미지 기반 게시물 생성 및 저장 메서드
 	 */
-	private CreatePostsResponse createAdditionalPostsByImage(PostGroup postGroup, Integer limit) {
+	private CreatePostsResponse createAdditionalPostsByImage(PostGroup postGroup, Integer limit, Integer order) {
 		// 게시물 생성
 		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(postGroup, limit));
 
 		// Post 엔티티 리스트 생성
-		List<Post> posts = result.getChoices().stream()
-			.map(choice -> {
-				SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
-				return Post.create(postGroup, null, content.getSummary(), content.getContent(),
-					PostStatusType.GENERATED, null);
-			})
-			.toList();
+		// order 지정에 사용할 반복변수를 위해 for문 사용
+		List<Post> posts = new ArrayList<>();
+		for (int i = 0; i < result.getChoices().size(); i++) {
+			Choice choice = result.getChoices().get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
+			posts.add(Post.create(postGroup, null, content.getSummary(),
+				content.getContent(), PostStatusType.GENERATED, null, order + i + 1));
+		}
 
 		// 엔티티 저장
 		List<Post> savedPosts = postTransactionService.savePosts(posts);
@@ -500,9 +512,9 @@ public class PostService {
 	}
 
 	/**
-	 * 게시물 수정 메서드. updateType에 따라 분기
+	 * 게시물 내용 수정 메서드. updateType에 따라 분기
 	 */
-	public void updatePost(Long postGroupId, Long postId, UpdatePostBasicRequest request) {
+	public void updatePostContent(Long postGroupId, Long postId, UpdatePostContentRequest request) {
 		// PostGroup 엔티티 조회
 		PostGroup postGroup = postGroupRepository.findById(postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
@@ -516,41 +528,27 @@ public class PostService {
 			throw new CustomException(PostErrorCode.INVALID_POST);
 		}
 
-		// 수정 타입 검증
+		// content 필드 검증 및 Post 엔티티 수정
+		if (request.getContent() == null) {
+			throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
+		}
+		postTransactionService.updatePostContent(post, request.getContent());
+
+		// 수정 타입에 따라 분기
 		switch (request.getUpdateType()) {
-			case STATUS -> {
-				if (request.getStatus() == null) {
-					throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
-				}
-				postTransactionService.updatePostStatus(post, request.getStatus());
-			}
-			case UPLOAD_TIME -> {
-				if (request.getUploadTime() == null) {
-					throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
-				}
-				postTransactionService.updatePostUploadTime(post, request.getUploadTime());
-			}
-			case CONTENT -> {
-				if (request.getContent() == null) {
-					throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
-				}
-				postTransactionService.updatePostContent(post, request.getContent());
-			}
-			case CONTENT_WITH_IMAGE -> {
-				if (request.getContent() == null || request.getImageUrls() == null) {
-					throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
-				}
-				updatePostContentWithImage(post, request);
-			}
+			case CONTENT -> postTransactionService.updatePostContent(post, request.getContent());
+			case CONTENT_IMAGE -> updatePostImages(post, request);
 		}
 	}
 
 	/**
-	 * 게시물의 내용과 이미지를 수정하는 메서드
+	 * 게시물의 내용 및 이미지를 수정 메서드.
 	 */
-	private void updatePostContentWithImage(Post post, UpdatePostBasicRequest request) {
-		// Post 엔티티 수정
-		postTransactionService.updatePostContent(post, request.getContent());
+	private void updatePostImages(Post post, UpdatePostContentRequest request) {
+		// 수정 타입 검증
+		if (request.getContent() == null || request.getImageUrls() == null) {
+			throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
+		}
 
 		// PostImage 엔티티 조회
 		List<PostImage> postImages = postImageRepository.findAllByPost(post);
@@ -573,16 +571,16 @@ public class PostService {
 	}
 
 	/**
-	 * 게시물 일괄 수정 메서드. updateType에 따라 분기
+	 * 게시물 기타 정보 수정 메서드.
 	 */
-	public void updatePosts(Long postGroupId, UpdatePostsBasicRequest request) {
+	public void updatePosts(Long postGroupId, UpdatePostsRequest request) {
 		// PostGroup 엔티티 조회
 		PostGroup postGroup = postGroupRepository.findById(postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
 		// Post 엔티티 리스트 조회
 		List<Long> postIds = request.getPosts().stream()
-			.map(UpdatePostsBasicRequestItem::getPostId)
+			.map(UpdatePostsRequestItem::getPostId)
 			.toList();
 		List<Post> posts = postRepository.findAllById(postIds);
 
@@ -593,27 +591,27 @@ public class PostService {
 			}
 		});
 
-		// 수정 타입에 따라 분기
-		switch (request.getUpdateType()) {
-			case STATUS -> request.getPosts()
-				.forEach(postRequest -> {
-					Post post = postRepository.findById(postRequest.getPostId())  // 1차 캐시 조회
-						.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
-					if (postRequest.getStatus() == null) {
-						throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
-					}
-					postTransactionService.updatePostStatus(post, postRequest.getStatus());
-				});
-			case UPLOAD_TIME -> request.getPosts()
-				.forEach(postRequest -> {
-					Post post = postRepository.findById(postRequest.getPostId())  // 1차 캐시 조회
-						.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
-					if (postRequest.getUploadTime() == null) {
-						throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
-					}
-					postTransactionService.updatePostUploadTime(post, postRequest.getUploadTime());
-				});
-		}
+		// Post 엔티티 리스트 수정
+		request.getPosts()
+			.forEach(postRequest -> {
+				Post post = postRepository.findById(postRequest.getPostId())  // 1차 캐시 조회
+					.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
+
+				if (postRequest.getStatus() != null) {
+					post.updateStatus(postRequest.getStatus());
+				}
+				if (postRequest.getUploadTime() != null) {
+					// 업로드 예약일시가 변경되는 경우는 업로드 예약 상태가 되는 경우만 존재
+					post.updateStatus(PostStatusType.UPLOAD_RESERVED);
+					post.updateUploadTime(postRequest.getUploadTime());
+				}
+				if (postRequest.getDisplayOrder() != null) {
+					post.updateDisplayOrder(postRequest.getDisplayOrder());
+				}
+			});
+
+		// 수정 내용 저장
+		postTransactionService.savePosts(posts);
 	}
 
 	/**

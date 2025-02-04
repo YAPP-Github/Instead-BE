@@ -12,8 +12,8 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-@Schema(description = "게시물 일괄 일반 수정 정보를 담는 요청 객체")
-public class UpdatePostsBasicRequestItem {
+@Schema(description = "게시물 기타 정보 수정 API의 수정 정보를 담는 요청 객체")
+public class UpdatePostsRequestItem {
 
 	@Schema(description = "수정할 게시물 id", example = "1")
 	@NotNull(message = "게시물 id를 지정해주세요.")
@@ -26,4 +26,8 @@ public class UpdatePostsBasicRequestItem {
 	@Schema(description = "게시물 업로드 예약일시를 수정하는 경우, 변경할 업로드 예약일시", example = "2025-01-01T00:00:00.000Z")
 	@Nullable
 	private LocalDateTime uploadTime;
+
+	@Schema(description = "게시물 순서를 수정하는 경우, 변경할 게시물 순서", example = "1")
+	@Nullable
+	private Integer displayOrder;
 }
