@@ -7,9 +7,9 @@ import java.util.stream.IntStream;
 
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.PostImage;
+import org.domainmodule.post.entity.type.PostPromptType;
 import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.post.repository.PostImageRepository;
-import org.domainmodule.post.entity.type.PostPromptType;
 import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
@@ -41,13 +41,11 @@ public class PostTransactionService {
 	private final PromptHistoryService promptHistoryService;
 
 	/**
-	 * 생성된 Post 엔티티 리스트를 DB에 저장하는 메서드
+	 * Post 엔티티 리스트를 DB에 저장하는 메서드
 	 */
 	@Transactional
 	public List<Post> savePosts(List<Post> posts) {
-		return posts.stream()
-			.map(postRepository::save)
-			.toList();
+		return postRepository.saveAll(posts);
 	}
 
 	/**
@@ -122,7 +120,7 @@ public class PostTransactionService {
 	@Transactional(readOnly = true)
 	public Post getPostOrThrow(Long postId) {
 		return postRepository.findById(postId)
-			.orElseThrow(()-> new CustomException(PostErrorCode.POST_NOT_FOUND));
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
 	}
 
 	@Transactional
@@ -133,7 +131,7 @@ public class PostTransactionService {
 		post.updatePostContent(newContent.getSummary(), newContent.getContent(), PostStatusType.EDITING);
 
 		return PostResponse.from(post);
-  	}
+  }
 
 	@Transactional
 	public List<PostResponse> updateMutiplePostAndPromptyHistory(List<Post> posts, String prompt, List<SummaryContentFormat> newContents) {
