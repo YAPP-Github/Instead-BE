@@ -542,7 +542,7 @@ public class PostService {
 	}
 
 	/**
-	 * 게시물의 내용 및 이미지를 수정 메서드.
+	 * 게시물의 내용 및 이미지 수정 메서드.
 	 */
 	private void updatePostImages(Post post, UpdatePostContentRequest request) {
 		// 수정 타입 검증
