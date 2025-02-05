@@ -26,11 +26,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		@Param("status") PostStatusType status);
 
 	// PostGroup에 해당하는 Post 리스트 조회
-	@Query("""
-			select p from Post p
-			join fetch p.postImages pi
-			where p.postGroup = :postGroup
-		""")
 	List<Post> findAllByPostGroup(PostGroup postGroup);
 
 	// PostGroup에 해당하는 Post 중에서, 상태가 GENERATED인 게시물 중 order가 가장 큰 Post 조회

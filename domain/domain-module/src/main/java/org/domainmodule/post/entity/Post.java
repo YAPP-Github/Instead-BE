@@ -1,8 +1,6 @@
 package org.domainmodule.post.entity;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.domainmodule.common.entity.BaseAuditEntity;
 import org.domainmodule.post.entity.type.PostStatusType;
@@ -18,7 +16,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -54,9 +51,6 @@ public class Post extends BaseAuditEntity {
 	private LocalDateTime uploadTime;
 
 	private Integer displayOrder;
-
-	@OneToMany(mappedBy = "post")
-	private List<PostImage> postImages = new ArrayList<>();
 
 	@Builder
 	private Post(

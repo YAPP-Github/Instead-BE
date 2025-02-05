@@ -44,10 +44,6 @@ public class PostResponse {
 	private LocalDateTime uploadTime;
 
 	public static PostResponse from(Post post) {
-		List<PostImageResponse> postImages = post.getPostImages().stream()
-			.map(PostImageResponse::from)
-			.toList();
-
 		return new PostResponse(
 			post.getId(),
 			post.getCreatedAt(),
@@ -55,7 +51,7 @@ public class PostResponse {
 			post.getDisplayOrder(),
 			post.getSummary(),
 			post.getContent(),
-			postImages,
+			null,
 			post.getStatus(),
 			post.getUploadTime()
 		);

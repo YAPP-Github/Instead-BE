@@ -26,7 +26,6 @@ import org.mainapplication.domain.post.controller.request.UpdatePostContentReque
 import org.mainapplication.domain.post.controller.request.UpdatePostsRequest;
 import org.mainapplication.domain.post.controller.request.type.UpdatePostsRequestItem;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
-import org.mainapplication.domain.post.controller.response.GetPostGroupPostsResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.exception.PostErrorCode;
 import org.mainapplication.domain.post.service.dto.SavePostGroupAndPostsDto;
@@ -498,7 +497,7 @@ public class PostService {
 	 * postGroupId를 바탕으로 게시물 그룹 존재 여부를 확인하고, 해당 그룹의 게시물 목록을 반환하는 메서드
 	 * 게시물 그룹 조회 실패 시 POST_GROUP_NOT_FOUND
 	 */
-	public GetPostGroupPostsResponse getPostsByPostGroup(Long postGroupId) {
+	public List<PostResponse> getPostsByPostGroup(Long postGroupId) {
 		// PostGroup 엔티티 조회
 		PostGroup postGroup = postGroupRepository.findById(postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
@@ -507,7 +506,9 @@ public class PostService {
 		List<Post> posts = postRepository.findAllByPostGroup(postGroup);
 
 		// 결과 반환
-		return GetPostGroupPostsResponse.of(postGroup, posts);
+		return posts.stream()
+			.map(PostResponse::from)
+			.toList();
 	}
 
 	/**
@@ -541,7 +542,7 @@ public class PostService {
 	}
 
 	/**
-	 * 게시물의 내용 및 이미지 수정 메서드.
+	 * 게시물의 내용 및 이미지를 수정 메서드.
 	 */
 	private void updatePostImages(Post post, UpdatePostContentRequest request) {
 		// 수정 타입 검증
