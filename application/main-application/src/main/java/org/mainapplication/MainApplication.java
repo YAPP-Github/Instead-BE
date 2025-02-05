@@ -14,6 +14,5 @@ public class MainApplication {
 		System.setProperty("spring.config.name", "application,application-domain,application-sns");
 		SpringApplication.run(MainApplication.class, args);
 	}
-
 }
 
