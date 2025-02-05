@@ -8,6 +8,7 @@ import org.mainapplication.domain.post.controller.request.SinglePostUpdateReques
 import org.mainapplication.domain.post.controller.request.UpdatePostContentRequest;
 import org.mainapplication.domain.post.controller.request.UpdatePostsRequest;
 import org.mainapplication.domain.post.controller.response.CreatePostsResponse;
+import org.mainapplication.domain.post.controller.response.GetPostGroupPostsResponse;
 import org.mainapplication.domain.post.controller.response.PromptHistoriesResponse;
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.service.PostService;
@@ -138,7 +139,7 @@ public class PostController {
 
 	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
 	@GetMapping("/{postGroupId}/posts")
-	public ResponseEntity<List<PostResponse>> getPostsByPostGroup(
+	public ResponseEntity<GetPostGroupPostsResponse> getPostsByPostGroup(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId
 	) {
