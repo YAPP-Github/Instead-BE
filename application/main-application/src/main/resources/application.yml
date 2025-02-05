@@ -4,6 +4,8 @@ spring:
     profiles:
         include:
             - oauth
+    jackson:
+        time-zone: Asia/Seoul
 
     cloud:
         aws:
