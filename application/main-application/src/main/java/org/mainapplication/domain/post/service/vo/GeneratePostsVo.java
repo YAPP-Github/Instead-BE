@@ -4,15 +4,15 @@ import java.util.List;
 
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
+import org.domainmodule.postgroup.entity.type.PostGroupLengthType;
 import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
-import org.domainmodule.postgroup.entity.type.PostLengthType;
 import org.domainmodule.rssfeed.entity.type.FeedCategoryType;
 import org.mainapplication.domain.post.controller.request.CreatePostsRequest;
 
 public record GeneratePostsVo(
 	String topic,
 	PostGroupPurposeType purpose,
-	PostLengthType length,
+	PostGroupLengthType length,
 	String content,
 	FeedCategoryType newsCategory,
 	List<String> imageUrls,
