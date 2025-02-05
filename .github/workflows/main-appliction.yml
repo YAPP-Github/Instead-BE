@@ -19,6 +19,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          fetch-depth: 0  # 전체 커밋 내역 가져오기
 
       - name: ENV 파일 생성
         run: |
@@ -32,7 +33,9 @@ jobs:
         run: chmod +x gradlew
 
       - name: Gradle로 빌드 실행
-        run: ./gradlew :application:main-application:bootJar
+        run: |
+          ./gradlew clean
+          ./gradlew :application:main-application:bootJar
 
       # 배포에 필요한 여러 설정 파일과 프로젝트 빌드파일을 zip 파일로 모아줍니다.
       - name: zip file 생성
