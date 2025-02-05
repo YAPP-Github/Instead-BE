@@ -5,9 +5,9 @@ import java.util.List;
 
 import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.common.entity.BaseTimeEntity;
+import org.domainmodule.postgroup.entity.type.PostGroupLengthType;
 import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
 import org.domainmodule.postgroup.entity.type.PostGroupReferenceType;
-import org.domainmodule.postgroup.entity.type.PostLengthType;
 import org.domainmodule.rssfeed.entity.RssFeed;
 
 import jakarta.persistence.Column;
@@ -40,10 +40,6 @@ public class PostGroup extends BaseTimeEntity {
 	@JoinColumn(name = "agent_id")
 	private Agent agent;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "feed_id")
-	private RssFeed feed;
-
 	@Column(nullable = false, length = 255)
 	private String topic;
 
@@ -55,24 +51,27 @@ public class PostGroup extends BaseTimeEntity {
 	@Column(nullable = false)
 	private PostGroupReferenceType reference;
 
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "feed_id")
+	private RssFeed feed;
+
+	@OneToMany(mappedBy = "postGroup")
+	private List<PostGroupImage> postGroupImages = new ArrayList<>();
+
 	@Enumerated(EnumType.STRING)
-	private PostLengthType length;
+	private PostGroupLengthType length;
 
 	@Column(columnDefinition = "TEXT")
 	private String content;
 
-	// TODO: PostGroupRepository에 fetch join 쿼리 구현해야 함
-	@OneToMany(mappedBy = "postGroup")
-	private List<PostGroupImage> postGroupImages = new ArrayList<>();
-
 	@Builder
 	private PostGroup(Agent agent, RssFeed feed, String topic, PostGroupPurposeType purpose,
-		PostGroupReferenceType reference, PostLengthType length, String content) {
+		PostGroupReferenceType reference, PostGroupLengthType length, String content) {
 		this.agent = agent;
-		this.feed = feed;
 		this.topic = topic;
 		this.purpose = purpose;
 		this.reference = reference;
+		this.feed = feed;
 		this.length = length;
 		this.content = content;
 	}
@@ -83,7 +82,7 @@ public class PostGroup extends BaseTimeEntity {
 		String topic,
 		PostGroupPurposeType purpose,
 		PostGroupReferenceType reference,
-		PostLengthType length,
+		PostGroupLengthType length,
 		String content
 	) {
 		return PostGroup.builder()
