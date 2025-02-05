@@ -1,7 +1,7 @@
 package org.mainapplication.openai.prompt;
 
+import org.domainmodule.postgroup.entity.type.PostGroupLengthType;
 import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
-import org.domainmodule.postgroup.entity.type.PostLengthType;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -23,7 +23,7 @@ public class CreatePostPrompt {
 	public String getBasicTopicPrompt(
 		String topic,
 		PostGroupPurposeType purpose,
-		PostLengthType length,
+		PostGroupLengthType length,
 		String content
 	) {
 		return "지금부터 너가 생성해야 할 게시물의 내용을 알려줄게.\n"

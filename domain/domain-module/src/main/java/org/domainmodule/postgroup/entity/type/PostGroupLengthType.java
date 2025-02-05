@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum PostLengthType {
+public enum PostGroupLengthType {
 	SHORT(200, "짧은 게시물"),
 	MEDIUM(400, "보통 게시물"),
 	LONG(600, "긴 게시물");

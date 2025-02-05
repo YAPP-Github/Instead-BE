@@ -2,9 +2,9 @@ package org.mainapplication.domain.post.controller.request;
 
 import java.util.List;
 
+import org.domainmodule.postgroup.entity.type.PostGroupLengthType;
 import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
 import org.domainmodule.postgroup.entity.type.PostGroupReferenceType;
-import org.domainmodule.postgroup.entity.type.PostLengthType;
 import org.domainmodule.rssfeed.entity.type.FeedCategoryType;
 import org.springframework.lang.Nullable;
 
@@ -40,7 +40,7 @@ public class CreatePostsRequest {
 
 	@Schema(description = "생성할 게시물의 길이에 대한 Enum", example = "SHORT")
 	@NotNull(message = "게시물의 길이를 선택해주세요.")
-	private PostLengthType length;
+	private PostGroupLengthType length;
 
 	@Schema(description = "생성할 게시물에 포함될 핵심 내용", example = "'이런 메뉴는 어떨까?'와 같은 마무리 멘트")
 	@NotNull(message = "게시물의 핵심 내용을 입력해주세요.")

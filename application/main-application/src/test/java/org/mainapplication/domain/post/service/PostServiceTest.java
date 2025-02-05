@@ -3,9 +3,9 @@ package org.mainapplication.domain.post.service;
 import java.io.IOException;
 import java.util.List;
 
+import org.domainmodule.postgroup.entity.type.PostGroupLengthType;
 import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
 import org.domainmodule.postgroup.entity.type.PostGroupReferenceType;
-import org.domainmodule.postgroup.entity.type.PostLengthType;
 import org.domainmodule.rssfeed.entity.type.FeedCategoryType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -37,7 +37,7 @@ class PostServiceTest {
 			PostGroupReferenceType.NONE,
 			null,
 			null,
-			PostLengthType.SHORT,
+			PostGroupLengthType.SHORT,
 			"오늘 이 메뉴는 어떨까나~"
 		);
 
@@ -62,7 +62,7 @@ class PostServiceTest {
 			PostGroupReferenceType.NEWS,
 			FeedCategoryType.INVEST,
 			null,
-			PostLengthType.SHORT,
+			PostGroupLengthType.SHORT,
 			"'화성 가즈아~~'와 같은 추임새를 포함하기"
 		);
 
@@ -87,7 +87,7 @@ class PostServiceTest {
 			PostGroupReferenceType.IMAGE,
 			null,
 			List.of("https://instead-dev.s3.ap-northeast-2.amazonaws.com/NML2.jpeg"),
-			PostLengthType.SHORT,
+			PostGroupLengthType.SHORT,
 			"텡커레이 no.10의 시트러스한 상큼함과 깔끔함을 강조하는 홍보 멘트, '좋은 시간 좋은 술.'과 같은 느끼한 마무리 멘트"
 		);
 
