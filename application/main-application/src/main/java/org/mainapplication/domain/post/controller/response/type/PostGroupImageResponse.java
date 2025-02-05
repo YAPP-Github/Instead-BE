@@ -9,13 +9,16 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Schema
+@Schema(description = "게시물 그룹 이미지 응답 객체")
 public class PostGroupImageResponse {
 
+	@Schema(description = "게시물 그룹 이미지 id", example = "1")
 	private Long id;
 
+	@Schema(description = "게시물 그룹 id", example = "1")
 	private Long postGroupId;
 
+	@Schema(description = "이미지 URL", example = "https://~")
 	private String url;
 
 	public static PostGroupImageResponse from(PostGroupImage postGroupImage) {

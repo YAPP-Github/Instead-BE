@@ -15,23 +15,31 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@Schema
+@Schema(description = "게시물 그룹 응답 객체")
 public class PostGroupResponse {
 
+	@Schema(description = "게시물 그룹 id", example = "1")
 	private Long id;
 
+	@Schema(description = "게시물 그룹의 주제", example = "점심 메뉴 추천")
 	private String topic;
 
+	@Schema(description = "게시물 그룹의 목적에 대한 Enum", example = "OPINION")
 	private PostGroupPurposeType purpose;
 
+	@Schema(description = "게시물 생성 방식(참고 자료)에 대한 Enum", example = "NONE")
 	private PostGroupReferenceType reference;
 
+	@Schema(description = "뉴스를 참고하는 경우, 뉴스 카테고리", example = "null")
 	private FeedCategoryType newsCategory;
 
+	@Schema(description = "이미지를 참고하는 경우, 이미지 객체 리스트", example = "null")
 	private List<PostGroupImageResponse> postGroupImages;
 
+	@Schema(description = "게시물 그룹의 길이에 대한 Enum", example = "SHORT")
 	private PostGroupLengthType length;
 
+	@Schema(description = "게시물 그룹의 핵심 포함 내용", example = "'이런 메뉴는 어떨까?'와 같은 마무리 멘트")
 	private String content;
 
 	public static PostGroupResponse from(PostGroup postGroup) {
