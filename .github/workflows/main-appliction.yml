@@ -23,6 +23,7 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+          fetch-depth: 0 # 최신 코드로 배포
 
       - name: ENV 파일 생성
         run: |
