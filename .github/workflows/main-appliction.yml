@@ -6,7 +6,11 @@ on:
       - main
     paths:
       - 'application/main-application/**'
-      
+      - 'domain/domain-module/**'
+      - 'inner-system/feed-client/**'
+      - 'inner-system/open-ai-client/**'
+      - 'inner-system/sns-client/**'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -19,7 +23,6 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-          fetch-depth: 0  # 전체 커밋 내역 가져오기
 
       - name: ENV 파일 생성
         run: |
@@ -73,4 +76,3 @@ jobs:
             cd $REMOTE_DIR
             unzip -o yapp-main-application.zip
             ./minipc-docker-deploy.sh
-            
