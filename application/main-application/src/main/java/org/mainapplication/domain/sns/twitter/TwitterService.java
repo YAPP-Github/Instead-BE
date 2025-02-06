@@ -5,7 +5,6 @@ import java.net.URI;
 import org.domainmodule.agent.entity.Agent;
 import org.mainapplication.domain.agent.service.AgentService;
 import org.mainapplication.domain.sns.token.SnsTokenService;
-import org.mainapplication.global.error.CustomException;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.snsclient.twitter.service.TwitterApiService;
@@ -42,13 +41,13 @@ public class TwitterService {
 	@Transactional
 	public void loginOrRegister(String code) {
 		TwitterToken tokenResponse = twitterApiService.getTwitterAuthorizationToken(code);
-		TwitterUserInfoDto userInfo = getUserInfo(tokenResponse);
+		TwitterUserInfoDto userInfo = getTwitterUserInfo(tokenResponse);
 
 		Agent agent = agentService.findOrCreateAgent(userInfo);
 		snsTokenService.createOrUpdateSnsToken(agent, tokenResponse);
 	}
 
-	private TwitterUserInfoDto getUserInfo(TwitterToken token) {
+	private TwitterUserInfoDto getTwitterUserInfo(TwitterToken token) {
 		try {
 			return twitterApiService.getUserInfo(token.accessToken());
 		} catch (TwitterException e) {
