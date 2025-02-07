@@ -15,9 +15,11 @@ import org.feedclient.service.type.FeedItem;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class FeedServiceImpl implements FeedService {
 
 	private final RssClient rssClient;
@@ -101,7 +103,14 @@ public class FeedServiceImpl implements FeedService {
 		// RssItem 요소별로 비동기로 작업 수행 - url로 본문 파싱한 뒤 FeedItem으로 변환
 		List<CompletableFuture<FeedItem>> results = rssItems.stream()
 			.map(item -> newsParserClient.parseNewsAsync(item.getUrl())
-				.thenApply(result -> FeedItem.of(item, result.getBody())))
+				.handle((result, ex) -> {
+					// 뉴스 본문 파싱에 실패한 경우 content에 빈 문자열 넣어서 응답
+					if (ex != null) {
+						log.error("News Parse Failed: {}", item.getTitle());
+						return FeedItem.of(item, "");
+					}
+					return FeedItem.of(item, result.getBody());
+				}))
 			.toList();
 
 		// 각각의 비동기 작업 완료되면 반환
