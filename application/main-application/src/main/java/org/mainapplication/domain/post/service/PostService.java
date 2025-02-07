@@ -80,7 +80,7 @@ public class PostService {
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(null, null, request.getTopic(), request.getPurpose(),
-			request.getReference(), request.getLength(), request.getContent());
+			request.getReference(), request.getLength(), request.getContent(), limit);
 
 		// Post 엔티티 생성: OpenAI API 응답의 choices에서 답변 꺼내 json으로 파싱 후 엔티티 생성
 		// displayOrder 지정에 사용할 반복변수를 위해 for문 사용
@@ -122,7 +122,7 @@ public class PostService {
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(null, rssFeed, request.getTopic(), request.getPurpose(),
-			request.getReference(), request.getLength(), request.getContent());
+			request.getReference(), request.getLength(), request.getContent(), limit);
 
 		// PostGroupRssCursor 엔티티 생성
 		String cursor = feedPagingResult.getFeedItems().get(feedPagingResult.getFeedItems().size() - 1).getId();
@@ -164,7 +164,7 @@ public class PostService {
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(null, null, request.getTopic(), request.getPurpose(),
-			request.getReference(), request.getLength(), request.getContent());
+			request.getReference(), request.getLength(), request.getContent(), limit);
 
 		// PostGroupImage 엔티티 리스트 생성
 		List<PostGroupImage> postGroupImages = request.getImageUrls().stream()
