@@ -39,6 +39,7 @@ server:
 
 swagger:
     version: ${SWAGGER_VERSION:0.0.1}
+
 springdoc:
     default-consumes-media-type: application/json;charset=UTF-8
     default-produces-media-type: application/json;charset=UTF-8
