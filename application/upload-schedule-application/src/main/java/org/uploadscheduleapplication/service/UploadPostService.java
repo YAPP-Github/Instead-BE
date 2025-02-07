@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 
 import org.domainmodule.post.entity.Post;
 import org.snsclient.twitter.service.TwitterApiService;
+import org.snsclient.twitter.service.TwitterMediaUploadService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.uploadscheduleapplication.exception.TwitterUploadExceptionHandler;
@@ -20,9 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class UploadPostService {
 	private final TwitterApiService twitterApiService;
+	private final TwitterMediaUploadService twitterMediaUploadService;
 	private final PostService postService;
 	private final SnsTokenService snsTokenService;
 	private final TwitterUploadExceptionHandler uploadExceptionHandler;
+
 	private static final int MAX_RETRY_COUNT = 1;
 
 	/**
@@ -58,10 +61,21 @@ public class UploadPostService {
 			return CompletableFuture.completedFuture(null);
 		}
 		try {
+			List<String> imageUrls = postService.getPostImageUrlsByPost(uploadPostDto.post());
+
+			// 업로드 할 이미지 mediaID 리스트
+			Long[] mediaIds = imageUrls.isEmpty() ? null :
+				imageUrls.stream()
+				.map(url -> twitterMediaUploadService.uploadMedia(url, uploadPostDto.snsToken().getAccessToken()))
+				.map(Long::parseLong)
+				.toArray(Long[]::new);
+
 			Long tweetId = twitterApiService.postTweet(
 				uploadPostDto.snsToken().getAccessToken(),
-				uploadPostDto.post().getContent()
+				uploadPostDto.post().getContent(),
+				mediaIds
 			);
+
 			uploadExceptionHandler.handleUploadSuccess(uploadPostDto, tweetId);
 			return CompletableFuture.completedFuture(null);
 		} catch (Exception ex) {
