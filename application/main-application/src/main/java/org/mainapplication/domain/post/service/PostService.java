@@ -37,7 +37,7 @@ import org.mainapplication.global.constants.PostGenerationCount;
 import org.mainapplication.global.error.CustomException;
 import org.mainapplication.openai.contentformat.jsonschema.SummaryContentSchema;
 import org.mainapplication.openai.contentformat.response.SummaryContentFormat;
-import org.mainapplication.openai.prompt.CreatePostPrompt;
+import org.mainapplication.openai.prompt.CreatePostPromptTemplate;
 import org.openaiclient.client.OpenAiClient;
 import org.openaiclient.client.dto.request.ChatCompletionRequest;
 import org.openaiclient.client.dto.response.ChatCompletionResponse;
@@ -59,7 +59,7 @@ public class PostService {
 	private final OpenAiClient openAiClient;
 	private final PostTransactionService postTransactionService;
 	private final RssFeedRepository rssFeedRepository;
-	private final CreatePostPrompt createPostPrompt;
+	private final CreatePostPromptTemplate createPostPromptTemplate;
 	private final SummaryContentSchema summaryContentSchema;
 
 	private final ObjectMapper objectMapper = new ObjectMapper();
@@ -350,8 +350,9 @@ public class PostService {
 	 */
 	private ChatCompletionResponse generatePostsWithoutRef(GeneratePostsVo vo) {
 		// 프롬프트 생성: Instruction + 주제 Prompt
-		String instructionPrompt = createPostPrompt.getInstruction();
-		String topicPrompt = createPostPrompt.getBasicTopicPrompt(vo.topic(), vo.purpose(), vo.length(), vo.content());
+		String instructionPrompt = createPostPromptTemplate.getInstruction();
+		String topicPrompt = createPostPromptTemplate.getBasicTopicPrompt(vo.topic(), vo.purpose(), vo.length(),
+			vo.content());
 
 		// 게시물 생성
 		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(
@@ -372,11 +373,11 @@ public class PostService {
 	 */
 	private List<ChatCompletionResponse> generatePostsByNews(GeneratePostsVo vo, FeedPagingResult feedPagingResult) {
 		// 프롬프트 생성
-		String instructionPrompt = createPostPrompt.getInstruction();
-		String topicPrompt = createPostPrompt.getBasicTopicPrompt(
+		String instructionPrompt = createPostPromptTemplate.getInstruction();
+		String topicPrompt = createPostPromptTemplate.getBasicTopicPrompt(
 			vo.topic(), vo.purpose(), vo.length(), vo.content());
 		List<String> refPrompts = feedPagingResult.getFeedItems().stream()
-			.map(news -> createPostPrompt.getNewsRefPrompt(news.getContentSummary(), news.getContent()))
+			.map(news -> createPostPromptTemplate.getNewsRefPrompt(news.getContentSummary(), news.getContent()))
 			.toList();
 
 		// 게시물 생성하기: 각 뉴스 기사별로 OpenAI API 호출 및 답변 생성
@@ -405,10 +406,10 @@ public class PostService {
 	 */
 	private ChatCompletionResponse generatePostsByImage(GeneratePostsVo vo) {
 		// 프롬프트 생성
-		String instructionPrompt = createPostPrompt.getInstruction();
-		String topicPrompt = createPostPrompt.getBasicTopicPrompt(
+		String instructionPrompt = createPostPromptTemplate.getInstruction();
+		String topicPrompt = createPostPromptTemplate.getBasicTopicPrompt(
 			vo.topic(), vo.purpose(), vo.length(), vo.content());
-		String imageRefPrompt = createPostPrompt.getImageRefPrompt();
+		String imageRefPrompt = createPostPromptTemplate.getImageRefPrompt();
 
 		// 게시물 생성
 		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(openAiModel,
@@ -456,7 +457,7 @@ public class PostService {
 
 	private ChatCompletionResponse applyPrompt(String prompt, String previousResponse) {
 		// 프롬프트 생성: Instruction
-		String instructionPrompt = createPostPrompt.getInstruction();
+		String instructionPrompt = createPostPromptTemplate.getInstruction();
 
 		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(
 			openAiModel, summaryContentSchema.getResponseFormat(), 1, null)
