@@ -25,7 +25,7 @@ import twitter4j.conf.ConfigurationBuilder;
 @RequiredArgsConstructor
 public class TwitterApiService {
 	private final TwitterConfig config;
-	private final String[] scopes = {"tweet.read", "tweet.write", "users.read", "offline.access"};
+	private final String[] scopes = {"media.write", "tweet.read", "tweet.write", "users.read", "offline.access"};
 	private final OAuth2TokenProvider twitterOAuth2TokenProvider;
 
 	/**
@@ -153,9 +153,9 @@ public class TwitterApiService {
 	 * 트윗 생성 API 호출 메서드
 	 * @param content 트윗 내용
 	 */
-	public Long postTweet(String accessToken, String content) throws TwitterException {
+	public Long postTweet(String accessToken, String content, Long[] mediaIds) throws TwitterException {
 		TwitterV2 twitterV2 = createTwitterV2(accessToken);
-		CreateTweetResponse tweetResponse = twitterV2.createTweet(null, null, null, null, null, null, null, null, null, null, null, content);
+		CreateTweetResponse tweetResponse = twitterV2.createTweet(null, null, null, mediaIds, null, null, null, null, null, null, null, content);
 		return tweetResponse.getId();
 	}
 }
