@@ -69,10 +69,7 @@ public class TwitterApiService {
 
 	private void validateTokenResult(OAuth2TokenProvider.Result result) {
 		if (result == null) {
-			throw new IllegalStateException("OAuth2TokenProvider 값이 존재하지 않습니다.");
-		}
-		if (result.getExpiresIn() <= 0) {
-			throw new IllegalArgumentException("ExpireIn이 잘못된 값입니다.");
+			throw new IllegalStateException("Twitter OAuth2TokenProvider 값이 존재하지 않습니다.");
 		}
 		validateRefreshTokenProcess(result);
 	}
@@ -86,7 +83,7 @@ public class TwitterApiService {
 	 * @param accessToken accessToken
 	 * @return TwitterV2 인스턴스
 	 */
-	private TwitterV2 createTwitterV2(String accessToken) {
+	private TwitterV2 createTwitterV2(String accessToken) throws TwitterException {
 		try {
 			Configuration configuration = new ConfigurationBuilder()
 				.setOAuthConsumerKey(config.getClientId())
@@ -101,7 +98,7 @@ public class TwitterApiService {
 			return TwitterV2ExKt.getV2(twitter);
 		} catch (Exception e) {
 			log.error("TwitterV2 클라이언트 생성 중 오류 발생: {}", e.getMessage());
-			throw new RuntimeException("TwitterV2 클라이언트 생성 중 오류 발생", e);
+			throw new TwitterException("TwitterV2 클라이언트 생성 중 오류 발생", e);
 		}
 	}
 
@@ -109,7 +106,7 @@ public class TwitterApiService {
 	 * 토큰 만료 시 RefreshToken으로 AccessToken 갱신
 	 * @param refreshToken 기존 Twitter RefreshToken
 	 */
-	public TwitterToken refreshTwitterToken(String refreshToken) {
+	public TwitterToken refreshTwitterToken(String refreshToken) throws TwitterException {
 		try {
 			final String clientId = config.getClientId();
 			OAuth2TokenProvider.Result result = twitterOAuth2TokenProvider.refreshToken(clientId, refreshToken);
@@ -117,7 +114,7 @@ public class TwitterApiService {
 			return TwitterToken.of(result.getAccessToken(), result.getRefreshToken(), result.getExpiresIn());
 		} catch (Exception e) {
 			log.error("Twitter Token 재발급 호출 중 오류 발생: {}", e.getMessage());
-			throw new RuntimeException("Twitter RefreshToken 갱신 중 오류 발생", e);
+			throw new TwitterException("Twitter RefreshToken 갱신 중 오류 발생", e);
 		}
 	}
 
