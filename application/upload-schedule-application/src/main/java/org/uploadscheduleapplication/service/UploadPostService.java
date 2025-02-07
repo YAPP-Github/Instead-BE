@@ -64,7 +64,8 @@ public class UploadPostService {
 			List<String> imageUrls = postService.getPostImageUrlsByPost(uploadPostDto.post());
 
 			// 업로드 할 이미지 mediaID 리스트
-			Long[] mediaIds = imageUrls.stream()
+			Long[] mediaIds = imageUrls.isEmpty() ? null :
+				imageUrls.stream()
 				.map(url -> twitterMediaUploadService.uploadMedia(url, uploadPostDto.snsToken().getAccessToken()))
 				.map(Long::parseLong)
 				.toArray(Long[]::new);
