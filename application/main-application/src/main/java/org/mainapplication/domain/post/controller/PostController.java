@@ -105,7 +105,7 @@ public class PostController {
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
 		@PathVariable Long postId,
-		@RequestBody UpdatePostContentRequest updatePostContentRequest
+		@Validated @RequestBody UpdatePostContentRequest updatePostContentRequest
 	) {
 		postService.updatePostContent(postGroupId, postId, updatePostContentRequest);
 		return ResponseEntity.ok().build();
@@ -122,7 +122,7 @@ public class PostController {
 	public ResponseEntity<Void> updatePosts(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
-		@RequestBody UpdatePostsRequest updatePostsRequest
+		@Validated @RequestBody UpdatePostsRequest updatePostsRequest
 	) {
 		postService.updatePosts(postGroupId, updatePostsRequest);
 		return ResponseEntity.ok().build();
@@ -179,7 +179,7 @@ public class PostController {
 	public ResponseEntity<Void> deletePosts(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
-		@RequestBody List<Long> postIds
+		@Validated @RequestBody List<Long> postIds
 	) {
 		postService.deletePosts(postGroupId, postIds);
 		return ResponseEntity.noContent().build();
@@ -191,7 +191,7 @@ public class PostController {
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
 		@PathVariable Long postId,
-		@RequestBody SinglePostUpdateRequest singlePostUpdateRequest
+		@Validated @RequestBody SinglePostUpdateRequest singlePostUpdateRequest
 	) {
 		return ResponseEntity.ok(
 			postService.updateSinglePostByPrompt(singlePostUpdateRequest, agentId, postGroupId, postId));
@@ -202,7 +202,7 @@ public class PostController {
 	public ResponseEntity<List<PostResponse>> updateMultiplePostsByPrompt(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
-		@RequestBody MultiplePostUpdateRequest multiplePostUpdateRequest
+		@Validated @RequestBody MultiplePostUpdateRequest multiplePostUpdateRequest
 	) {
 		return ResponseEntity.ok(
 			postService.updateMultiplePostsByPrompt(multiplePostUpdateRequest, agentId, postGroupId));
