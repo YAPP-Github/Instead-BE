@@ -65,12 +65,18 @@ public class UploadPostService {
 			uploadExceptionHandler.handleUploadSuccess(uploadPostDto, tweetId);
 			return CompletableFuture.completedFuture(null);
 		} catch (Exception ex) {
-			uploadExceptionHandler.handleUploadError(uploadPostDto, ex, retryCount, () -> {
-				UploadPostDto newTokens = snsTokenService.reissueToken(uploadPostDto);
-				processUploadPost(newTokens, retryCount + 1);
-			});
+			uploadExceptionHandler.handleUploadError(uploadPostDto, ex, retryCount,
+				() -> retryUploadWithNewToken(uploadPostDto, retryCount));
 			return CompletableFuture.failedFuture(ex);
 		}
+	}
+
+	/**
+	 * 토큰을 갱신한 후 업로드 재시도 (401 에러 발생시)
+	 */
+	private void retryUploadWithNewToken(UploadPostDto uploadPostDto, int retryCount) {
+		UploadPostDto newTokens = snsTokenService.reissueToken(uploadPostDto);
+		processUploadPost(newTokens, retryCount + 1);
 	}
 
 	/**
