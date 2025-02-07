@@ -10,7 +10,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Component
+@Slf4j
 public class NewsParserClient {
 
 	private final RestClient newsParserClient;
@@ -27,9 +30,11 @@ public class NewsParserClient {
 			.body(new NewsParserRequest(newsUrl))
 			.retrieve()
 			.onStatus(HttpStatusCode::is4xxClientError, (req, res) -> {
+				log.error("Client Error - {}: {}", res.getStatusText(), newsUrl);
 				throw new RuntimeException("Client error: " + res.getStatusCode());
 			})
 			.onStatus(HttpStatusCode::is5xxServerError, (req, res) -> {
+				log.error("Server Error - {}: {}", res.getStatusText(), newsUrl);
 				throw new RuntimeException("Server error: " + res.getStatusCode());
 			})
 			.body(NewsParserResponse.class);
