@@ -64,9 +64,11 @@ public class PostGroup extends BaseTimeEntity {
 	@Column(columnDefinition = "TEXT")
 	private String content;
 
+	private Integer generationCount;
+
 	@Builder
 	private PostGroup(Agent agent, RssFeed feed, String topic, PostGroupPurposeType purpose,
-		PostGroupReferenceType reference, PostGroupLengthType length, String content) {
+		PostGroupReferenceType reference, PostGroupLengthType length, String content, Integer generationCount) {
 		this.agent = agent;
 		this.topic = topic;
 		this.purpose = purpose;
@@ -74,6 +76,7 @@ public class PostGroup extends BaseTimeEntity {
 		this.feed = feed;
 		this.length = length;
 		this.content = content;
+		this.generationCount = generationCount;
 	}
 
 	public static PostGroup createPostGroup(
@@ -83,7 +86,8 @@ public class PostGroup extends BaseTimeEntity {
 		PostGroupPurposeType purpose,
 		PostGroupReferenceType reference,
 		PostGroupLengthType length,
-		String content
+		String content,
+		Integer generationCount
 	) {
 		return PostGroup.builder()
 			.agent(agent)
@@ -93,7 +97,12 @@ public class PostGroup extends BaseTimeEntity {
 			.reference(reference)
 			.length(length)
 			.content(content)
+			.generationCount(generationCount)
 			.build();
+	}
+
+	public void increaseGenerationCount() {
+		this.generationCount++;
 	}
 
 	@Override
