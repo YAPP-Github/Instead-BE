@@ -13,4 +13,6 @@ spring:
         hibernate:
             ddl-auto: update
         properties:
-            hibernate.dialect: org.hibernate.dialect.MySQLDialect
+            hibernate:
+                dialect: org.hibernate.dialect.MySQLDialect
+                jdbc.time_zone: Asia/Seoul
