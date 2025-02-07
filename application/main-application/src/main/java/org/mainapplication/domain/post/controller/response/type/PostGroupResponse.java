@@ -7,6 +7,7 @@ import org.domainmodule.postgroup.entity.type.PostGroupLengthType;
 import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
 import org.domainmodule.postgroup.entity.type.PostGroupReferenceType;
 import org.domainmodule.rssfeed.entity.type.FeedCategoryType;
+import org.mainapplication.global.constants.PostGenerationCount;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
@@ -42,10 +43,14 @@ public class PostGroupResponse {
 	@Schema(description = "게시물 그룹의 핵심 포함 내용", example = "'이런 메뉴는 어떨까?'와 같은 마무리 멘트")
 	private String content;
 
+	@Schema(description = "게시물 그룹의 생성 횟수 제한 도달 여부", example = "false")
+	private Boolean eof;
+
 	public static PostGroupResponse from(PostGroup postGroup) {
 		List<PostGroupImageResponse> postGroupImages = postGroup.getPostGroupImages().stream()
 			.map(PostGroupImageResponse::from)
 			.toList();
+		boolean eof = (postGroup.getGenerationCount() >= PostGenerationCount.MAX_POST_GENERATION_COUNT);
 		return new PostGroupResponse(
 			postGroup.getId(),
 			postGroup.getTopic(),
@@ -54,7 +59,8 @@ public class PostGroupResponse {
 			(postGroup.getFeed() != null) ? postGroup.getFeed().getCategory() : null,
 			postGroupImages,
 			postGroup.getLength(),
-			postGroup.getContent()
+			postGroup.getContent(),
+			eof
 		);
 	}
 }

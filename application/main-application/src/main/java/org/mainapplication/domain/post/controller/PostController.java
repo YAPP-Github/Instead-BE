@@ -13,6 +13,7 @@ import org.mainapplication.domain.post.controller.response.PromptHistoriesRespon
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.service.PostService;
 import org.mainapplication.domain.post.service.PromptHistoryService;
+import org.mainapplication.global.constants.PostGenerationCount;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -49,14 +50,14 @@ public class PostController {
 			- NEWS (뉴스 참고): newsCategory를 지정하고, imageUrls를 비워주세요.
 			- IMAGE (이미지 참고): imageUrls를 설정하고, newsCategory를 비워주세요.
 
-			**2. 뉴스를 참고해 생성하는 경우, 응답 본문에 eof가 포함됩니다.**
+			**2. 응답 본문에 eof가 포함됩니다.**
 
-			한 시점에 사용 가능한 피드 수에 제한이 있기 때문에, 추가 생성이 가능한지 여부를 eof로 구분합니다."""
+			게시물 그룹별 최대 게시물 생성 가능 횟수를 채우게 되면 eof가 true로 응답됩니다. 이 경우 추가 생성이 제한됩니다."""
 	)
 	@PostMapping("/posts")
 	public ResponseEntity<CreatePostsResponse> createPosts(
 		@PathVariable Long agentId,
-		@RequestParam(defaultValue = "5") Integer limit,
+		@RequestParam(defaultValue = PostGenerationCount.POST_GENERATION_POST_COUNT) Integer limit,
 		@Validated @RequestBody CreatePostsRequest createPostsRequest
 	) {
 		return switch (createPostsRequest.getReference()) {
@@ -71,15 +72,15 @@ public class PostController {
 		description = """
 			기존 게시물 그룹에 새 게시물을 추가합니다.
 
-			**뉴스를 참고해 생성하는 게시물 그룹의 경우, 응답 본문에 eof가 포함됩니다.**
+			**응답 본문에 eof가 포함됩니다.**
 
-			한 시점에 사용 가능한 피드 수에 제한이 있기 때문에, 추가 생성이 가능한지 여부를 eof로 구분합니다."""
+			게시물 그룹별 최대 게시물 생성 가능 횟수를 채우게 되면 eof가 true로 응답됩니다. 이 경우 추가 생성이 제한됩니다."""
 	)
 	@PostMapping("/{postGroupId}/posts")
 	public ResponseEntity<CreatePostsResponse> createAdditionalPosts(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
-		@RequestParam(defaultValue = "5") Integer limit
+		@RequestParam(defaultValue = PostGenerationCount.POST_GENERATION_POST_COUNT) Integer limit
 	) {
 		return ResponseEntity.ok(postService.createAdditionalPosts(postGroupId, limit));
 	}
