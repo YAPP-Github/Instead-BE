@@ -13,6 +13,7 @@ import org.mainapplication.domain.post.controller.response.PromptHistoriesRespon
 import org.mainapplication.domain.post.controller.response.type.PostResponse;
 import org.mainapplication.domain.post.service.PostService;
 import org.mainapplication.domain.post.service.PromptHistoryService;
+import org.mainapplication.global.constants.PostGenerationCount;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -56,7 +57,7 @@ public class PostController {
 	@PostMapping("/posts")
 	public ResponseEntity<CreatePostsResponse> createPosts(
 		@PathVariable Long agentId,
-		@RequestParam(defaultValue = "5") Integer limit,
+		@RequestParam(defaultValue = PostGenerationCount.POST_GENERATION_POST_COUNT) Integer limit,
 		@Validated @RequestBody CreatePostsRequest createPostsRequest
 	) {
 		return switch (createPostsRequest.getReference()) {
@@ -79,7 +80,7 @@ public class PostController {
 	public ResponseEntity<CreatePostsResponse> createAdditionalPosts(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
-		@RequestParam(defaultValue = "5") Integer limit
+		@RequestParam(defaultValue = PostGenerationCount.POST_GENERATION_POST_COUNT) Integer limit
 	) {
 		return ResponseEntity.ok(postService.createAdditionalPosts(postGroupId, limit));
 	}

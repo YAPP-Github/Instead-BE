@@ -101,6 +101,10 @@ public class PostGroup extends BaseTimeEntity {
 			.build();
 	}
 
+	public void increaseGenerationCount() {
+		this.generationCount++;
+	}
+
 	@Override
 	public String toString() {
 		return feed + "\n"

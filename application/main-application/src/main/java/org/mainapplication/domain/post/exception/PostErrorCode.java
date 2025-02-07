@@ -22,7 +22,8 @@ public enum PostErrorCode implements ErrorCodeStatus {
 	NO_IMAGE_URLS(HttpStatus.BAD_REQUEST, "이미지와 함께 생성하려면, 이미지를 첨부해주세요."),
 	INVALID_POST(HttpStatus.BAD_REQUEST, "게시물 그룹에 해당하는 게시물이 아닙니다."),
 	INVALID_DELETING_POST_STATUS(HttpStatus.BAD_REQUEST, "업로드가 확정된 게시물은 삭제할 수 없습니다."),
-	NEWS_FEED_EXHAUSTED(HttpStatus.BAD_REQUEST, "현재 최신 피드를 전부 사용했습니다. 피드가 갱신될 때까지 시간이 걸릴 수 있습니다."),
+	EXHAUSTED_GENERATION_COUNT(HttpStatus.BAD_REQUEST, "게시물 생성 가능 횟수를 전부 사용했습니다. 새로운 게시물 그룹을 이용해주세요."),
+	EXHAUSTED_NEWS_FEED(HttpStatus.BAD_REQUEST, "현재 최신 피드를 전부 사용했습니다. 피드가 갱신될 때까지 시간이 걸릴 수 있습니다."),
 	INVALID_UPDATING_POST_TYPE(HttpStatus.BAD_REQUEST, "수정하려는 필드를 updateType에 맞게 정확히 포함해주세요."),
 
 	// INTERNAL_SERVER_ERROR

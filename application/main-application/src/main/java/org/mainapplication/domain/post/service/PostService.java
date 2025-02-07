@@ -33,6 +33,7 @@ import org.mainapplication.domain.post.service.dto.SavePostGroupAndPostsDto;
 import org.mainapplication.domain.post.service.dto.SavePostGroupWithImagesAndPostsDto;
 import org.mainapplication.domain.post.service.dto.SavePostGroupWithRssCursorAndPostsDto;
 import org.mainapplication.domain.post.service.vo.GeneratePostsVo;
+import org.mainapplication.global.constants.PostGenerationCount;
 import org.mainapplication.global.error.CustomException;
 import org.mainapplication.openai.contentformat.jsonschema.SummaryContentSchema;
 import org.mainapplication.openai.contentformat.response.SummaryContentFormat;
@@ -80,7 +81,7 @@ public class PostService {
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(null, null, request.getTopic(), request.getPurpose(),
-			request.getReference(), request.getLength(), request.getContent(), limit);
+			request.getReference(), request.getLength(), request.getContent(), 1);
 
 		// Post 엔티티 생성: OpenAI API 응답의 choices에서 답변 꺼내 json으로 파싱 후 엔티티 생성
 		// displayOrder 지정에 사용할 반복변수를 위해 for문 사용
@@ -99,7 +100,7 @@ public class PostService {
 		List<PostResponse> postResponses = saveResult.posts().stream()
 			.map(PostResponse::from)
 			.toList();
-		return new CreatePostsResponse(saveResult.postGroup().getId(), null, postResponses);
+		return new CreatePostsResponse(saveResult.postGroup().getId(), false, postResponses);
 	}
 
 	/**
@@ -122,7 +123,7 @@ public class PostService {
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(null, rssFeed, request.getTopic(), request.getPurpose(),
-			request.getReference(), request.getLength(), request.getContent(), limit);
+			request.getReference(), request.getLength(), request.getContent(), 1);
 
 		// PostGroupRssCursor 엔티티 생성
 		String cursor = feedPagingResult.getFeedItems().get(feedPagingResult.getFeedItems().size() - 1).getId();
@@ -164,7 +165,7 @@ public class PostService {
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(null, null, request.getTopic(), request.getPurpose(),
-			request.getReference(), request.getLength(), request.getContent(), limit);
+			request.getReference(), request.getLength(), request.getContent(), 1);
 
 		// PostGroupImage 엔티티 리스트 생성
 		List<PostGroupImage> postGroupImages = request.getImageUrls().stream()
@@ -189,7 +190,7 @@ public class PostService {
 		List<PostResponse> postResponses = saveResult.posts().stream()
 			.map(PostResponse::from)
 			.toList();
-		return new CreatePostsResponse(saveResult.postGroup().getId(), null, postResponses);
+		return new CreatePostsResponse(saveResult.postGroup().getId(), false, postResponses);
 	}
 
 	/**
@@ -200,6 +201,11 @@ public class PostService {
 		// PostGroup 조회
 		PostGroup postGroup = postGroupRepository.findById(postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+
+		// PostGroup의 게시물 생성 횟수 검증
+		if (postGroup.getGenerationCount() >= PostGenerationCount.MAX_POST_GENERATION_COUNT) {
+			throw new CustomException(PostErrorCode.EXHAUSTED_GENERATION_COUNT);
+		}
 
 		// displayOrder 설정을 위해 Post 조회
 		Integer order = postRepository.findLastGeneratedPost(postGroup, PostStatusType.GENERATED)
@@ -231,14 +237,21 @@ public class PostService {
 				content.getContent(), PostStatusType.GENERATED, null, order + i + 1));
 		}
 
-		// 엔티티 저장
+		// Post 엔티티 리스트 저장
 		List<Post> savedPosts = postTransactionService.savePosts(posts);
+
+		// PostGroup 엔티티의 생성 횟수 수정
+		postGroup.increaseGenerationCount();
+		postTransactionService.savePostGroup(postGroup);
+
+		// eof 판단
+		boolean eof = postGroup.getGenerationCount() >= PostGenerationCount.MAX_POST_GENERATION_COUNT;
 
 		// 결과 반환
 		List<PostResponse> postResponses = savedPosts.stream()
 			.map(PostResponse::from)
 			.toList();
-		return new CreatePostsResponse(postGroup.getId(), null, postResponses);
+		return new CreatePostsResponse(postGroup.getId(), eof, postResponses);
 	}
 
 	/**
@@ -255,7 +268,7 @@ public class PostService {
 
 		// 피드가 고갈된 경우 에러 응답
 		if (feedPagingResult.getFeedItems().isEmpty()) {
-			throw new CustomException(PostErrorCode.NEWS_FEED_EXHAUSTED);
+			throw new CustomException(PostErrorCode.EXHAUSTED_NEWS_FEED);
 		}
 
 		// 게시물 생성
@@ -280,11 +293,21 @@ public class PostService {
 		// 엔티티 저장
 		List<Post> savedPosts = postTransactionService.savePosts(posts);
 
+		// PostGroup 엔티티의 생성 횟수 수정
+		postGroup.increaseGenerationCount();
+		postTransactionService.savePostGroup(postGroup);
+
+		// eof 판단
+		System.out.println((postGroup.getGenerationCount() >= PostGenerationCount.MAX_POST_GENERATION_COUNT));
+		System.out.println(feedPagingResult.isEof());
+		boolean eof = (postGroup.getGenerationCount() >= PostGenerationCount.MAX_POST_GENERATION_COUNT)
+			|| (feedPagingResult.isEof());
+
 		// 결과 반환하기
 		List<PostResponse> postResponses = savedPosts.stream()
 			.map(PostResponse::from)
 			.toList();
-		return new CreatePostsResponse(postGroup.getId(), feedPagingResult.isEof(), postResponses);
+		return new CreatePostsResponse(postGroup.getId(), eof, postResponses);
 	}
 
 	/**
@@ -307,11 +330,18 @@ public class PostService {
 		// 엔티티 저장
 		List<Post> savedPosts = postTransactionService.savePosts(posts);
 
+		// PostGroup 엔티티의 생성 횟수 수정
+		postGroup.increaseGenerationCount();
+		postTransactionService.savePostGroup(postGroup);
+
+		// eof 판단
+		boolean eof = (postGroup.getGenerationCount() >= PostGenerationCount.MAX_POST_GENERATION_COUNT);
+
 		// 결과 반환
 		List<PostResponse> postResponses = savedPosts.stream()
 			.map(PostResponse::from)
 			.toList();
-		return new CreatePostsResponse(postGroup.getId(), null, postResponses);
+		return new CreatePostsResponse(postGroup.getId(), eof, postResponses);
 	}
 
 	/**
