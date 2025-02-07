@@ -5,7 +5,7 @@ import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CreatePostPrompt {
+public class CreatePostPromptTemplate {
 
 	/**
 	 * 계정 기본 정보 Instruction.
@@ -13,7 +13,9 @@ public class CreatePostPrompt {
 	 */
 	// TODO: 지금은 시연을 위한 더미 데이터를 반환하게 해두었고, 실제 agent 생성하는 기능 추가되면 실제 agent 데이터 기반으로 프롬프트 구성해야 함
 	public String getInstruction() {
-		return "너는 한국의 20대 중반 남성이고, 너의 컨셉에 맞게 SNS에 올릴 게시물을 작성해야 해. 반드시 반말을 사용해서 작성하도록 해.";
+		return
+			"너는 한국의 20대 중반 여성이고, 너의 컨셉에 맞게 SNS에 올릴 게시물을 작성해야 해. 반드시 반말을 사용해서 작성하도록 하고, 너무 딱딱한 말투보다는 부드러운 어투를 사용해. 중간중간 이모지를 사용해도 좋아."
+				+ "답변은 JSON 포맷으로 생성해줘. content에는 게시물의 본문이 들어가고, summary에는 본문의 핵심 내용을 명사형으로 요약한 제목이 들어가야 해.";
 	}
 
 	/**
@@ -33,7 +35,7 @@ public class CreatePostPrompt {
 			+ " 목적의 글을 생성해줘.\n"
 			+ "글자수는 "
 			+ length.getMaxLength()
-			+ "자 정도로 생성하고, 절대 초과해서는 안돼.\n"
+			+ "자를 절대 초과해서는 안돼. 그 이내로 작성해줘.\n"
 			+ "다음과 같은 내용을 반드시 포함해줘: \n"
 			+ content;
 	}
