@@ -57,7 +57,7 @@ public class TwitterMediaUploadService {
 		return webClient.get()
 			.uri(presignedUrl)
 			.retrieve()
-			.bodyToMono(byte[].class) // 🔹 한 번에 byte[]로 변환
+			.bodyToMono(byte[].class)
 			.block();
 	}
 
@@ -89,7 +89,9 @@ public class TwitterMediaUploadService {
 		}).contentType(MediaType.IMAGE_JPEG);
 
 		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-		builder.build().forEach((key, value) -> body.put(key, new ArrayList<>(value)));
+		builder.build().forEach(
+			(key, value) -> body.put(key, new ArrayList<>(value))
+		);
 
 		sendPostRequest(body, accessToken);
 	}
@@ -111,18 +113,23 @@ public class TwitterMediaUploadService {
 	private String sendPostRequest(MultiValueMap<String, Object> body, String accessToken) {
 		log.info("📢 Twitter API 요청: {}", body);
 
-		String response = webClient.post()
-			.uri(UPLOAD_URL)
-			.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-			.contentType(MediaType.MULTIPART_FORM_DATA)
-			.bodyValue(body)
-			.retrieve()
-			.bodyToMono(String.class)
-			.block();
+		try {
+			String response = webClient.post()
+				.uri(UPLOAD_URL)
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+				.contentType(MediaType.MULTIPART_FORM_DATA)
+				.bodyValue(body)
+				.retrieve()
+				.bodyToMono(String.class)
+				.block();
 
-		log.info("✅ Twitter 응답: {}", response);
+			log.info("✅ Twitter 응답: {}", response);
 
-		return response;
+			return response;
+		} catch (Exception e) {
+			log.error("Twitter Media Upload 요청 중 에러 발생", e);
+			throw new RuntimeException("Twitter Media Upload 요청 중 에러 발생: " + e.getMessage(), e);
+		}
 	}
 
 	/**
