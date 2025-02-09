@@ -18,10 +18,6 @@ spring:
                 bucket-name: ${AWS_S3_BUCKET}
                 url-prefix: ${AWS_S3_URL_PREFIX}
 
-    jpa:
-        hibernate:
-            ddl-auto: none
-
 logging:
     level:
         org:
