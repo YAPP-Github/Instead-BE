@@ -26,7 +26,6 @@ public class SwaggerConfig {
 	@Value("${swagger.version}")
 	private String version;
 
-
 	@Bean
 	public OpenAPI openAPI(ServletContext servletContext) {
 		Server server = new Server().url(servletContext.getContextPath()).description(API_DESCRIPTION);
