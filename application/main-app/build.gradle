@@ -9,9 +9,9 @@ version = '0.0.1-SNAPSHOT'
 dependencies {
 
 	api project(':domain:domain-module')
-	api project(':inner-system:feed-client')
-	api project(':inner-system:open-ai-client')
-    api project(':inner-system:sns-client')
+	api project(':clients:feed-client')
+	api project(':clients:open-ai-client')
+    api project(':clients:sns-client')
 
 	// db
 	runtimeOnly 'com.mysql:mysql-connector-j'
