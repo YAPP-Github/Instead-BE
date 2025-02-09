@@ -4,6 +4,7 @@ spring:
     profiles:
         include:
             - oauth
+            - docs
     jackson:
         time-zone: Asia/Seoul
 
@@ -33,23 +34,7 @@ server:
     servlet:
         context-path: /yapp
 
-swagger:
-    version: ${SWAGGER_VERSION:0.0.1}
-
-springdoc:
-    default-consumes-media-type: application/json;charset=UTF-8
-    default-produces-media-type: application/json;charset=UTF-8
-    swagger-ui:
-        path: /swagger-ui
-        disable-swagger-default-url: true
-        display-request-duration: true
-        tags-sorter: alpha
-        operations-sorter: alpha
-        syntax-highlight:
-            theme: none
-        urls-primary-name: INSTEAD API DOCS
-
-# Client
+# Client - 이후에 open-ai모듈로 로직과 함께 빠져야함
 client:
     news-parser:
         url: ${NEWS_PARSER_URL}
