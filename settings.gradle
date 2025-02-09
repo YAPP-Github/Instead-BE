@@ -1,7 +1,7 @@
 rootProject.name = 'yapp'
 
 // application 모듈
-include 'application:main-application'
+include 'application:main-app'
 include 'application:upload-schedule-application'
 
 // system domain 모듈
