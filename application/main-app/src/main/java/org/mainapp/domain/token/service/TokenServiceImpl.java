@@ -3,6 +3,8 @@ package org.mainapp.domain.token.service;
 import org.domainmodule.user.entity.RefreshToken;
 import org.domainmodule.user.entity.User;
 import org.domainmodule.user.repository.RefreshTokenRepository;
+import org.mainapp.domain.token.exception.TokenErrorCode;
+import org.mainapp.global.error.CustomException;
 import org.mainapp.global.util.JwtUtil;
 import org.mainapp.global.util.ResponseUtil;
 import org.springframework.stereotype.Service;
@@ -43,7 +45,7 @@ public class TokenServiceImpl implements TokenService {
 	@Transactional
 	public String reissueAccessToken(String refreshToken, HttpServletResponse response) {
 		if (jwtUtil.isTokenValid(refreshToken, false)) {
-			throw new IllegalArgumentException("RefreshToken이 만료되었습니다.");
+			throw new CustomException(TokenErrorCode.REFRESH_TOKEN_EXPIRED);
 		}
 
 		String usdrId = jwtUtil.extractUserId(refreshToken, false);
@@ -57,6 +59,6 @@ public class TokenServiceImpl implements TokenService {
 	private void validateRefreshToken(String userId, String refreshToken) {
 		refreshTokenRepository.findByUserId(Long.valueOf(userId))
 			.filter(storedToken -> storedToken.getToken().equals(refreshToken))
-			.orElseThrow(() -> new IllegalArgumentException("RefreshToken이 일치하지 않습니다."));
+			.orElseThrow(() -> new CustomException(TokenErrorCode.REFRESH_TOKEN_NOT_MATCHED));
 	}
 }

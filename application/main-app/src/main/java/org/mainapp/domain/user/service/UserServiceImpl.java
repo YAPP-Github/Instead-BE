@@ -2,6 +2,8 @@ package org.mainapp.domain.user.service;
 
 import org.domainmodule.user.entity.User;
 import org.domainmodule.user.repository.UserRepository;
+import org.mainapp.domain.user.exception.UserErrorCode;
+import org.mainapp.global.error.CustomException;
 import org.mainapp.global.oauth2.userinfo.OAuth2UserInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +27,6 @@ public class UserServiceImpl implements UserService {
 	@Transactional(readOnly = true)
 	public User findUserById(Long userId) {
 		return userRepository.findById(userId)
-			.orElseThrow(() -> new IllegalArgumentException("유저가 존재하지 않습니다."));
+			.orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 	}
 }
