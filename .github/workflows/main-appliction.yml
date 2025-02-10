@@ -5,11 +5,11 @@ on:
     branches:
       - main
     paths:
-      - 'application/main-application/**'
+      - 'application/main-app/**'
       - 'domain/domain-module/**'
-      - 'inner-system/feed-client/**'
-      - 'inner-system/open-ai-client/**'
-      - 'inner-system/sns-client/**'
+      - 'clients/feed-client/**'
+      - 'clients/open-ai-client/**'
+      - 'clients/sns-client/**'
 
 jobs:
   deploy:
@@ -39,19 +39,19 @@ jobs:
       - name: Gradle로 빌드 실행
         run: |
           ./gradlew clean
-          ./gradlew :application:main-application:bootJar
+          ./gradlew :application:main-app:bootJar
 
       # 배포에 필요한 여러 설정 파일과 프로젝트 빌드파일을 zip 파일로 모아줍니다.
       - name: zip file 생성
         run: |
           mkdir deploy
           cp .env ./deploy/
-          cp ./application/main-application/docker/Dockerfile ./deploy/
-          cp ./application/main-application/docker/docker-compose.minipc.yml ./deploy/
-          cp ./application/main-application/scripts/minipc-docker-deploy.sh ./deploy/
-          cp ./application/main-application/build/libs/*.jar ./deploy/
+          cp ./application/main-app/docker/Dockerfile ./deploy/
+          cp ./application/main-app/docker/docker-compose.minipc.yml ./deploy/
+          cp ./application/main-app/scripts/minipc-docker-deploy.sh ./deploy/
+          cp ./application/main-app/build/libs/*.jar ./deploy/
           chmod +x ./deploy/minipc-docker-deploy.sh
-          zip -r -qq -j ./yapp-main-application.zip ./deploy
+          zip -r -qq -j ./yapp-main-app.zip ./deploy
 
       # ZIP 파일 전송
       - name: Transfer ZIP file use SCP
@@ -61,7 +61,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "./yapp-main-application.zip"
+          source: "./yapp-main-app.zip"
           target: "/home/hong/app/yapp-main-application"
 
       # SSH 연결 후 배포 스크립트 실행
@@ -75,5 +75,5 @@ jobs:
           script: |
             REMOTE_DIR="/home/hong/app/yapp-main-application"
             cd $REMOTE_DIR
-            unzip -o yapp-main-application.zip
+            unzip -o yapp-main-app.zip
             ./minipc-docker-deploy.sh

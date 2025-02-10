@@ -1,0 +1,25 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.1'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+version = '0.0.1-SNAPSHOT'
+
+dependencies {
+	api project(':domain:domain-module')
+	api project(':clients:sns-client')
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+bootJar {
+	archiveFileName = 'yapp-schedule-app.jar'
+	enabled = true
+}
+
+jar {
+	enabled = false
+}
