@@ -40,7 +40,7 @@ public record PromptHistoriesResponse(
 	public static List<PromptHistoriesResponse> fromList(List<PromptHistory> histories) {
 		return histories.stream()
 			.map(PromptHistoriesResponse::from)
-			.collect(Collectors.toList());
+			.toList();
 	}
 }
 
