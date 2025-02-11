@@ -11,7 +11,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import jakarta.servlet.http.HttpServletResponse;
 
-@RestControllerAdvice(basePackages = "org.mainapplication")
+@RestControllerAdvice(basePackages = "org.mainapp")
 public class GlobalResponseAdvice implements ResponseBodyAdvice {
 
 	@Override
