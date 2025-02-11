@@ -60,11 +60,7 @@ public class PostController {
 		@RequestParam(defaultValue = PostGenerationCount.POST_GENERATION_POST_COUNT) Integer limit,
 		@Validated @RequestBody CreatePostsRequest createPostsRequest
 	) {
-		return switch (createPostsRequest.getReference()) {
-			case NONE -> ResponseEntity.ok(postService.createPostsWithoutRef(createPostsRequest, limit));
-			case NEWS -> ResponseEntity.ok(postService.createPostsByNews(createPostsRequest, limit));
-			case IMAGE -> ResponseEntity.ok(postService.createPostsByImage(createPostsRequest, limit));
-		};
+		return ResponseEntity.ok(postService.createPosts(createPostsRequest, limit));
 	}
 
 	@Operation(
