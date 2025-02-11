@@ -31,7 +31,7 @@ public class SwaggerConfig {
 		Server server = new Server().url(servletContext.getContextPath()).description(API_DESCRIPTION);
 		return new OpenAPI()
 			.servers(List.of(server))
-			.addSecurityItem(accessTokenSecurityRequirement())
+			.addSecurityItem(cookieSecurityRequirement())
 			.components(authSetting())
 			.info(swaggerInfo());
 	}
@@ -41,11 +41,19 @@ public class SwaggerConfig {
 			.addSecuritySchemes(
 				"accessToken",
 				new SecurityScheme()
-					.type(SecurityScheme.Type.HTTP)
-					.scheme("bearer")
+					.type(SecurityScheme.Type.APIKEY)
+					.in(SecurityScheme.In.COOKIE)
 					.bearerFormat("JWT")
-					.in(SecurityScheme.In.HEADER)
-					.name("Authorization"));
+					.name("AccessToken")
+			)
+			.addSecuritySchemes(
+				"refreshToken",
+				new SecurityScheme()
+					.type(SecurityScheme.Type.APIKEY)
+					.in(SecurityScheme.In.COOKIE)
+					.bearerFormat("JWT")
+					.name("RefreshToken")
+			);
 	}
 
 	private Info swaggerInfo() {
@@ -60,9 +68,10 @@ public class SwaggerConfig {
 			.license(license);
 	}
 
-	private SecurityRequirement accessTokenSecurityRequirement() {
+	private SecurityRequirement cookieSecurityRequirement() {
 		SecurityRequirement securityRequirement = new SecurityRequirement();
 		securityRequirement.addList("accessToken");
+		securityRequirement.addList("refreshToken");
 		return securityRequirement;
 	}
 }
