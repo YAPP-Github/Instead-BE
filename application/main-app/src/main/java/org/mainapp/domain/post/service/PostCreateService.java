@@ -260,8 +260,6 @@ public class PostCreateService {
 		postTransactionService.savePostGroup(postGroup);
 
 		// eof 판단
-		System.out.println((postGroup.getGenerationCount() >= PostGenerationCount.MAX_POST_GENERATION_COUNT));
-		System.out.println(feedPagingResult.isEof());
 		boolean eof = (postGroup.getGenerationCount() >= PostGenerationCount.MAX_POST_GENERATION_COUNT)
 			|| (feedPagingResult.isEof());
 
