@@ -26,7 +26,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class PostUpgradeService {
+public class PostPromptUpdateService {
 
 	private final PostTransactionService postTransactionService;
 	private final CreatePostPromptTemplate createPostPromptTemplate;
@@ -43,11 +43,11 @@ public class PostUpgradeService {
 	 * 단일 게시물을 prompt를 적용하여 업데이트하는 메서드
 	 */
 	@Transactional
-	public PostResponse upgradeSinglePost(
+	public PostResponse updateSinglePostByPrompt(
 		SinglePostUpdateRequest request, Long agentId, Long postGroupId, Long postId) {
 		Post post = postTransactionService.getPostOrThrow(postId);
 		// 프롬프트 적용
-		SummaryContentFormat newContent = upgradePostContent(post, request.prompt());
+		SummaryContentFormat newContent = updatePostContentByPrompt(post, request.prompt());
 		// DB값 업데이트
 		return postTransactionService.updateSinglePostAndPromptyHistory(post, request.prompt(), newContent);
 	}
@@ -55,7 +55,7 @@ public class PostUpgradeService {
 	/**
 	 * 일괄로 게시물들을 prompt 적용 후 업데이트 하는 메서드
 	 */
-	public List<PostResponse> upgradeMultiplePosts(
+	public List<PostResponse> updateMultiplePostsByPrompt(
 		MultiplePostUpdateRequest request, Long agentId, Long postGroupId) {
 		List<Long> postIds = request.postsId();
 		String prompt = request.prompt();
@@ -65,7 +65,7 @@ public class PostUpgradeService {
 			.toList();
 
 		List<CompletableFuture<SummaryContentFormat>> futures = posts.stream()
-			.map(post -> CompletableFuture.supplyAsync(() -> upgradePostContent(post, prompt)))
+			.map(post -> CompletableFuture.supplyAsync(() -> updatePostContentByPrompt(post, prompt)))
 			.toList();
 
 		// 모든 프롬프트 처리 완료 대기
@@ -77,7 +77,7 @@ public class PostUpgradeService {
 		return postTransactionService.updateMutiplePostAndPromptyHistory(posts, prompt, newContents);
 	}
 
-	private SummaryContentFormat upgradePostContent(Post post, String prompt) {
+	private SummaryContentFormat updatePostContentByPrompt(Post post, String prompt) {
 		String previousResponse = post.getContent();
 
 		// ChatGPT 프롬프트 실행

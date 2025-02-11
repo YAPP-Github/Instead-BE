@@ -152,7 +152,7 @@ public class PostController {
 		@Validated @RequestBody SinglePostUpdateRequest singlePostUpdateRequest
 	) {
 		return ResponseEntity.ok(
-			postService.upgradeSinglePost(singlePostUpdateRequest, agentId, postGroupId, postId));
+			postService.updateSinglePostByPrompt(singlePostUpdateRequest, agentId, postGroupId, postId));
 	}
 
 	@Operation(summary = "게시물 프롬프트 기반 일괄 수정 API", description = "일괄 게시물에 대해 입력된 프롬프트를 바탕으로 수정합니다.")
@@ -163,7 +163,7 @@ public class PostController {
 		@Validated @RequestBody MultiplePostUpdateRequest multiplePostUpdateRequest
 	) {
 		return ResponseEntity.ok(
-			postService.upgradeMultiplePosts(multiplePostUpdateRequest, agentId, postGroupId));
+			postService.updateMultiplePostsByPrompt(multiplePostUpdateRequest, agentId, postGroupId));
 	}
 
 	@Operation(
