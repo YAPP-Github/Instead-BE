@@ -30,6 +30,11 @@ public class GoogleOAuth2UserInfo extends OAuth2UserInfo {
 		return (String) attributes.get("name");
 	}
 
+	@Override
+	public String getProfileImage() {
+		return (String) attributes.get("picture");
+	}
+
 	public static GoogleOAuth2UserInfo fromAttributes(Map<String, Object> attributes) {
 		return new GoogleOAuth2UserInfo(attributes);
 	}
