@@ -19,7 +19,7 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public User createAndSaveUser(OAuth2UserInfo oAuth2Response) {
-		User user = User.createUser(oAuth2Response.getEmail(),oAuth2Response.getName());
+		User user = User.createUser(oAuth2Response.getEmail(),oAuth2Response.getName(), oAuth2Response.getProfileImage());
 		return userRepository.save(user);
 	}
 
