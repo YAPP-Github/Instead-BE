@@ -7,12 +7,3 @@ spring:
         driver-class-name: com.mysql.cj.jdbc.Driver
         username: ${MYSQL_USERNAME}
         password: ${MYSQL_PASSWORD}
-
-    jpa:
-        show-sql: true
-        hibernate:
-            ddl-auto: validate
-        properties:
-            hibernate:
-                dialect: org.hibernate.dialect.MySQLDialect
-                jdbc.time_zone: Asia/Seoul

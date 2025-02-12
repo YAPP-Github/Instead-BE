@@ -31,9 +31,6 @@ public class PostPromptHistoryService {
 		List<PromptHistory> histories = promptHistoryRepository.findPromptHistoriesWithValidation(userId, agentId,
 			postGroupId, postId);
 
-		if (histories.isEmpty()) {
-			throw new CustomException(PostErrorCode.PROMPT_HISTORIES_NOT_FOUND);
-		}
 		return PromptHistoriesResponse.fromList(histories);
 	}
 
