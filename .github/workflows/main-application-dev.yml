@@ -30,7 +30,7 @@ jobs:
                     host: ${{ secrets.SSH_HOST_DEV }}
                     key: ${{ secrets.SSH_KEY_DEV }}
                     port: ${{ secrets.SSH_PORT_DEV }}
-                    source: "./application/main-app/build/libs/*.jar"
+                    source: "./application/main-app/build/libs/yapp-main-app.jar"
                     target: "Projects/instead"
 
             -   name: SSH 연결 후 배포 스크립트 실행
