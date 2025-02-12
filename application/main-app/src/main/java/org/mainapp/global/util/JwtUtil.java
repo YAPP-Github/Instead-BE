@@ -45,7 +45,6 @@ public class JwtUtil {
 	//accessToekn 발급
 	public String generateAccessToken(String userId) {
 		final Date now = new Date();
-
 		return
 			Jwts.builder()
 				.setHeaderParam("typ", "JWT")
@@ -60,7 +59,6 @@ public class JwtUtil {
 	//refreshToken 발급
 	public String generateRegreshToken(String userId) {
 		final Date now = new Date();
-
 		return Jwts.builder()
 				.setHeaderParam("typ", "JWT")
 				.setSubject(userId)
