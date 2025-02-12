@@ -30,7 +30,7 @@ jobs:
                     host: ${{ secrets.SSH_HOST_DEV }}
                     key: ${{ secrets.SSH_KEY_DEV }}
                     port: ${{ secrets.SSH_PORT_DEV }}
-                    source: "./application/main-app/build/libs/yapp-main-app.jar"
+                    source: "./application/main-app/build/libs/*.jar"
                     target: "Projects/instead"
 
             -   name: SSH 연결 후 배포 스크립트 실행
@@ -43,4 +43,4 @@ jobs:
                     script: |
                         cd Projects/instead
                         source ${{ secrets.ENV_PATH_DEV }}
-                        nohup java -jar yapp-main-app.jar &
+                        nohup java -jar application/main-app/build/libs/yapp-main-app.jar &
