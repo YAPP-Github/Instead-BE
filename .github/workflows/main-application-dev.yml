@@ -41,12 +41,12 @@ jobs:
                     key: ${{ secrets.SSH_KEY_DEV }}
                     port: ${{ secrets.SSH_PORT_DEV }}
                     script: |
-                        cd Projects/instead
-                        source ~/.zshrc
-                        source ${{ secrets.ENV_PATH_DEV }}
-                        PID=$(lsof -t -i:$SERVER_PORT)
-                        if [ ! -z "$PID" ]; then
-                            echo "Killing process on port 8081 (PID=$PID)"
-                            kill -9 $PID
-                        fi
-                        nohup java -jar application/main-app/build/libs/yapp-main-app.jar 1>./output.log 2>&1 &
+                                cd Projects/instead
+                      #                        source ~/.zshrc
+                                source ${{ secrets.ENV_PATH_DEV }}
+                                PID=$(lsof -t -i:$SERVER_PORT)
+                                if [ ! -z "$PID" ]; then
+                                echo "Killing process on port 8081 (PID=$PID)"
+                                kill -9 $PID
+                                fi
+                                nohup java -jar application/main-app/build/libs/yapp-main-app.jar 1>./output.log 2>&1 &
