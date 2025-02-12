@@ -47,8 +47,8 @@ public class AuthServiceImpl implements AuthService {
 		User user = userService.createAndSaveUser(oAuth2Response);
 		// Oauth 테이블 생성
 		createAndSaveOauth(oAuth2Response, user);
-		// Token 테이블 생성
-		tokenService.generateRefreshToken(user);
+		// RefreshToken 테이블 생성
+		tokenService.generateRefreshToken(user.getId());
 		return user;
 	}
 

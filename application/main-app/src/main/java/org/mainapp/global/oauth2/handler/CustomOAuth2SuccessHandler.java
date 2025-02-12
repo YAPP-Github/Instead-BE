@@ -28,7 +28,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 		CustomUserDetails customOAuth2User = (CustomUserDetails) authentication.getPrincipal();
 
 		String accessToken = jwtUtil.generateAccessToken(customOAuth2User.getId());
-		String refreshToken = tokenService.getRefreshToken(customOAuth2User.getId());
+		String refreshToken = tokenService.getRefreshToken(Long.parseLong(customOAuth2User.getId()));
 
 		responseUtil.setTokensInResponse(response, accessToken, refreshToken);
 

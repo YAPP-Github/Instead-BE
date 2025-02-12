@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.function.Function;
 
 import org.mainapp.global.constants.HeaderConstants;
-import org.springframework.beans.factory.annotation.Value;
+import org.mainapp.global.constants.JwtProperties;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -28,18 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 @RequiredArgsConstructor
 public class JwtUtil {
-	@Value("${jwt.access-token-expiration}")
-	public long ACCESS_TOKEN_VALID_MILL_TIME;
-
-	@Value("${jwt.refresh-token-expiration}")
-	public long REFRESH_TOKEN_VALID_MILL_TIME;
-
-	@Value("${jwt.access-token-key}")
-	private String ACCESS_SECRET_KEY;
-
-	@Value("${jwt.refresh-token-key}")
-	private String REFRESH_SECRET_KEY;
-
+	private final JwtProperties jwtProperties;
 	private final String ISSUER = "YAPP_PROJECT";
 
 	//accessToekn 발급
@@ -51,30 +40,30 @@ public class JwtUtil {
 				.setSubject(userId)
 				.setIssuer(ISSUER)
 				.setIssuedAt(now)
-				.setExpiration(new Date(now.getTime() + ACCESS_TOKEN_VALID_MILL_TIME))
+				.setExpiration(new Date(now.getTime() + jwtProperties.getAccessTokenExpirationMS()))
 				.signWith(getAccessTokenKey(), SignatureAlgorithm.HS256)
 				.compact();
 	}
 
 	//refreshToken 발급
-	public String generateRegreshToken(String userId) {
+	public String generateRefreshToken(String userId) {
 		final Date now = new Date();
 		return Jwts.builder()
 				.setHeaderParam("typ", "JWT")
 				.setSubject(userId)
 				.setIssuer(ISSUER)
 				.setIssuedAt(now)
-				.setExpiration(new Date(now.getTime() + REFRESH_TOKEN_VALID_MILL_TIME))
+				.setExpiration(new Date(now.getTime() + jwtProperties.getRefreshTokenExpirationMS()))
 				.signWith(getRefreshTokenKey(), SignatureAlgorithm.HS256)
 				.compact();
 	}
 
 	private Key getAccessTokenKey() {
-		return Keys.hmacShaKeyFor(Base64.getDecoder().decode(ACCESS_SECRET_KEY));
+		return Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtProperties.getAccessTokenKey()));
 	}
 
 	private Key getRefreshTokenKey() {
-		return Keys.hmacShaKeyFor(Base64.getDecoder().decode(REFRESH_SECRET_KEY));
+		return Keys.hmacShaKeyFor(Base64.getDecoder().decode(jwtProperties.getRefreshTokenKey()));
 	}
 
 	public boolean isTokenValid(String token, boolean isAccessToken) {
