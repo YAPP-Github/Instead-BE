@@ -11,9 +11,6 @@ spring:
                 format_sql: true
                 jdbc.time_zone: Asia/Seoul
 
-server:
-    port: ${SERVER_PORT:8080}
-
 logging:
     level:
         org:

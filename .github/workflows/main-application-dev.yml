@@ -43,5 +43,4 @@ jobs:
                     script: |
                         cd Projects/instead
                         source ${{ secrets.ENV_PATH_DEV }}
-                        echo $SERVER_PORT
                         nohup java -jar application/main-app/build/libs/yapp-main-app.jar 1>./output.log 2>&1 &
