@@ -42,5 +42,8 @@ jobs:
                     port: ${{ secrets.SSH_PORT_DEV }}
                     script: |
                         cd Projects/instead
+                        echo "successfully moved"
+                        pwd
                         source ${{ secrets.ENV_PATH_DEV }}
+                        echo "successfully sourced"
                         nohup java -jar application/main-app/build/libs/yapp-main-app.jar &
