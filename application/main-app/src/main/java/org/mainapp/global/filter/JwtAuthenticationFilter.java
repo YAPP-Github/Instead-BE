@@ -2,11 +2,14 @@ package org.mainapp.global.filter;
 
 import java.io.IOException;
 
+import org.mainapp.domain.token.exception.TokenErrorCode;
 import org.mainapp.global.constants.HeaderConstants;
 import org.mainapp.global.constants.WebSecurityURI;
+import org.mainapp.global.error.CustomException;
 import org.mainapp.global.util.JwtUtil;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
@@ -15,7 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
-// @Component
+@Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -27,13 +30,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		String accessToken = jwtUtil.resolveToken(request, HeaderConstants.ACCESS_TOKEN_HEADER);
 		if (accessToken == null) {
-			throw new RuntimeException("ACCESS_TOKEN이 없습니다.");
+			throw new CustomException(TokenErrorCode.ACCESS_TOKEN_NOT_FOUND);
 		}
 
 		boolean isAccessTokenValid = jwtUtil.isTokenValid(accessToken, true);
 		// AccessToken이 만료
 		if (!isAccessTokenValid ) {
-			throw new RuntimeException("ACCESS_TOKEN이 만료되었습니다.");
+			throw new CustomException(TokenErrorCode.ACCESS_TOKEN_EXPIRED);
 		}
 
 		String userId = jwtUtil.extractUserId(accessToken, true);

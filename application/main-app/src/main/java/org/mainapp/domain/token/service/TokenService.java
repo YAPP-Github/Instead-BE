@@ -7,4 +7,5 @@ import jakarta.servlet.http.HttpServletResponse;
 public interface TokenService {
 	void saveRenewRefreshToken(User user, String newToken);
 	String reissueAccessToken(String refreshToken, HttpServletResponse response);
+	String getRefreshToken(String userId);
 }
