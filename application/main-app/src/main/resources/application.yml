@@ -15,7 +15,7 @@ spring:
 server:
     servlet:
         context-path: /yapp
-    port: ${SERVER_PORT:8080}
+    port: ${SERVER_PORT}
 
 # Client - 이후에 open-ai모듈로 로직과 함께 빠져야함
 client:
