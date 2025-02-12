@@ -5,7 +5,7 @@ import static org.springframework.security.config.Customizer.*;
 
 import org.mainapp.global.constants.UrlConstants;
 import org.mainapp.global.constants.WebSecurityURI;
-import org.mainapp.global.filter.TestAuthenticationFilter;
+import org.mainapp.global.filter.JwtAuthenticationFilter;
 import org.mainapp.global.oauth2.handler.CustomAuthenticationEntryPoint;
 import org.mainapp.global.oauth2.handler.CustomOAuth2FailureHandler;
 import org.mainapp.global.oauth2.handler.CustomOAuth2SuccessHandler;
@@ -16,8 +16,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -31,12 +29,11 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-	// private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final CustomOauth2UserService customOauth2UserService;
 	private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 	private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
 	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-	private final TestAuthenticationFilter testAuthenticationFilter;
 
 	private void defaultBasicFilterChain(HttpSecurity http) throws Exception {
 		http.httpBasic(AbstractHttpConfigurer::disable)
@@ -74,8 +71,7 @@ public class WebSecurityConfig {
 				exceptionHandling
 					.authenticationEntryPoint(customAuthenticationEntryPoint.oAuth2EntryPoint())
 			)
-			.addFilterBefore(testAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-		// .addFilterBefore(jwtAuthenticaltionFilter, UsernamePasswordAuthenticationFilter.class);
+		.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
@@ -97,10 +93,5 @@ public class WebSecurityConfig {
 		source.registerCorsConfiguration("/**", configuration);
 
 		return source;
-	}
-
-	@Bean
-	public static PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
 	}
 }

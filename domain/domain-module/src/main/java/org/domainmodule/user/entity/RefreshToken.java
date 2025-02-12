@@ -37,11 +37,15 @@ public class RefreshToken extends BaseTimeEntity {
 	@Column(nullable = false)
 	private LocalDateTime expirationDate;
 
-	@Builder
-	private RefreshToken(User user, String token) {
+	@Builder(access = AccessLevel.PRIVATE)
+	private RefreshToken(User user, String token, long seconds) {
 		this.user = user;
 		this.token = token;
-		this.expirationDate = LocalDateTime.now().plusDays(1); //TODO 리프래쉬 토큰 만료시간으로 변경해야 함
+		this.expirationDate = LocalDateTime.now().plusSeconds(seconds);
+	}
+
+	public static RefreshToken create(User user, String token, long seconds) {
+		return new RefreshToken(user, token, seconds);
 	}
 
 	public void renewToken(String token) {

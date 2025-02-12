@@ -1,29 +1,37 @@
 package org.mainapp.global.util;
 
+import java.time.Duration;
+
 import org.mainapp.global.constants.HeaderConstants;
+import org.mainapp.global.constants.JwtProperties;
+import org.springframework.stereotype.Component;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 
+@Component
+@RequiredArgsConstructor
 public class ResponseUtil {
-	private ResponseUtil() {
-	}
+	private final JwtProperties jwtProperties;
 
-	public static void setTokensInResponse(HttpServletResponse response, String accessToken, String refreshToken) {
+	public void setTokensInResponse(HttpServletResponse response, String accessToken, String refreshToken) {
 		response.setHeader(HeaderConstants.ACCESS_TOKEN_HEADER, HeaderConstants.TOKEN_PREFIX + accessToken);
 		createHttpOnlyCookie(response, refreshToken);
 	}
 
-	private static void createHttpOnlyCookie(HttpServletResponse response, String refreshToken) {
+	private void createHttpOnlyCookie(HttpServletResponse response, String refreshToken) {
+		long refreshTokenExpirationSC = Duration.ofMillis(jwtProperties.getRefreshTokenExpirationMS()).toSeconds();
+
 		Cookie cookie = new Cookie(HeaderConstants.REFRESH_TOKEN_HEADER, refreshToken);
 		cookie.setHttpOnly(true);
 		cookie.setSecure(true);
 		cookie.setPath("/");
-		cookie.setMaxAge(7 * 24 * 60 * 60); //TODO 쿠키 기간 설정하기 유효기간 7일
+		cookie.setMaxAge((int) refreshTokenExpirationSC);
 		response.addCookie(cookie);
 	}
 
-	public static void setContentType(HttpServletResponse response, String contentType) {
+	public void setContentType(HttpServletResponse response, String contentType) {
 		response.setContentType(contentType);
 	}
 }

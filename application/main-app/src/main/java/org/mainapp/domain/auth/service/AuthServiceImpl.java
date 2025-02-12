@@ -6,6 +6,7 @@ import org.domainmodule.user.entity.Oauth;
 import org.domainmodule.user.entity.User;
 import org.domainmodule.user.entity.type.ProviderType;
 import org.domainmodule.user.repository.OauthRepository;
+import org.mainapp.domain.token.service.TokenServiceImpl;
 import org.mainapp.domain.user.service.UserServiceImpl;
 import org.mainapp.global.oauth2.userinfo.OAuth2UserInfo;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ public class AuthServiceImpl implements AuthService {
 
 	private final OauthRepository oauthRepository;
 	private final UserServiceImpl userService;
+	private final TokenServiceImpl tokenService;
 
 	/**
 	 * Oauth2 Provider, ProviderId로 사용자 존재여부 확인후 없으면 회원가입 진행한다.
@@ -41,8 +43,12 @@ public class AuthServiceImpl implements AuthService {
 
 	// 회원가입
 	private User registerUser(OAuth2UserInfo oAuth2Response) {
+		// 유저 생성
 		User user = userService.createAndSaveUser(oAuth2Response);
+		// Oauth 테이블 생성
 		createAndSaveOauth(oAuth2Response, user);
+		// RefreshToken 테이블 생성
+		tokenService.generateRefreshToken(user.getId());
 		return user;
 	}
 
