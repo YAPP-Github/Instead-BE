@@ -1,0 +1,22 @@
+spring:
+  config:
+    activate:
+      on-profile: "prod"
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        jdbc.time_zone: Asia/Seoul
+
+# 로깅 설정
+logging:
+  level:
+    org:
+      springframework: ERROR
+      hibernate:
+        orm:
+          jdbc:
+            bind: trace
