@@ -48,4 +48,5 @@ jobs:
                         if [ ! -z "$PID" ]; then
                             echo "Killing process on port 8081 (PID=$PID)"
                             kill -9 $PID
+                        fi
                         nohup java -jar application/main-app/build/libs/yapp-main-app.jar 1>./output.log 2>&1 &
