@@ -44,7 +44,3 @@ client:
         key: ${OPENAI_API_KEY}
         model: gpt-4o-mini
 
-security:
-    token:
-        access-expiration: ${ACCESS_JWT_EXPIRATION}
-        refresh-expiration: ${REFRESH_JWT_EXPIRATION}

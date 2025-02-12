@@ -26,3 +26,8 @@ jwt:
   refresh-token-key: ${REFRESH_JWT_KEY:}
   access-token-expiration: ${ACCESS_JWT_EXPIRATION:2592000000}  # 30일
   refresh-token-expiration: ${REFRESH_JWT_EXPIRATION:604800000} # 7일
+
+cookie:
+  token:
+    access-expiration: ${ACCESS_JWT_EXPIRATION}
+    refresh-expiration: ${REFRESH_JWT_EXPIRATION}
