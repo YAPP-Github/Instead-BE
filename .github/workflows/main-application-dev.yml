@@ -31,7 +31,7 @@ jobs:
                     key: ${{ secrets.SSH_KEY_DEV }}
                     port: ${{ secrets.SSH_PORT_DEV }}
                     source: "./application/main-app/build/libs/*.jar"
-                    target: "/Project/instead"
+                    target: "/Projects/instead"
 
             -   name: SSH 연결 후 배포 스크립트 실행
                 uses: appleboy/ssh-action@master
