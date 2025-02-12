@@ -1,23 +1,26 @@
 spring:
-  config:
-    activate:
-      on-profile: "dev"
-  jpa:
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
-        jdbc.time_zone: Asia/Seoul
+    config:
+        activate:
+            on-profile: "dev"
+    jpa:
+        hibernate:
+            ddl-auto: update
+        properties:
+            hibernate:
+                show_sql: true
+                format_sql: true
+                jdbc.time_zone: Asia/Seoul
+
+server:
+    port: ${SERVER_PORT:8080}
 
 logging:
-  level:
-    org:
-      springframework:
-        security: debug
-        web: DEBUG
-    hibernate:
-      orm:
-        jdbc:
-          bind: trace
+    level:
+        org:
+            springframework:
+                security: debug
+                web: DEBUG
+        hibernate:
+            orm:
+                jdbc:
+                    bind: trace
