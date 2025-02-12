@@ -4,15 +4,9 @@ on:
     push:
         branches:
             - develop
-        paths:
-            - 'application/main-app/**'
-            - 'domain/domain-module/**'
-            - 'clients/feed-client/**'
-            - 'clients/open-ai-client/**'
-            - 'clients/sns-client/**'
 
 jobs:
-    build:
+    build-and-deploy:
         runs-on: ubuntu-latest
 
         steps:
