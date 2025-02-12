@@ -42,5 +42,6 @@ jobs:
                     port: ${{ secrets.SSH_PORT_DEV }}
                     script: |
                         cd Projects/instead
+                        source ~/.zshrc
                         source ${{ secrets.ENV_PATH_DEV }}
                         nohup java -jar application/main-app/build/libs/yapp-main-app.jar 1>./output.log 2>&1 &
