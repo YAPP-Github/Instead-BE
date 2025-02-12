@@ -76,7 +76,7 @@ public class Agent extends BaseTimeEntity {
 		this.bio = bio;
 		this.profileImage = profileImage;
 		this.autoMode = Boolean.FALSE;
-		this.agentType = AgentType.PERSONAL;
+		this.agentType = AgentType.BASIC;
 		this.isActivated = Boolean.TRUE;
 	}
 
