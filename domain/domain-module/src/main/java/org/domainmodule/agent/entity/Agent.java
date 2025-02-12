@@ -46,6 +46,9 @@ public class Agent extends BaseTimeEntity {
 	@Column(length = 255)
 	private String bio;
 
+	@Column(length = 500)
+	private String profileImage;
+
 	@Column(nullable = false)
 	private Boolean autoMode;
 
@@ -64,14 +67,16 @@ public class Agent extends BaseTimeEntity {
 		User user,
 		AgentPlatformType agentPlatform,
 		String accountId,
-		String bio
+		String bio,
+		String profileImage
 	) {
 		this.user = user;
 		this.platform = agentPlatform;
 		this.accountId = accountId;
 		this.bio = bio;
+		this.profileImage = profileImage;
 		this.autoMode = Boolean.FALSE;
-		this.agentType = AgentType.PERSONAL;
+		this.agentType = AgentType.BASIC;
 		this.isActivated = Boolean.TRUE;
 	}
 
@@ -79,12 +84,22 @@ public class Agent extends BaseTimeEntity {
 		User user,
 		AgentPlatformType agentPlatform,
 		String accountId,
-		String bio) {
+		String bio,
+		String profileImage) {
 		return Agent.builder()
 			.user(user)
 			.agentPlatform(agentPlatform)
 			.accountId(accountId)
 			.bio(bio)
+			.profileImage(profileImage)
 			.build();
+	}
+
+	public void updateInfo(
+		String bio,
+		String profileImage
+	) {
+		this.bio = bio;
+		this.profileImage = profileImage;
 	}
 }
