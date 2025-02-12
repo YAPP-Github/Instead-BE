@@ -22,7 +22,6 @@ public class CustomUserDetails implements OAuth2User {
 		return attributes;
 	}
 
-
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return null;
