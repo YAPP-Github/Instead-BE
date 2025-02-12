@@ -4,7 +4,9 @@ import java.net.URI;
 
 import org.domainmodule.agent.entity.Agent;
 import org.mainapp.domain.agent.service.AgentService;
+import org.mainapp.domain.sns.exception.SnsErrorCode;
 import org.mainapp.domain.sns.token.SnsTokenService;
+import org.mainapp.global.error.CustomException;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.snsclient.twitter.service.TwitterApiService;
@@ -43,7 +45,7 @@ public class TwitterService {
 		TwitterToken tokenResponse = twitterApiService.getTwitterAuthorizationToken(code);
 		TwitterUserInfoDto userInfo = getTwitterUserInfo(tokenResponse);
 
-		Agent agent = agentService.findOrCreateAgent(userInfo);
+		Agent agent = agentService.updateOrCreateAgent(userInfo);
 		snsTokenService.createOrUpdateSnsToken(agent, tokenResponse);
 	}
 
@@ -51,7 +53,7 @@ public class TwitterService {
 		try {
 			return twitterApiService.getUserInfo(token.accessToken());
 		} catch (TwitterException e) {
-			throw new RuntimeException("Twitter 유저 기본정보를 가져오지 못했습니다.", e);
+			throw new CustomException(SnsErrorCode.TWITTER_USER_INFO_FETCH_FAILED);
 		}
 	}
 }

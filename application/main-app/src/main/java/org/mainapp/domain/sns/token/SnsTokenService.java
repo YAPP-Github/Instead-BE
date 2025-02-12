@@ -4,7 +4,6 @@ import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.snstoken.entity.SnsToken;
 import org.domainmodule.snstoken.repository.SnsTokenRepository;
 import org.snsclient.twitter.dto.response.TwitterToken;
-import org.snsclient.twitter.service.TwitterApiService;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SnsTokenService {
 	private final SnsTokenRepository snsTokenRepository;
-	private final TwitterApiService twitterApiService;
+
 	/**
 	 * 사용자 계정(Agent)와 토큰 응답을 기반으로 SNS 토큰(SnsToken)을 저장
 	 * @param agent 사용자 계정(Agent)

@@ -137,7 +137,7 @@ public class TwitterApiService {
 	 */
 	public TwitterUserInfoDto getUserInfo(String accessToken) throws TwitterException {
 		TwitterV2 twitterV2 = createTwitterV2(accessToken);
-		UsersResponse usersResponse = twitterV2.getMe("", null, "description");
+		UsersResponse usersResponse = twitterV2.getMe("", null, "description,profile_image_url");
 		return mapToUserInfoDto(usersResponse);
 	}
 
