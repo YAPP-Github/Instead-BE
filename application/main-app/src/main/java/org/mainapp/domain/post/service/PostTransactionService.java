@@ -37,7 +37,7 @@ public class PostTransactionService {
 	private final PostGroupImageRepository postGroupImageRepository;
 	private final PostRepository postRepository;
 	private final PostImageRepository postImageRepository;
-	private final PromptHistoryService promptHistoryService;
+	private final PostPromptHistoryService postPromptHistoryService;
 
 	/**
 	 * Post 엔티티 리스트를 DB에 저장하는 메서드
@@ -125,21 +125,23 @@ public class PostTransactionService {
 	@Transactional
 	public PostResponse updateSinglePostAndPromptyHistory(Post post, String prompt, SummaryContentFormat newContent) {
 		// 프롬프트 기록 저장
-		promptHistoryService.createPromptHistories(post, prompt, newContent.getContent(), PostPromptType.EACH);
+		postPromptHistoryService.createPromptHistories(post, prompt, newContent.getContent(), PostPromptType.EACH);
 		// post 상태값 개별 프롬프트 수정 상태로 변경 및 본문 업데이트
 		post.updatePostContent(newContent.getSummary(), newContent.getContent(), PostStatusType.EDITING);
 
 		return PostResponse.from(post);
-  }
+	}
 
 	@Transactional
-	public List<PostResponse> updateMutiplePostAndPromptyHistory(List<Post> posts, String prompt, List<SummaryContentFormat> newContents) {
+	public List<PostResponse> updateMutiplePostAndPromptyHistory(List<Post> posts, String prompt,
+		List<SummaryContentFormat> newContents) {
 		return IntStream.range(0, posts.size())
 			.mapToObj(i -> {
 				Post post = posts.get(i);
 				SummaryContentFormat newContent = newContents.get(i);
 
-				promptHistoryService.createPromptHistories(post, prompt, newContent.getContent(), PostPromptType.ALL);
+				postPromptHistoryService.createPromptHistories(post, prompt, newContent.getContent(),
+					PostPromptType.ALL);
 
 				post.updatePostContent(newContent.getSummary(), newContent.getContent(), PostStatusType.EDITING);
 

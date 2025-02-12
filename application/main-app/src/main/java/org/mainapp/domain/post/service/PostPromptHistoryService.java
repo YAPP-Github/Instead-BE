@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class PromptHistoryService {
+public class PostPromptHistoryService {
 	private final PromptHistoryRepository promptHistoryRepository;
 
 	/**

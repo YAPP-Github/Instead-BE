@@ -6,13 +6,13 @@ import org.mainapp.domain.post.controller.request.CreatePostsRequest;
 import org.mainapp.domain.post.controller.request.MultiplePostUpdateRequest;
 import org.mainapp.domain.post.controller.request.SinglePostUpdateRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostContentRequest;
-import org.mainapp.domain.post.controller.request.UpdatePostsRequest;
+import org.mainapp.domain.post.controller.request.UpdatePostsMetadataRequest;
 import org.mainapp.domain.post.controller.response.CreatePostsResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupPostsResponse;
 import org.mainapp.domain.post.controller.response.PromptHistoriesResponse;
 import org.mainapp.domain.post.controller.response.type.PostResponse;
+import org.mainapp.domain.post.service.PostPromptHistoryService;
 import org.mainapp.domain.post.service.PostService;
-import org.mainapp.domain.post.service.PromptHistoryService;
 import org.mainapp.global.constants.PostGenerationCount;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -38,7 +38,7 @@ import lombok.RequiredArgsConstructor;
 public class PostController {
 
 	private final PostService postService;
-	private final PromptHistoryService promptHistoryService;
+	private final PostPromptHistoryService postPromptHistoryService;
 
 	@Operation(
 		summary = "게시물 그룹 및 게시물 생성 API",
@@ -60,11 +60,7 @@ public class PostController {
 		@RequestParam(defaultValue = PostGenerationCount.POST_GENERATION_POST_COUNT) Integer limit,
 		@Validated @RequestBody CreatePostsRequest createPostsRequest
 	) {
-		return switch (createPostsRequest.getReference()) {
-			case NONE -> ResponseEntity.ok(postService.createPostsWithoutRef(createPostsRequest, limit));
-			case NEWS -> ResponseEntity.ok(postService.createPostsByNews(createPostsRequest, limit));
-			case IMAGE -> ResponseEntity.ok(postService.createPostsByImage(createPostsRequest, limit));
-		};
+		return ResponseEntity.ok(postService.createPosts(createPostsRequest, limit));
 	}
 
 	@Operation(
@@ -83,6 +79,25 @@ public class PostController {
 		@RequestParam(defaultValue = PostGenerationCount.POST_GENERATION_POST_COUNT) Integer limit
 	) {
 		return ResponseEntity.ok(postService.createAdditionalPosts(postGroupId, limit));
+	}
+
+	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
+	@GetMapping("/{postGroupId}/posts")
+	public ResponseEntity<GetPostGroupPostsResponse> getPostsByPostGroup(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId
+	) {
+		return ResponseEntity.ok(postService.getPostsByPostGroup(postGroupId));
+	}
+
+	@Operation(summary = "게시물 프롬프트 내역 조회 API", description = "게시물 결과 수정 단계에서 프롬프트 내역을 조회합니다.")
+	@GetMapping("/{postGroupId}/posts/{postId}/prompt-histories")
+	public ResponseEntity<List<PromptHistoriesResponse>> getPromptHistories(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId,
+		@PathVariable Long postId
+	) {
+		return ResponseEntity.ok(postPromptHistoryService.getPromptHistories(agentId, postGroupId, postId));
 	}
 
 	@Operation(
@@ -122,29 +137,33 @@ public class PostController {
 	public ResponseEntity<Void> updatePosts(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
-		@Validated @RequestBody UpdatePostsRequest updatePostsRequest
+		@Validated @RequestBody UpdatePostsMetadataRequest updatePostsMetadataRequest
 	) {
-		postService.updatePosts(postGroupId, updatePostsRequest);
+		postService.updatePostsMetadata(postGroupId, updatePostsMetadataRequest);
 		return ResponseEntity.ok().build();
 	}
 
-	@Operation(summary = "게시물 프롬프트 내역 조회 API", description = "게시물 결과 수정 단계에서 프롬프트 내역을 조회합니다.")
-	@GetMapping("/{postGroupId}/posts/{postId}/prompt-histories")
-	public ResponseEntity<List<PromptHistoriesResponse>> getPromptHistories(
+	@Operation(summary = "게시물 프롬프트 기반 개별 수정 API", description = "개별 게시물에 대해 입력된 프롬프트를 바탕으로 수정합니다.")
+	@PatchMapping("/{postGroupId}/posts/{postId}/prompt")
+	public ResponseEntity<PostResponse> updateSinglePostByPrompt(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
-		@PathVariable Long postId
+		@PathVariable Long postId,
+		@Validated @RequestBody SinglePostUpdateRequest singlePostUpdateRequest
 	) {
-		return ResponseEntity.ok(promptHistoryService.getPromptHistories(agentId, postGroupId, postId));
+		return ResponseEntity.ok(
+			postService.updateSinglePostByPrompt(singlePostUpdateRequest, agentId, postGroupId, postId));
 	}
 
-	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
-	@GetMapping("/{postGroupId}/posts")
-	public ResponseEntity<GetPostGroupPostsResponse> getPostsByPostGroup(
+	@Operation(summary = "게시물 프롬프트 기반 일괄 수정 API", description = "일괄 게시물에 대해 입력된 프롬프트를 바탕으로 수정합니다.")
+	@PatchMapping("/{postGroupId}/posts/prompt")
+	public ResponseEntity<List<PostResponse>> updateMultiplePostsByPrompt(
 		@PathVariable Long agentId,
-		@PathVariable Long postGroupId
+		@PathVariable Long postGroupId,
+		@Validated @RequestBody MultiplePostUpdateRequest multiplePostUpdateRequest
 	) {
-		return ResponseEntity.ok(postService.getPostsByPostGroup(postGroupId));
+		return ResponseEntity.ok(
+			postService.updateMultiplePostsByPrompt(multiplePostUpdateRequest, agentId, postGroupId));
 	}
 
 	@Operation(
@@ -183,28 +202,5 @@ public class PostController {
 	) {
 		postService.deletePosts(postGroupId, postIds);
 		return ResponseEntity.noContent().build();
-	}
-
-	@Operation(summary = "게시물 프롬프트 기반 개별 수정 API", description = "개별 게시물에 대해 입력된 프롬프트를 바탕으로 수정합니다.")
-	@PatchMapping("/{postGroupId}/posts/{postId}/prompt")
-	public ResponseEntity<PostResponse> updateSinglePostByPrompt(
-		@PathVariable Long agentId,
-		@PathVariable Long postGroupId,
-		@PathVariable Long postId,
-		@Validated @RequestBody SinglePostUpdateRequest singlePostUpdateRequest
-	) {
-		return ResponseEntity.ok(
-			postService.updateSinglePostByPrompt(singlePostUpdateRequest, agentId, postGroupId, postId));
-	}
-
-	@Operation(summary = "게시물 프롬프트 기반 일괄 수정 API", description = "일괄 게시물에 대해 입력된 프롬프트를 바탕으로 수정합니다.")
-	@PatchMapping("/{postGroupId}/posts/prompt")
-	public ResponseEntity<List<PostResponse>> updateMultiplePostsByPrompt(
-		@PathVariable Long agentId,
-		@PathVariable Long postGroupId,
-		@Validated @RequestBody MultiplePostUpdateRequest multiplePostUpdateRequest
-	) {
-		return ResponseEntity.ok(
-			postService.updateMultiplePostsByPrompt(multiplePostUpdateRequest, agentId, postGroupId));
 	}
 }
