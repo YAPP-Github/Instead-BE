@@ -1,11 +1,10 @@
 package org.mainapp.global.util;
 
-import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
-import org.mainapp.global.constants.HeaderConstants;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -16,9 +15,11 @@ import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.Nullable;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +53,7 @@ public class JwtUtil {
 				.setIssuer(ISSUER)
 				.setIssuedAt(now)
 				.setExpiration(new Date(now.getTime() + ACCESS_TOKEN_VALID_MILL_TIME))
-				.signWith(getAccessTokenKey())
+				.signWith(getAccessTokenKey(), SignatureAlgorithm.HS256)
 				.compact();
 	}
 
@@ -66,19 +67,16 @@ public class JwtUtil {
 				.setIssuer(ISSUER)
 				.setIssuedAt(now)
 				.setExpiration(new Date(now.getTime() + REFRESH_TOKEN_VALID_MILL_TIME))
-				.signWith(getRefreshTokenKey())
+				.signWith(getRefreshTokenKey(), SignatureAlgorithm.HS256)
 				.compact();
-
 	}
 
 	private Key getAccessTokenKey() {
-		byte[] keyBytes = ACCESS_SECRET_KEY.getBytes(StandardCharsets.UTF_8);
-		return Keys.hmacShaKeyFor(keyBytes);
+		return Keys.hmacShaKeyFor(Base64.getDecoder().decode(ACCESS_SECRET_KEY));
 	}
 
 	private Key getRefreshTokenKey() {
-		byte[] keyBytes = REFRESH_SECRET_KEY.getBytes(StandardCharsets.UTF_8);
-		return Keys.hmacShaKeyFor(keyBytes);
+		return Keys.hmacShaKeyFor(Base64.getDecoder().decode(REFRESH_SECRET_KEY));
 	}
 
 	public boolean isTokenValid(String token, boolean isAccessToken) {
@@ -130,13 +128,17 @@ public class JwtUtil {
 		}
 	}
 
-	// Http 요청 헤더에서 토큰 추출
-	public String resolveToken(@Nullable HttpServletRequest request, String header) {
-		String authHeader = request.getHeader(header);
-		if (authHeader == null) {
+	// Http 요청 쿠키에서 토큰 추출
+	public String resolveToken(@Nullable HttpServletRequest request, String cookieName) {
+		if (request == null || request.getCookies() == null) {
 			return null;
 		}
-		return authHeader.replace(HeaderConstants.TOKEN_PREFIX, "");
+		for (Cookie cookie : request.getCookies()) {
+			if (cookie.getName().equals(cookieName)) {
+				return cookie.getValue();
+			}
+		}
+		return null;
 	}
 
 	public Authentication getAuthentication(String userId) {

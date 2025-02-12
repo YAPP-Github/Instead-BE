@@ -18,7 +18,20 @@ import lombok.RequiredArgsConstructor;
 public class TokenServiceImpl implements TokenService {
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final JwtUtil jwtUtil;
+	private final ResponseUtil responseUtil;
 
+	/**
+	 *  refreshToken 발급 후 저장
+	 */
+	@Transactional
+	public void generateRefreshToken(User user) {
+		String refreshToken = jwtUtil.generateRegreshToken(user.getId().toString());
+		createAndSaveRefreshToken(user, refreshToken);
+	}
+
+	/**
+	 * User가 존재하면 Token 업데이트, 존재하지 않으면 RefreshToken 새로 저장
+	 */
 	@Override
 	@Transactional
 	public void saveRenewRefreshToken(User user, String newToken) {
@@ -41,6 +54,9 @@ public class TokenServiceImpl implements TokenService {
 		refreshTokenRepository.save(refreshToken);
 	}
 
+	/**
+	 *  AccessToken 재발급
+	 */
 	@Override
 	@Transactional
 	public String reissueAccessToken(String refreshToken, HttpServletResponse response) {
@@ -48,11 +64,11 @@ public class TokenServiceImpl implements TokenService {
 			throw new CustomException(TokenErrorCode.REFRESH_TOKEN_EXPIRED);
 		}
 
-		String usdrId = jwtUtil.extractUserId(refreshToken, false);
-		validateRefreshToken(usdrId, refreshToken);
+		String userId = jwtUtil.extractUserId(refreshToken, false);
+		validateRefreshToken(userId, refreshToken);
 
-		String accessToken = jwtUtil.generateAccessToken(usdrId);
-		ResponseUtil.setTokensInResponse(response, accessToken, refreshToken);
+		String accessToken = jwtUtil.generateAccessToken(userId);
+		responseUtil.setTokensInResponse(response, accessToken, refreshToken);
 		return accessToken;
 	}
 
@@ -60,5 +76,12 @@ public class TokenServiceImpl implements TokenService {
 		refreshTokenRepository.findByUserId(Long.valueOf(userId))
 			.filter(storedToken -> storedToken.getToken().equals(refreshToken))
 			.orElseThrow(() -> new CustomException(TokenErrorCode.REFRESH_TOKEN_NOT_MATCHED));
+	}
+
+	@Transactional
+	public String getRefreshToken(String userId) {
+		return refreshTokenRepository.findByUserId(Long.parseLong(userId))
+			.orElseThrow(() -> new CustomException(TokenErrorCode.REFRESH_TOKEN_NOT_FOUND))
+			.getToken();
 	}
 }

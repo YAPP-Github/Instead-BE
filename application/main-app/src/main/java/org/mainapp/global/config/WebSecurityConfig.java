@@ -3,9 +3,12 @@ package org.mainapp.global.config;
 import static org.springframework.http.HttpHeaders.*;
 import static org.springframework.security.config.Customizer.*;
 
+import java.util.stream.Stream;
+
 import org.mainapp.global.constants.UrlConstants;
 import org.mainapp.global.constants.WebSecurityURI;
-import org.mainapp.global.filter.TestAuthenticationFilter;
+import org.mainapp.global.filter.CsrfHeaderFilter;
+import org.mainapp.global.filter.JwtAuthenticationFilter;
 import org.mainapp.global.oauth2.handler.CustomAuthenticationEntryPoint;
 import org.mainapp.global.oauth2.handler.CustomOAuth2FailureHandler;
 import org.mainapp.global.oauth2.handler.CustomOAuth2SuccessHandler;
@@ -16,10 +19,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -31,19 +34,33 @@ import lombok.RequiredArgsConstructor;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
-	// private final JwtAuthenticationFilter jwtAuthenticationFilter;
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final CustomOauth2UserService customOauth2UserService;
 	private final CustomOAuth2SuccessHandler customOAuth2SuccessHandler;
 	private final CustomOAuth2FailureHandler customOAuth2FailureHandler;
 	private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
-	private final TestAuthenticationFilter testAuthenticationFilter;
 
 	private void defaultBasicFilterChain(HttpSecurity http) throws Exception {
 		http.httpBasic(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.anonymous(AbstractHttpConfigurer::disable)
 			.cors(withDefaults())
-			.csrf(AbstractHttpConfigurer::disable)
+			.csrf(csrf -> csrf
+				.ignoringRequestMatchers(
+					Stream.concat(
+						WebSecurityURI.PUBLIC_URIS.stream(),
+						Stream.of(
+							"/",
+							"/v3/api-docs/**",
+							"/swagger-ui/**",
+							"/swagger-resources/**",
+							"/webjars/**"
+						)
+					).toArray(String[]::new)
+				)
+				.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()) // CSRF 토큰을 쿠키에 저장
+			)
+			.addFilterAfter(new CsrfHeaderFilter(), CsrfFilter.class)
 			.sessionManagement(
 				session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 	}
@@ -74,8 +91,7 @@ public class WebSecurityConfig {
 				exceptionHandling
 					.authenticationEntryPoint(customAuthenticationEntryPoint.oAuth2EntryPoint())
 			)
-			.addFilterBefore(testAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-		// .addFilterBefore(jwtAuthenticaltionFilter, UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
@@ -97,10 +113,5 @@ public class WebSecurityConfig {
 		source.registerCorsConfiguration("/**", configuration);
 
 		return source;
-	}
-
-	@Bean
-	public static PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
 	}
 }
