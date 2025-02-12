@@ -41,6 +41,6 @@ jobs:
                     key: ${{ secrets.SSH_KEY_DEV }}
                     port: ${{ secrets.SSH_PORT_DEV }}
                     script: |
-                        cd Project/instead
+                        cd Projects/instead
                         source ${{ secrets.ENV_PATH_DEV }}
                         nohup java -jar yapp-main-app.jar &
