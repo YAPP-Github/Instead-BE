@@ -55,7 +55,8 @@ public class TokenServiceImpl implements TokenService {
 
 	private void createAndSaveRefreshToken(Long userId, String token) {
 		User user = userService.findUserById(userId);
-		RefreshToken refreshToken = RefreshToken.create(user, token, Duration.ofMillis(jwtProperties.getRefreshTokenExpirationMs()).toSeconds());
+		RefreshToken refreshToken = RefreshToken.create(user, token,
+			Duration.ofMillis(jwtProperties.getRefreshTokenExpirationMs()).toSeconds());
 		refreshTokenRepository.save(refreshToken);
 	}
 
