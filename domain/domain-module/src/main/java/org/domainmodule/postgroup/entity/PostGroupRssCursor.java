@@ -29,7 +29,7 @@ public class PostGroupRssCursor {
 
 	private String newsId;
 
-	@Builder
+	@Builder(access = AccessLevel.PRIVATE)
 	private PostGroupRssCursor(PostGroup postGroup, String newsId) {
 		this.postGroup = postGroup;
 		this.newsId = newsId;

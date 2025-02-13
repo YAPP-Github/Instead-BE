@@ -66,7 +66,7 @@ public class PostGroup extends BaseTimeEntity {
 
 	private Integer generationCount;
 
-	@Builder
+	@Builder(access = AccessLevel.PRIVATE)
 	private PostGroup(Agent agent, RssFeed feed, String topic, PostGroupPurposeType purpose,
 		PostGroupReferenceType reference, PostGroupLengthType length, String content, Integer generationCount) {
 		this.agent = agent;
