@@ -68,7 +68,8 @@ public class Agent extends BaseTimeEntity {
 		AgentPlatformType agentPlatform,
 		String accountId,
 		String bio,
-		String profileImage
+		String profileImage,
+		AgentType agentType
 	) {
 		this.user = user;
 		this.platform = agentPlatform;
@@ -76,7 +77,7 @@ public class Agent extends BaseTimeEntity {
 		this.bio = bio;
 		this.profileImage = profileImage;
 		this.autoMode = Boolean.FALSE;
-		this.agentType = AgentType.BASIC;
+		this.agentType = agentType;
 		this.isActivated = Boolean.TRUE;
 	}
 
@@ -85,21 +86,27 @@ public class Agent extends BaseTimeEntity {
 		AgentPlatformType agentPlatform,
 		String accountId,
 		String bio,
-		String profileImage) {
+		String profileImage,
+		String subscriptionType
+	) {
 		return Agent.builder()
 			.user(user)
 			.agentPlatform(agentPlatform)
 			.accountId(accountId)
 			.bio(bio)
 			.profileImage(profileImage)
+			.agentType(AgentType.fromSubscription(subscriptionType))
 			.build();
 	}
 
 	public void updateInfo(
 		String bio,
-		String profileImage
+		String profileImage,
+		String agentType
+
 	) {
 		this.bio = bio;
 		this.profileImage = profileImage;
+		this.agentType = AgentType.fromSubscription(agentType);
 	}
 }

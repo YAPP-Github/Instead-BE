@@ -3,7 +3,7 @@ package org.scheduleapp.snstoken;
 import org.domainmodule.snstoken.entity.SnsToken;
 import org.domainmodule.snstoken.repository.SnsTokenRepository;
 import org.snsclient.twitter.dto.response.TwitterToken;
-import org.snsclient.twitter.service.TwitterApiService;
+import org.snsclient.twitter.service.Twitter4jService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.scheduleapp.util.dto.UploadPostDto;
@@ -14,7 +14,7 @@ import twitter4j.TwitterException;
 @Service
 @RequiredArgsConstructor
 public class SnsTokenService {
-	private final TwitterApiService twitterApiService;
+	private final Twitter4jService twitter4JService;
 	private final SnsTokenRepository snsTokenRepository;
 
 	@Transactional
@@ -41,7 +41,7 @@ public class SnsTokenService {
 
 	private TwitterToken refreshSnsToken(String refreshToken) {
 		try {
-			return twitterApiService.refreshTwitterToken(refreshToken);
+			return twitter4JService.refreshTwitterToken(refreshToken);
 		} catch (TwitterException e) {
 			throw new RuntimeException("Twitter 토큰 재발급에 실패하였습니다.", e);
 		}

@@ -15,13 +15,13 @@ import org.scheduleapp.util.dto.UploadPostDto;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import twitter4j.TwitterException;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class UploadPostService {
 	private final TwitterApiService twitterApiService;
-	private final TwitterMediaUploadService twitterMediaUploadService;
 	private final PostService postService;
 	private final SnsTokenService snsTokenService;
 	private final TwitterUploadExceptionHandler uploadExceptionHandler;
@@ -66,7 +66,13 @@ public class UploadPostService {
 			// 업로드 할 이미지 mediaID 리스트
 			Long[] mediaIds = imageUrls.isEmpty() ? null :
 				imageUrls.stream()
-				.map(url -> twitterMediaUploadService.uploadMedia(url, uploadPostDto.snsToken().getAccessToken()))
+				.map(url -> {
+					try {
+						return twitterApiService.uploadMedia(url, uploadPostDto.snsToken().getAccessToken());
+					} catch (TwitterException e) {
+						throw new RuntimeException("Media 업로드에 실패하였습니다.", e);
+					}
+				})
 				.map(Long::parseLong)
 				.toArray(Long[]::new);
 
