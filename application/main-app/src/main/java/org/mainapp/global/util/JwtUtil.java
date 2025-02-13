@@ -40,7 +40,7 @@ public class JwtUtil {
 				.setSubject(userId)
 				.setIssuer(ISSUER)
 				.setIssuedAt(now)
-				.setExpiration(new Date(now.getTime() + jwtProperties.getAccessTokenExpirationMS()))
+				.setExpiration(new Date(now.getTime() + jwtProperties.getAccessTokenExpirationMs()))
 				.signWith(getAccessTokenKey(), SignatureAlgorithm.HS256)
 				.compact();
 	}
@@ -53,7 +53,7 @@ public class JwtUtil {
 				.setSubject(userId)
 				.setIssuer(ISSUER)
 				.setIssuedAt(now)
-				.setExpiration(new Date(now.getTime() + jwtProperties.getRefreshTokenExpirationMS()))
+				.setExpiration(new Date(now.getTime() + jwtProperties.getRefreshTokenExpirationMs()))
 				.signWith(getRefreshTokenKey(), SignatureAlgorithm.HS256)
 				.compact();
 	}

@@ -21,7 +21,7 @@ public class ResponseUtil {
 	}
 
 	private void createHttpOnlyCookie(HttpServletResponse response, String refreshToken) {
-		long refreshTokenExpirationSC = Duration.ofMillis(jwtProperties.getRefreshTokenExpirationMS()).toSeconds();
+		long refreshTokenExpirationSC = Duration.ofMillis(jwtProperties.getRefreshTokenExpirationMs()).toSeconds();
 
 		Cookie cookie = new Cookie(HeaderConstants.REFRESH_TOKEN_HEADER, refreshToken);
 		cookie.setHttpOnly(true);
