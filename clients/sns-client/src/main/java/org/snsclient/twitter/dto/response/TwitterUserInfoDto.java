@@ -1,22 +1,14 @@
 package org.snsclient.twitter.dto.response;
 
-import twitter4j.User2;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record TwitterUserInfoDto(
-	String id,
-	String accountId,
-	String name,
-	String description,
-	String profileImageUrl
-) {
-
-	public static TwitterUserInfoDto fromTwitterUser(User2 user) {
-		return new TwitterUserInfoDto(
-			String.valueOf(user.getId()),
-			user.getScreenName(),
-			user.getName(),
-			user.getDescription(),
-			user.getProfileImageUrl()
-		);
-	}
-}
+	@JsonProperty("description") String description,
+	@JsonProperty("subscription_type") String subscriptionType,
+	@JsonProperty("username") String username,
+	@JsonProperty("name") String name,
+	@JsonProperty("profile_image_url") String profileImageUrl,
+	@JsonProperty("id") String id
+) {}

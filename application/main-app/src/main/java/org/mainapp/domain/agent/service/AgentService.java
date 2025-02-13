@@ -37,12 +37,14 @@ public class AgentService {
 			AgentPlatformType.X,
 			userInfo.id(),
 			userInfo.description(),
-			userInfo.profileImageUrl());
+			userInfo.profileImageUrl(),
+			userInfo.subscriptionType()
+		);
 		return agentRepository.save(newAgent);
 	}
 
 	private Agent updatAgent(Agent agent, TwitterUserInfoDto userInfo) {
-		agent.updateInfo(userInfo.description(), userInfo.profileImageUrl());
+		agent.updateInfo(userInfo.description(), userInfo.profileImageUrl(), userInfo.subscriptionType());
 		return agentRepository.save(agent);
 	}
 }

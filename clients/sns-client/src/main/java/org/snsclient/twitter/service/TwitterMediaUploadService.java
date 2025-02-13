@@ -2,36 +2,36 @@ package org.snsclient.twitter.service;
 
 import java.util.ArrayList;
 
+import org.snsclient.twitter.client.TwitterRestClient;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import twitter4j.TwitterException;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TwitterMediaUploadService {
 
-	private final WebClient webClient;
 	private final ObjectMapper objectMapper;
+	private final TwitterRestClient twitterRestClient;
 
-	private final String UPLOAD_URL = "https://api.x.com/2/media/upload";
+	private final String TWITTER_MEDIA_UPLOAD_URL = "https://api.x.com/2/media/upload";
 
 	/**
-	 * Presigned URL을 사용해 S3에서 이미지 다운로드 후 Twitter에 업로드
+	 * Presigned URL을 사용해 S3에서 이미지 다운로드 후 Twitter에 이미지 업로드
 	 */
-	public String uploadMedia(String presignedUrl, String accessToken) {
-		byte[] imageBytes = downloadImageFromS3(presignedUrl);
+	public String uploadMedia(String presignedUrl, String accessToken) throws TwitterException {
+		byte[] imageBytes = twitterRestClient.downloadImageFromS3(presignedUrl);
 		if (imageBytes == null || imageBytes.length == 0) {
 			throw new RuntimeException("이미지 다운로드 실패");
 		}
@@ -51,32 +51,21 @@ public class TwitterMediaUploadService {
 	}
 
 	/**
-	 * WebClient로 S3에서 이미지 다운로드
-	 */
-	private byte[] downloadImageFromS3(String presignedUrl) {
-		return webClient.get()
-			.uri(presignedUrl)
-			.retrieve()
-			.bodyToMono(byte[].class)
-			.block();
-	}
-
-	/**
 	 * INIT 요청 (미디어 업로드 세션 생성)
 	 */
-	private String initUpload(int totalBytes, String accessToken) {
+	private String initUpload(int totalBytes, String accessToken) throws TwitterException {
 		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 		body.add("command", "INIT");
 		body.add("total_bytes", String.valueOf(totalBytes));
 		body.add("media_type", "image/jpeg");
 
-		return sendPostRequest(body, accessToken);
+		return twitterRestClient.postMediaRequest(body, accessToken, TWITTER_MEDIA_UPLOAD_URL);
 	}
 
 	/**
 	 * APPEND 요청 (이미지 데이터 추가)
 	 */
-	private void appendMedia(String mediaId, byte[] imageBytes, String accessToken) {
+	private void appendMedia(String mediaId, byte[] imageBytes, String accessToken) throws TwitterException {
 		MultipartBodyBuilder builder = new MultipartBodyBuilder();
 		builder.part("command", "APPEND");
 		builder.part("media_id", mediaId);
@@ -93,43 +82,18 @@ public class TwitterMediaUploadService {
 			(key, value) -> body.put(key, new ArrayList<>(value))
 		);
 
-		sendPostRequest(body, accessToken);
+		twitterRestClient.postMediaRequest(body, accessToken, TWITTER_MEDIA_UPLOAD_URL);
 	}
 
 	/**
 	 * FINALIZE 요청 (업로드 완료)
 	 */
-	private String finalizeUpload(String mediaId, String accessToken) {
+	private String finalizeUpload(String mediaId, String accessToken) throws TwitterException {
 		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 		body.add("command", "FINALIZE");
 		body.add("media_id", mediaId);
 
-		return sendPostRequest(body, accessToken);
-	}
-
-	/**
-	 * Twitter API에 POST 요청을 보내고 media_id 추출
-	 */
-	private String sendPostRequest(MultiValueMap<String, Object> body, String accessToken) {
-		log.info("📢 Twitter API 요청: {}", body);
-
-		try {
-			String response = webClient.post()
-				.uri(UPLOAD_URL)
-				.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-				.contentType(MediaType.MULTIPART_FORM_DATA)
-				.bodyValue(body)
-				.retrieve()
-				.bodyToMono(String.class)
-				.block();
-
-			log.info("✅ Twitter 응답: {}", response);
-
-			return response;
-		} catch (Exception e) {
-			log.error("Twitter Media Upload 요청 중 에러 발생", e);
-			throw new RuntimeException("Twitter Media Upload 요청 중 에러 발생: " + e.getMessage(), e);
-		}
+		return twitterRestClient.postMediaRequest(body, accessToken, TWITTER_MEDIA_UPLOAD_URL);
 	}
 
 	/**

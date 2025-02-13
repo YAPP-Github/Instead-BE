@@ -11,7 +11,6 @@ public class WebClientConfig {
 	@Bean
 	public WebClient webClient() {
 		return WebClient.builder()
-			.defaultHeader("Content-Type", "multipart/form-data")
 			.codecs(configurer ->
 				configurer.defaultCodecs().maxInMemorySize(5 * 1024 * 1024) // 5MB로 증가
 			)

@@ -3,7 +3,7 @@ package org.snsclient.twitter.service;
 
 import org.junit.jupiter.api.Test;
 
-class TwitterApiServiceTest {
+class Twitter4JServiceTest {
 
 
 	@Test
