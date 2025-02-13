@@ -29,6 +29,6 @@ public class AgentController {
 
 	@GetMapping("/{agentId}")
 	public ResponseEntity<GetDetailAgentResponse> getDetailAgent(@PathVariable Long agentId) {
-		return ResponseEntity.noContent().build();
+		return ResponseEntity.ok(agentService.getDetailAgent(agentId));
 	}
 }
