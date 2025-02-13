@@ -30,7 +30,7 @@ public class PostGroupImage {
 	@Column(length = 500)
 	private String url;
 
-	@Builder
+	@Builder(access = AccessLevel.PRIVATE)
 	private PostGroupImage(PostGroup postGroup, String url) {
 		this.postGroup = postGroup;
 		this.url = url;
