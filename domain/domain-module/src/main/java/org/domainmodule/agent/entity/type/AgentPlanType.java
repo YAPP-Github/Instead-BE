@@ -1,9 +1,9 @@
 package org.domainmodule.agent.entity.type;
 
-public enum AgentType {
+public enum AgentPlanType {
 	FREE, BASIC, PREMIUM, PREMIUM_PLUS;
 
-	public static AgentType fromSubscription(String subscriptionType) {
+	public static AgentPlanType fromSubscription(String subscriptionType) {
 		if (subscriptionType == null) {
 			return FREE;
 		}

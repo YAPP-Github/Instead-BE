@@ -2,13 +2,13 @@ package org.mainapp.domain.post.controller.response;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.domainmodule.post.entity.PromptHistory;
 import org.domainmodule.post.entity.type.PostPromptType;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+// TODO: GetPostPromptHistoriesResponse로 변경하기
 @Schema(description = "게시물 프롬프트 내역 응답 객체")
 public record PromptHistoriesResponse(
 	@Schema(description = "게시물 프롬프트 내역 id", example = "1")
