@@ -6,10 +6,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class SecurityUtil {
-	public static String getCurrentMemberId() {
+	public static Long getCurrentUserId() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		try {
-			return authentication.getName();
+			return Long.parseLong(authentication.getName());
 		} catch (Exception e) {
 			throw new CustomException(AuthErrorCode.AUTH_NOT_FOUND);
 		}

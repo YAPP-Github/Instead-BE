@@ -24,7 +24,7 @@ public class PostPromptHistoryService {
 	 */
 	@Transactional(readOnly = true)
 	public List<PromptHistoriesResponse> getPromptHistories(Long agentId, Long postGroupId, Long postId) {
-		final long userId = Long.parseLong(SecurityUtil.getCurrentMemberId());
+		final long userId = SecurityUtil.getCurrentUserId();
 
 		List<PromptHistory> histories = promptHistoryRepository.findPromptHistoriesWithValidation(userId, agentId,
 			postGroupId, postId);
