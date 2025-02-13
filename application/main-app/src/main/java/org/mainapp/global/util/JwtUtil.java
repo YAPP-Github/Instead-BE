@@ -49,13 +49,13 @@ public class JwtUtil {
 	public String generateRefreshToken(String userId) {
 		final Date now = new Date();
 		return Jwts.builder()
-				.setHeaderParam("typ", "JWT")
-				.setSubject(userId)
-				.setIssuer(ISSUER)
-				.setIssuedAt(now)
-				.setExpiration(new Date(now.getTime() + jwtProperties.getRefreshTokenExpirationMs()))
-				.signWith(getRefreshTokenKey(), SignatureAlgorithm.HS256)
-				.compact();
+			.setHeaderParam("typ", "JWT")
+			.setSubject(userId)
+			.setIssuer(ISSUER)
+			.setIssuedAt(now)
+			.setExpiration(new Date(now.getTime() + jwtProperties.getRefreshTokenExpirationMs()))
+			.signWith(getRefreshTokenKey(), SignatureAlgorithm.HS256)
+			.compact();
 	}
 
 	private Key getAccessTokenKey() {
@@ -67,7 +67,7 @@ public class JwtUtil {
 	}
 
 	public boolean isTokenValid(String token, boolean isAccessToken) {
-		try{
+		try {
 			return (!isTokenExpired(token, isAccessToken));
 		} catch (SecurityException | MalformedJwtException e) {
 			log.error("Invalid JWT Token", e);
@@ -97,7 +97,7 @@ public class JwtUtil {
 	}
 
 	private <T> T extractClaim(String token, boolean isAccessToken, Function<Claims, T> claimResolver) {
-		Claims claims =  extractAllAccessTokenClaims(token, isAccessToken);
+		Claims claims = extractAllAccessTokenClaims(token, isAccessToken);
 		return claimResolver.apply(claims);
 	}
 

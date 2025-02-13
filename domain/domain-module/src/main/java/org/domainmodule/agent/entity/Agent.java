@@ -1,7 +1,7 @@
 package org.domainmodule.agent.entity;
 
+import org.domainmodule.agent.entity.type.AgentPlanType;
 import org.domainmodule.agent.entity.type.AgentPlatformType;
-import org.domainmodule.agent.entity.type.AgentType;
 import org.domainmodule.common.entity.BaseTimeEntity;
 import org.domainmodule.snstoken.entity.SnsToken;
 import org.domainmodule.user.entity.User;
@@ -49,12 +49,12 @@ public class Agent extends BaseTimeEntity {
 	@Column(length = 500)
 	private String profileImage;
 
-	@Column(nullable = false)
-	private Boolean autoMode;
-
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private AgentType agentType;
+	private AgentPlanType agentPlan;
+
+	@Column(nullable = false)
+	private Boolean autoMode;
 
 	@Column(nullable = false)
 	private Boolean isActivated;
@@ -69,7 +69,7 @@ public class Agent extends BaseTimeEntity {
 		String accountId,
 		String bio,
 		String profileImage,
-		AgentType agentType
+		AgentPlanType agentPlan
 	) {
 		this.user = user;
 		this.platform = agentPlatform;
@@ -77,7 +77,7 @@ public class Agent extends BaseTimeEntity {
 		this.bio = bio;
 		this.profileImage = profileImage;
 		this.autoMode = Boolean.FALSE;
-		this.agentType = agentType;
+		this.agentPlan = agentPlan;
 		this.isActivated = Boolean.TRUE;
 	}
 
@@ -95,7 +95,7 @@ public class Agent extends BaseTimeEntity {
 			.accountId(accountId)
 			.bio(bio)
 			.profileImage(profileImage)
-			.agentType(AgentType.fromSubscription(subscriptionType))
+			.agentPlan(AgentPlanType.fromSubscription(subscriptionType))
 			.build();
 	}
 
@@ -107,6 +107,6 @@ public class Agent extends BaseTimeEntity {
 	) {
 		this.bio = bio;
 		this.profileImage = profileImage;
-		this.agentType = AgentType.fromSubscription(agentType);
+		this.agentPlan = AgentPlanType.fromSubscription(agentType);
 	}
 }
