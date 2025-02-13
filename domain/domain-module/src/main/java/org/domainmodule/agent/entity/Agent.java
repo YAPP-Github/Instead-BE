@@ -49,12 +49,12 @@ public class Agent extends BaseTimeEntity {
 	@Column(length = 500)
 	private String profileImage;
 
-	@Column(nullable = false)
-	private Boolean autoMode;
-
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private AgentType agentType;
+
+	@Column(nullable = false)
+	private Boolean autoMode;
 
 	@Column(nullable = false)
 	private Boolean isActivated;
