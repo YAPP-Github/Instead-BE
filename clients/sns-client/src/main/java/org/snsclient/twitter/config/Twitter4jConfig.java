@@ -10,7 +10,7 @@ import twitter4j.conf.ConfigurationBuilder;
 
 @Getter
 @Configuration
-public class TwitterConfig {
+public class Twitter4jConfig {
 	@Value("${sns.twitter.client-id}")
 	private String clientId;
 
