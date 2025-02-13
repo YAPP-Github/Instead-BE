@@ -58,9 +58,10 @@ public class PostService {
 	 * 게시물 추가 생성 메서드.
 	 * postGroupId를 바탕으로 DB에서 PostGroup을 조회한 뒤, referenceType에 맞는 메서드 호출
 	 */
-	public CreatePostsResponse createAdditionalPosts(Long postGroupId, Integer limit) {
-		// PostGroup 조회
-		PostGroup postGroup = postGroupRepository.findById(postGroupId)
+	public CreatePostsResponse createAdditionalPosts(Long agentId, Long postGroupId, Integer limit) {
+		// 사용자 인증 정보 및 PostGroup 조회
+		Long userId = SecurityUtil.getCurrentUserId();
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
 		// PostGroup의 게시물 생성 횟수 검증

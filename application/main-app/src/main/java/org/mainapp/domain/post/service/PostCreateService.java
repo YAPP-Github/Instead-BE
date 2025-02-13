@@ -7,11 +7,10 @@ import java.util.concurrent.CompletableFuture;
 import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
-import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
 import org.domainmodule.postgroup.entity.PostGroupRssCursor;
-import org.domainmodule.postgroup.repository.PostGroupRepository;
+import org.domainmodule.postgroup.repository.PostGroupImageRepository;
 import org.domainmodule.postgroup.repository.PostGroupRssCursorRepository;
 import org.domainmodule.rssfeed.entity.RssFeed;
 import org.domainmodule.rssfeed.repository.RssFeedRepository;
@@ -52,9 +51,8 @@ public class PostCreateService {
 
 	private final FeedService feedService;
 	private final OpenAiClient openAiClient;
-	private final PostRepository postRepository;
-	private final PostGroupRepository postGroupRepository;
 	private final PostGroupRssCursorRepository postGroupRssCursorRepository;
+	private final PostGroupImageRepository postGroupImageRepository;
 	private final RssFeedRepository rssFeedRepository;
 
 	private final ObjectMapper objectMapper;
@@ -275,8 +273,11 @@ public class PostCreateService {
 	 * 게시물 추가 생성: 이미지 기반 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createAdditionalPostsByImage(PostGroup postGroup, Integer limit, Integer order) {
+		// PostGroupImage 리스트 조회
+		List<PostGroupImage> postGroupImages = postGroupImageRepository.findAllByPostGroup(postGroup);
+
 		// 게시물 생성
-		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(postGroup, limit));
+		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(postGroup, postGroupImages, limit));
 
 		// Post 엔티티 리스트 생성
 		// order 지정에 사용할 반복변수를 위해 for문 사용
@@ -373,8 +374,8 @@ public class PostCreateService {
 		String imageRefPrompt = createPostPromptTemplate.getImageRefPrompt();
 
 		// 게시물 생성
-		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(openAiModel,
-			summaryContentSchema.getResponseFormat(), vo.limit(), null)
+		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(
+			openAiModel, summaryContentSchema.getResponseFormat(), vo.limit(), null)
 			.addDeveloperMessage(instructionPrompt)
 			.addUserTextMessage(topicPrompt)
 			.addUserImageMessage(imageRefPrompt, vo.imageUrls());

@@ -78,7 +78,7 @@ public class PostController {
 		@PathVariable Long postGroupId,
 		@RequestParam(defaultValue = PostGenerationCount.POST_GENERATION_POST_COUNT) Integer limit
 	) {
-		return ResponseEntity.ok(postService.createAdditionalPosts(postGroupId, limit));
+		return ResponseEntity.ok(postService.createAdditionalPosts(agentId, postGroupId, limit));
 	}
 
 	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
