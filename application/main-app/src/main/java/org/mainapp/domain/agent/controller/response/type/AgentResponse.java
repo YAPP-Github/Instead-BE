@@ -10,10 +10,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 @Schema(description = "SNS 계정 응답 객체")
 public record AgentResponse(
+	@Schema(description = "계정 id (instead 내)", example = "1")
+	Long id,
 	@Schema(description = "계정 최초 연동 일시", example = "2025-01-01T00:00:00.000Z")
 	LocalDateTime createdAt,
-	@Schema(description = "계정 id (instead 내)", example = "1")
-	Long agentId,
 	@Schema(description = "SNS 종류", example = "X")
 	AgentPlatformType platform,
 	@Schema(description = "SNS 계정 id (외부 SNS 내)", example = "1")
@@ -30,8 +30,8 @@ public record AgentResponse(
 
 	public static AgentResponse from(Agent agent) {
 		return new AgentResponse(
-			agent.getCreatedAt(),
 			agent.getId(),
+			agent.getCreatedAt(),
 			agent.getPlatform(),
 			agent.getAccountId(),
 			agent.getBio(),

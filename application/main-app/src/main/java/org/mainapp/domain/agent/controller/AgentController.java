@@ -1,9 +1,11 @@
 package org.mainapp.domain.agent.controller;
 
 import org.mainapp.domain.agent.controller.response.GetAgentsResponse;
+import org.mainapp.domain.agent.controller.response.GetDetailAgentResponse;
 import org.mainapp.domain.agent.service.AgentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,5 +25,10 @@ public class AgentController {
 	@GetMapping
 	public ResponseEntity<GetAgentsResponse> getAgents() {
 		return ResponseEntity.ok(agentService.getAgents());
+	}
+
+	@GetMapping("/{agentId}")
+	public ResponseEntity<GetDetailAgentResponse> getDetailAgent(@PathVariable Long agentId) {
+		return ResponseEntity.noContent().build();
 	}
 }
