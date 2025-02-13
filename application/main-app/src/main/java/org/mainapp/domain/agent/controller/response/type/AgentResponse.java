@@ -20,7 +20,7 @@ public record AgentResponse(
 	String accountId,
 	@Schema(description = "계정 한줄소개", example = "최신 AI 소식을 전해드려요!")
 	String bio,
-	@Schema(description = "계정 프로필 이미지", example = "https://~")
+	@Schema(description = "계정 프로필 이미지 URL", example = "https://~")
 	String profileImageUrl,
 	@Schema(description = "계정 요금제 (외부 SNS 내)", example = "FREE")
 	AgentPlanType agentPlan,

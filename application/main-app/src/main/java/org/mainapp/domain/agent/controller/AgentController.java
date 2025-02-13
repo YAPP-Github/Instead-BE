@@ -27,6 +27,7 @@ public class AgentController {
 		return ResponseEntity.ok(agentService.getAgents());
 	}
 
+	@Operation(summary = "계정 상세 조회 API", description = "사용자가 연동한 SNS 계정의 상세 정보를 조회합니다.")
 	@GetMapping("/{agentId}")
 	public ResponseEntity<GetDetailAgentResponse> getDetailAgent(@PathVariable Long agentId) {
 		return ResponseEntity.ok(agentService.getDetailAgent(agentId));
