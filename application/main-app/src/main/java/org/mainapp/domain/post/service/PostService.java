@@ -2,11 +2,14 @@ package org.mainapp.domain.post.service;
 
 import java.util.List;
 
+import org.domainmodule.agent.entity.Agent;
+import org.domainmodule.agent.repository.AgentRepository;
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.repository.PostGroupRepository;
+import org.mainapp.domain.agent.exception.AgentErrorCode;
 import org.mainapp.domain.post.controller.request.CreatePostsRequest;
 import org.mainapp.domain.post.controller.request.MultiplePostUpdateRequest;
 import org.mainapp.domain.post.controller.request.SinglePostUpdateRequest;
@@ -18,6 +21,7 @@ import org.mainapp.domain.post.controller.response.type.PostResponse;
 import org.mainapp.domain.post.exception.PostErrorCode;
 import org.mainapp.global.constants.PostGenerationCount;
 import org.mainapp.global.error.CustomException;
+import org.mainapp.global.util.SecurityUtil;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -30,17 +34,23 @@ public class PostService {
 	private final PostUpdateService postUpdateService;
 	private final PostPromptUpdateService postPromptUpdateService;
 	private final PostTransactionService postTransactionService;
-	private final PostRepository postRepository;
+	private final AgentRepository agentRepository;
 	private final PostGroupRepository postGroupRepository;
+	private final PostRepository postRepository;
 
 	/**
 	 * 게시물 그룹 및 게시물 생성 메서드.
 	 */
-	public CreatePostsResponse createPosts(CreatePostsRequest request, Integer limit) {
+	public CreatePostsResponse createPosts(Long agentId, CreatePostsRequest request, Integer limit) {
+		// 사용자 인증 정보 및 Agent 조회
+		Long userId = SecurityUtil.getCurrentUserId();
+		Agent agent = agentRepository.findByUserIdAndId(userId, agentId)
+			.orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
+
 		return switch (request.getReference()) {
-			case NONE -> postCreateService.createPostsWithoutRef(request, limit);
-			case NEWS -> postCreateService.createPostsByNews(request, limit);
-			case IMAGE -> postCreateService.createPostsByImage(request, limit);
+			case NONE -> postCreateService.createPostsWithoutRef(agent, request, limit);
+			case NEWS -> postCreateService.createPostsByNews(agent, request, limit);
+			case IMAGE -> postCreateService.createPostsByImage(agent, request, limit);
 		};
 	}
 

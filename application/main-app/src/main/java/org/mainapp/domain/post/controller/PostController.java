@@ -60,7 +60,7 @@ public class PostController {
 		@RequestParam(defaultValue = PostGenerationCount.POST_GENERATION_POST_COUNT) Integer limit,
 		@Validated @RequestBody CreatePostsRequest createPostsRequest
 	) {
-		return ResponseEntity.ok(postService.createPosts(createPostsRequest, limit));
+		return ResponseEntity.ok(postService.createPosts(agentId, createPostsRequest, limit));
 	}
 
 	@Operation(

@@ -18,4 +18,12 @@ public interface AgentRepository extends JpaRepository<Agent, Long> {
 			where a.user.id = :userId
 		""")
 	List<Agent> findAllByUserId(Long userId);
+
+	@Query("""
+			select a from Agent a
+			join fetch a.user
+			where a.user.id = :userId
+			and a.id = :agentId
+		""")
+	Optional<Agent> findByUserIdAndId(Long userId, Long agentId);
 }
