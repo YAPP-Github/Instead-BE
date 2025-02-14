@@ -1,7 +1,7 @@
 package org.domainmodule.agent.entity;
 
+import org.domainmodule.agent.entity.type.AgentPlanType;
 import org.domainmodule.agent.entity.type.AgentPlatformType;
-import org.domainmodule.agent.entity.type.AgentType;
 import org.domainmodule.common.entity.BaseTimeEntity;
 import org.domainmodule.snstoken.entity.SnsToken;
 import org.domainmodule.user.entity.User;
@@ -46,16 +46,20 @@ public class Agent extends BaseTimeEntity {
 	@Column(length = 255)
 	private String bio;
 
-	@Column(nullable = false)
-	private Boolean autoMode;
+	@Column(length = 500)
+	private String profileImage;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
-	private AgentType agentType;
+	private AgentPlanType agentPlan;
+
+	@Column(nullable = false)
+	private Boolean autoMode;
 
 	@Column(nullable = false)
 	private Boolean isActivated;
 
+	// TODO: OneToOne 관계에서 mappedBy 필드는 지연 로딩 설정해놔도 즉시 로딩으로 동작한다고 함, 여기서 추가 쿼리 계속 발생.
 	@OneToOne(mappedBy = "agent", fetch = FetchType.LAZY)
 	private SnsToken snsToken;
 
@@ -64,14 +68,17 @@ public class Agent extends BaseTimeEntity {
 		User user,
 		AgentPlatformType agentPlatform,
 		String accountId,
-		String bio
+		String bio,
+		String profileImage,
+		AgentPlanType agentPlan
 	) {
 		this.user = user;
 		this.platform = agentPlatform;
 		this.accountId = accountId;
 		this.bio = bio;
+		this.profileImage = profileImage;
 		this.autoMode = Boolean.FALSE;
-		this.agentType = AgentType.PERSONAL;
+		this.agentPlan = agentPlan;
 		this.isActivated = Boolean.TRUE;
 	}
 
@@ -79,12 +86,28 @@ public class Agent extends BaseTimeEntity {
 		User user,
 		AgentPlatformType agentPlatform,
 		String accountId,
-		String bio) {
+		String bio,
+		String profileImage,
+		String subscriptionType
+	) {
 		return Agent.builder()
 			.user(user)
 			.agentPlatform(agentPlatform)
 			.accountId(accountId)
 			.bio(bio)
+			.profileImage(profileImage)
+			.agentPlan(AgentPlanType.fromSubscription(subscriptionType))
 			.build();
+	}
+
+	public void updateInfo(
+		String bio,
+		String profileImage,
+		String agentType
+
+	) {
+		this.bio = bio;
+		this.profileImage = profileImage;
+		this.agentPlan = AgentPlanType.fromSubscription(agentType);
 	}
 }

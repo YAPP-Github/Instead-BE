@@ -29,7 +29,7 @@ public class Oauth extends BaseTimeEntity {
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id" , nullable = false)
+	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
 	@Enumerated(EnumType.STRING)
@@ -38,8 +38,8 @@ public class Oauth extends BaseTimeEntity {
 	@Column(nullable = false, unique = true, length = 100)
 	private String providerId;
 
-	@Builder
-	private Oauth (
+	@Builder(access = AccessLevel.PRIVATE)
+	private Oauth(
 		User user,
 		ProviderType provider,
 		String providerId

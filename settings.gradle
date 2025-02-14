@@ -1,13 +1,13 @@
 rootProject.name = 'yapp'
 
 // application 모듈
-include 'application:main-application'
-include 'application:upload-schedule-application'
+include 'application:main-app'
+include 'application:schedule-app'
 
 // system domain 모듈
 include 'domain:domain-module'
 
 // inner system 모듈
-include 'inner-system:feed-client'
-include 'inner-system:open-ai-client'
-include 'inner-system:sns-client'
+include 'clients:feed-client'
+include 'clients:open-ai-client'
+include 'clients:sns-client'

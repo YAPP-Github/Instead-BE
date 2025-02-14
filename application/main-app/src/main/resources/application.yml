@@ -1,0 +1,28 @@
+spring:
+    application:
+        name: main-app
+    profiles:
+        group:
+            dev: "dev"
+            prod: "prod"
+        include:
+            - oauth
+            - docs
+            - aws
+    jackson:
+        time-zone: Asia/Seoul
+
+server:
+    servlet:
+        context-path: /yapp
+    port: ${SERVER_PORT}
+
+# Client - 이후에 open-ai모듈로 로직과 함께 빠져야함
+client:
+    news-parser:
+        url: ${NEWS_PARSER_URL}
+
+    openai:
+        url: https://api.openai.com/v1/chat/completions
+        key: ${OPENAI_API_KEY}
+        model: gpt-4o-mini

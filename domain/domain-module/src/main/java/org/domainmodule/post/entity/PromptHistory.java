@@ -42,7 +42,7 @@ public class PromptHistory extends BaseTimeEntity {
 	@Column(nullable = false)
 	private PostPromptType promptType;
 
-	@Builder
+	@Builder(access = AccessLevel.PRIVATE)
 	private PromptHistory(Post post, String prompt, String response, PostPromptType promptType) {
 		this.post = post;
 		this.prompt = prompt;

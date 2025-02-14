@@ -58,7 +58,7 @@ public class Post extends BaseAuditEntity {
 	@OneToMany(mappedBy = "post")
 	private List<PostImage> postImages = new ArrayList<>();
 
-	@Builder
+	@Builder(access = AccessLevel.PRIVATE)
 	private Post(
 		PostGroup postGroup,
 		String title,

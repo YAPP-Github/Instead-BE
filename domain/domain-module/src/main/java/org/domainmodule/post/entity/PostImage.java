@@ -30,7 +30,7 @@ public class PostImage {
 	@Column(length = 500, nullable = false)
 	private String url;
 
-	@Builder
+	@Builder(access = AccessLevel.PRIVATE)
 	private PostImage(Post post, String url) {
 		this.post = post;
 		this.url = url;
