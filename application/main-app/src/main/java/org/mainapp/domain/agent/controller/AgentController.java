@@ -42,7 +42,9 @@ public class AgentController {
 		description = """
 			사용자가 연동한 SNS 계정의 개인화 설정을 변경합니다.
 
-			**변경되는 필드만 채워주시면 됩니다!**"""
+			**변경되는 필드만 채워주시면 됩니다!**
+
+			빈 문자열로는 변경할 수 없습니다."""
 	)
 	@PutMapping("/{agentId}/personal-setting")
 	public ResponseEntity<Void> updateAgentPersonalSetting(
