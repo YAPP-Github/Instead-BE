@@ -9,6 +9,7 @@ import org.mainapp.domain.post.controller.request.UpdatePostContentRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostsMetadataRequest;
 import org.mainapp.domain.post.controller.response.CreatePostsResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupPostsResponse;
+import org.mainapp.domain.post.controller.response.GetPostGroupsResponse;
 import org.mainapp.domain.post.controller.response.PromptHistoriesResponse;
 import org.mainapp.domain.post.controller.response.type.PostResponse;
 import org.mainapp.domain.post.service.PostPromptHistoryService;
@@ -81,7 +82,11 @@ public class PostController {
 		return ResponseEntity.ok(postService.createAdditionalPosts(agentId, postGroupId, limit));
 	}
 
-	// @Operation(summary = "계정별 게시물 그룹 목록 조회 API", description = "사용자가 연동한 SNS 계정 내의 게시물 그룹 목록을 조회합니다.")
+	@Operation(summary = "계정별 게시물 그룹 목록 조회 API", description = "사용자가 연동한 SNS 계정 내의 게시물 그룹 목록을 조회합니다.")
+	@GetMapping
+	public ResponseEntity<GetPostGroupsResponse> getPostGroupsByAgent(@PathVariable Long agentId) {
+		return ResponseEntity.ok().build();
+	}
 
 	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
 	@GetMapping("/{postGroupId}/posts")
