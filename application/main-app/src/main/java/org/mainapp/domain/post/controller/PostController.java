@@ -139,7 +139,7 @@ public class PostController {
 		@PathVariable Long postGroupId,
 		@Validated @RequestBody UpdatePostsMetadataRequest updatePostsMetadataRequest
 	) {
-		postService.updatePostsMetadata(postGroupId, updatePostsMetadataRequest);
+		postService.updatePostsMetadata(agentId, postGroupId, updatePostsMetadataRequest);
 		return ResponseEntity.ok().build();
 	}
 

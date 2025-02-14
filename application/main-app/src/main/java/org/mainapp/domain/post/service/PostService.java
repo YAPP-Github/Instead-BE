@@ -15,6 +15,7 @@ import org.mainapp.domain.post.controller.request.MultiplePostUpdateRequest;
 import org.mainapp.domain.post.controller.request.SinglePostUpdateRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostContentRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostsMetadataRequest;
+import org.mainapp.domain.post.controller.request.type.UpdatePostsRequestItem;
 import org.mainapp.domain.post.controller.response.CreatePostsResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupPostsResponse;
 import org.mainapp.domain.post.controller.response.type.PostResponse;
@@ -125,7 +126,6 @@ public class PostService {
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
 		// Post 조회
-		// Post post = postRepository.findByPostGroupAndId(postGroup, postId)
 		Post post = postRepository.findWithImagesByPostGroupAndId(postGroup, postId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
 
@@ -135,8 +135,19 @@ public class PostService {
 	/**
 	 * 게시물 기타 정보 수정 메서드.
 	 */
-	public void updatePostsMetadata(Long postGroupId, UpdatePostsMetadataRequest request) {
-		postUpdateService.updatePostsMetadata(postGroupId, request);
+	public void updatePostsMetadata(Long agentId, Long postGroupId, UpdatePostsMetadataRequest request) {
+		// 사용자 인증 정보 및 PostGroup 조회
+		Long userId = SecurityUtil.getCurrentUserId();
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+
+		// Post 리스트 조회
+		List<Long> postIds = request.getPosts().stream()
+			.map(UpdatePostsRequestItem::getPostId)
+			.toList();
+		List<Post> posts = postRepository.findAllByPostGroupAndId(postGroup, postIds);
+
+		postUpdateService.updatePostsMetadata(posts, request);
 	}
 
 	/**

@@ -25,6 +25,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	List<Post> findPostsWithSnsTokenByTimeRange(LocalDateTime startTime, LocalDateTime endTime,
 		@Param("status") PostStatusType status);
 
+	// PostGroup과 postIds에 해당하는 Post 리스트를 조회
+	@Query("""
+			select p from Post p
+			where p.postGroup = :postGroup
+			and p.id in :postIds
+		""")
+	List<Post> findAllByPostGroupAndId(PostGroup postGroup, List<Long> postIds);
+
 	// PostGroup에 해당하는 Post 리스트를 이미지까지 함께 조회
 	@Query("""
 			select distinct p from Post p
