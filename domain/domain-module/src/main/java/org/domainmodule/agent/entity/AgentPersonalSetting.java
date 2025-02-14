@@ -63,4 +63,20 @@ public class AgentPersonalSetting {
 			.customTone(customTone)
 			.build();
 	}
+
+	public void updateDomain(String domain) {
+		this.domain = domain;
+	}
+
+	public void updateIntroduction(String introduction) {
+		this.introduction = introduction;
+	}
+
+	public void updateTone(AgentToneType tone) {
+		this.tone = tone;
+	}
+
+	public void updateCustomTone(String customTone) {
+		this.customTone = customTone;
+	}
 }

@@ -60,6 +60,9 @@ public class PostCreateService {
 	@Value("${client.openai.model}")
 	private String openAiModel;
 
+	@Value("${default-image.post-group}")
+	private String postGroupDefaultImage;
+
 	/**
 	 * 참고자료 없는 게시물 그룹과 게시물 생성 및 저장 메서드
 	 */
@@ -69,7 +72,7 @@ public class PostCreateService {
 
 		// PostGroup 엔티티 생성: 생성 횟수 1로 초기화
 		PostGroup postGroup = PostGroup.createPostGroup(agent, null, request.getTopic(), request.getPurpose(),
-			request.getReference(), request.getLength(), request.getContent(), 1);
+			request.getReference(), request.getLength(), request.getContent(), 1, postGroupDefaultImage);
 
 		// Post 엔티티 생성: OpenAI API 응답의 choices에서 답변 꺼내 json으로 파싱 후 엔티티 생성
 		// displayOrder 지정에 사용할 반복변수를 위해 for문 사용
@@ -111,7 +114,7 @@ public class PostCreateService {
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(agent, rssFeed, request.getTopic(), request.getPurpose(),
-			request.getReference(), request.getLength(), request.getContent(), 1);
+			request.getReference(), request.getLength(), request.getContent(), 1, postGroupDefaultImage);
 
 		// PostGroupRssCursor 엔티티 생성
 		String cursor = feedPagingResult.getFeedItems().get(feedPagingResult.getFeedItems().size() - 1).getId();
@@ -144,7 +147,7 @@ public class PostCreateService {
 	 */
 	public CreatePostsResponse createPostsByImage(Agent agent, CreatePostsRequest request, Integer limit) {
 		// imageUrls 필드 검증
-		if (request.getImageUrls() == null) {
+		if (request.getImageUrls() == null || request.getImageUrls().isEmpty()) {
 			throw new CustomException(PostErrorCode.NO_IMAGE_URLS);
 		}
 
@@ -152,8 +155,10 @@ public class PostCreateService {
 		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(request, limit));
 
 		// PostGroup 엔티티 생성
-		PostGroup postGroup = PostGroup.createPostGroup(agent, null, request.getTopic(), request.getPurpose(),
-			request.getReference(), request.getLength(), request.getContent(), 1);
+		PostGroup postGroup = PostGroup.createPostGroup(
+			agent, null, request.getTopic(), request.getPurpose(), request.getReference(), request.getLength(),
+			request.getContent(), 1, request.getImageUrls().get(0)
+		);
 
 		// PostGroupImage 엔티티 리스트 생성
 		List<PostGroupImage> postGroupImages = request.getImageUrls().stream()
