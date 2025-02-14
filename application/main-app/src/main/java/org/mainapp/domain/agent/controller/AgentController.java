@@ -5,6 +5,7 @@ import org.mainapp.domain.agent.controller.response.GetAgentsResponse;
 import org.mainapp.domain.agent.controller.response.GetDetailAgentResponse;
 import org.mainapp.domain.agent.service.AgentService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -46,7 +47,7 @@ public class AgentController {
 	@PutMapping("/{agentId}/personal-setting")
 	public ResponseEntity<Void> updateAgentPersonalSetting(
 		@PathVariable Long agentId,
-		@RequestBody UpdateAgentPersonalSettingRequest request
+		@Validated @RequestBody UpdateAgentPersonalSettingRequest request
 	) {
 		agentService.updateAgentPersonalSetting(agentId, request);
 		return ResponseEntity.ok().build();
