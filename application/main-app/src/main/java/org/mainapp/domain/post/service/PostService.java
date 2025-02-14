@@ -104,16 +104,36 @@ public class PostService {
 	 * 단일 게시물을 prompt를 적용하여 업데이트하는 메서드
 	 */
 	public PostResponse updateSinglePostByPrompt(
-		SinglePostUpdateRequest request, Long agentId, Long postGroupId, Long postId) {
-		return postPromptUpdateService.updateSinglePostByPrompt(request, agentId, postGroupId, postId);
+		SinglePostUpdateRequest request, Long agentId, Long postGroupId, Long postId
+	) {
+		// 사용자 인증 정보 및 PostGroup 조회
+		Long userId = SecurityUtil.getCurrentUserId();
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+
+		// Post 조회
+		Post post = postTransactionService.getPostOrThrow(postGroup, postId);
+
+		return postPromptUpdateService.updateSinglePostByPrompt(post, request);
 	}
 
 	/**
 	 * 일괄로 게시물들을 prompt 적용 후 업데이트 하는 메서드
 	 */
 	public List<PostResponse> updateMultiplePostsByPrompt(
-		MultiplePostUpdateRequest request, Long agentId, Long postGroupId) {
-		return postPromptUpdateService.updateMultiplePostsByPrompt(request, agentId, postGroupId);
+		MultiplePostUpdateRequest request, Long agentId, Long postGroupId
+	) {
+		// 사용자 인증 정보 및 PostGroup 조회
+		Long userId = SecurityUtil.getCurrentUserId();
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+
+		// Post 리스트 조회
+		List<Post> posts = request.postsId().stream()
+			.map(postId -> postTransactionService.getPostOrThrow(postGroup, postId))
+			.toList();
+
+		return postPromptUpdateService.updateMultiplePostsByPrompt(posts, request);
 	}
 
 	/**

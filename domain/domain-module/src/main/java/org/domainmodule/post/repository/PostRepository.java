@@ -43,7 +43,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	// PostGroup과 postId에 해당하는 Post를 조회
 	@Query("""
-			select distinct p from Post p
+			select p from Post p
 			where p.postGroup = :postGroup
 			and p.id = :postId
 		""")

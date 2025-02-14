@@ -117,8 +117,8 @@ public class PostTransactionService {
 	}
 
 	@Transactional(readOnly = true)
-	public Post getPostOrThrow(Long postId) {
-		return postRepository.findById(postId)
+	public Post getPostOrThrow(PostGroup postGroup, Long postId) {
+		return postRepository.findByPostGroupAndId(postGroup, postId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
 	}
 
