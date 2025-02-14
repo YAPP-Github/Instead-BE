@@ -87,7 +87,7 @@ public class PostController {
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId
 	) {
-		return ResponseEntity.ok(postService.getPostsByPostGroup(postGroupId));
+		return ResponseEntity.ok(postService.getPostsByPostGroup(agentId, postGroupId));
 	}
 
 	@Operation(summary = "게시물 프롬프트 내역 조회 API", description = "게시물 결과 수정 단계에서 프롬프트 내역을 조회합니다.")

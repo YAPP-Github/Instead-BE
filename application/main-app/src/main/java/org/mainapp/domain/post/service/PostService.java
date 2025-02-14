@@ -86,9 +86,10 @@ public class PostService {
 	 * postGroupId를 바탕으로 게시물 그룹 존재 여부를 확인하고, 해당 그룹의 게시물 목록을 반환하는 메서드
 	 * 게시물 그룹 조회 실패 시 POST_GROUP_NOT_FOUND
 	 */
-	public GetPostGroupPostsResponse getPostsByPostGroup(Long postGroupId) {
-		// PostGroup 엔티티 조회
-		PostGroup postGroup = postGroupRepository.findById(postGroupId)
+	public GetPostGroupPostsResponse getPostsByPostGroup(Long agentId, Long postGroupId) {
+		// 사용자 인증 정보 및 PostGroup 조회
+		Long userId = SecurityUtil.getCurrentUserId();
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
 		// Post 엔티티 리스트 조회

@@ -27,7 +27,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	// PostGroup에 해당하는 Post 리스트 조회
 	@Query("""
-			select p from Post p
+			select distinct p from Post p
 			left join fetch p.postImages pi
 			where p.postGroup = :postGroup
 		""")
