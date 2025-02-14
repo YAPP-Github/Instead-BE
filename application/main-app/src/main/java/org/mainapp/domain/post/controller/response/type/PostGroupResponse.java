@@ -1,5 +1,6 @@
 package org.mainapp.domain.post.controller.response.type;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.domainmodule.postgroup.entity.PostGroup;
@@ -21,6 +22,9 @@ public class PostGroupResponse {
 
 	@Schema(description = "게시물 그룹 id", example = "1")
 	private Long id;
+
+	@Schema(description = "게시물 그룹 생성 일시", example = "2025-01-01T00:00:00.000Z")
+	private LocalDateTime createdAt;
 
 	@Schema(description = "게시물 그룹의 주제", example = "점심 메뉴 추천")
 	private String topic;
@@ -46,6 +50,9 @@ public class PostGroupResponse {
 	@Schema(description = "게시물 그룹의 생성 횟수 제한 도달 여부", example = "false")
 	private Boolean eof;
 
+	@Schema(description = "게시물 그룹 썸네일 이미지", example = "https://~")
+	private String thumbnailImage;
+
 	public static PostGroupResponse from(PostGroup postGroup) {
 		List<PostGroupImageResponse> postGroupImages = postGroup.getPostGroupImages().stream()
 			.map(PostGroupImageResponse::from)
@@ -53,6 +60,7 @@ public class PostGroupResponse {
 		boolean eof = (postGroup.getGenerationCount() >= PostGenerationCount.MAX_POST_GENERATION_COUNT);
 		return new PostGroupResponse(
 			postGroup.getId(),
+			postGroup.getCreatedAt(),
 			postGroup.getTopic(),
 			postGroup.getPurpose(),
 			postGroup.getReference(),
@@ -60,7 +68,8 @@ public class PostGroupResponse {
 			postGroupImages,
 			postGroup.getLength(),
 			postGroup.getContent(),
-			eof
+			eof,
+			postGroup.getThumbnailImage()
 		);
 	}
 }
