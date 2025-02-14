@@ -55,8 +55,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		// 	responseUtil.setTokensInResponse(response, newAccessToken, newRefreshToken);
 		// }
 
-		// TODO: 커밋하기 전 1로 변경
-		String userId = "8";
+		String userId = "1";
 
 		SecurityContextHolder.getContext().setAuthentication(jwtUtil.getAuthentication(userId));
 		filterChain.doFilter(request, response);
