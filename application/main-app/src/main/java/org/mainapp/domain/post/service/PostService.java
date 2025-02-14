@@ -93,7 +93,7 @@ public class PostService {
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
 		// Post 엔티티 리스트 조회
-		List<Post> posts = postRepository.findAllByPostGroup(postGroup);
+		List<Post> posts = postRepository.findAllWithImagesByPostGroup(postGroup);
 
 		// 결과 반환
 		return GetPostGroupPostsResponse.of(postGroup, posts);
@@ -118,8 +118,18 @@ public class PostService {
 	/**
 	 * 게시물 내용 수정 메서드.
 	 */
-	public void updatePostContent(Long postGroupId, Long postId, UpdatePostContentRequest request) {
-		postUpdateService.updatePostContent(postGroupId, postId, request);
+	public void updatePostContent(Long agentId, Long postGroupId, Long postId, UpdatePostContentRequest request) {
+		// 사용자 인증 정보 및 PostGroup 조회
+		Long userId = SecurityUtil.getCurrentUserId();
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+
+		// Post 조회
+		// Post post = postRepository.findByPostGroupAndId(postGroup, postId)
+		Post post = postRepository.findWithImagesByPostGroupAndId(postGroup, postId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
+
+		postUpdateService.updatePostContent(post, request);
 	}
 
 	/**

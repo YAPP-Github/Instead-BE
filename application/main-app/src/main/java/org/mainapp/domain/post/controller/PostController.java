@@ -122,7 +122,7 @@ public class PostController {
 		@PathVariable Long postId,
 		@Validated @RequestBody UpdatePostContentRequest updatePostContentRequest
 	) {
-		postService.updatePostContent(postGroupId, postId, updatePostContentRequest);
+		postService.updatePostContent(agentId, postGroupId, postId, updatePostContentRequest);
 		return ResponseEntity.ok().build();
 	}
 
