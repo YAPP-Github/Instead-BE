@@ -1,6 +1,7 @@
 package org.mainapp.domain.post.controller.response;
 
 import java.util.List;
+import java.util.Map;
 
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.postgroup.entity.PostGroup;
@@ -21,12 +22,9 @@ public class GetPostGroupPostsResponse {
 	private PostGroupResponse postGroup;
 
 	@Schema(description = "게시물 그룹에 해당하는 게시물 목록")
-	private List<PostResponse> posts;
+	private Map<String, List<PostResponse>> posts;
 
-	public static GetPostGroupPostsResponse of(PostGroup postGroup, List<Post> posts) {
-		List<PostResponse> postResponses = posts.stream()
-			.map(PostResponse::from)
-			.toList();
-		return new GetPostGroupPostsResponse(PostGroupResponse.from(postGroup), postResponses);
+	public static GetPostGroupPostsResponse of(PostGroup postGroup,Map<String, List<PostResponse>> posts) {
+		return new GetPostGroupPostsResponse(PostGroupResponse.from(postGroup), posts);
 	}
 }

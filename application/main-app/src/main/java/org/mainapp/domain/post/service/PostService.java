@@ -1,6 +1,9 @@
 package org.mainapp.domain.post.service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
@@ -83,8 +86,17 @@ public class PostService {
 		// Post 엔티티 리스트 조회
 		List<Post> posts = postRepository.findAllByPostGroup(postGroup);
 
-		// 결과 반환
-		return GetPostGroupPostsResponse.of(postGroup, posts);
+		// 상태별로 그룹화
+		Map<String, List<PostResponse>> groupedPosts = posts.stream()
+			.map(PostResponse::from)
+			.collect(Collectors.groupingBy(post -> post.getStatus().name()));
+
+		// displayOrder 오름차순으로 정렬
+		groupedPosts.forEach((status, list) ->
+			list.sort(Comparator.comparingInt(PostResponse::getDisplayOrder))
+		);
+
+		return GetPostGroupPostsResponse.of(postGroup, groupedPosts);
 	}
 
 	/**
