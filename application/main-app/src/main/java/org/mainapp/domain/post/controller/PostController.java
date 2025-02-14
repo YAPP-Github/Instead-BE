@@ -60,7 +60,7 @@ public class PostController {
 		@RequestParam(defaultValue = PostGenerationCount.POST_GENERATION_POST_COUNT) Integer limit,
 		@Validated @RequestBody CreatePostsRequest createPostsRequest
 	) {
-		return ResponseEntity.ok(postService.createPosts(createPostsRequest, limit));
+		return ResponseEntity.ok(postService.createPosts(agentId, createPostsRequest, limit));
 	}
 
 	@Operation(
@@ -78,7 +78,7 @@ public class PostController {
 		@PathVariable Long postGroupId,
 		@RequestParam(defaultValue = PostGenerationCount.POST_GENERATION_POST_COUNT) Integer limit
 	) {
-		return ResponseEntity.ok(postService.createAdditionalPosts(postGroupId, limit));
+		return ResponseEntity.ok(postService.createAdditionalPosts(agentId, postGroupId, limit));
 	}
 
 	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
@@ -87,7 +87,7 @@ public class PostController {
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId
 	) {
-		return ResponseEntity.ok(postService.getPostsByPostGroup(postGroupId));
+		return ResponseEntity.ok(postService.getPostsByPostGroup(agentId, postGroupId));
 	}
 
 	@Operation(summary = "게시물 프롬프트 내역 조회 API", description = "게시물 결과 수정 단계에서 프롬프트 내역을 조회합니다.")
@@ -122,7 +122,7 @@ public class PostController {
 		@PathVariable Long postId,
 		@Validated @RequestBody UpdatePostContentRequest updatePostContentRequest
 	) {
-		postService.updatePostContent(postGroupId, postId, updatePostContentRequest);
+		postService.updatePostContent(agentId, postGroupId, postId, updatePostContentRequest);
 		return ResponseEntity.ok().build();
 	}
 
@@ -139,7 +139,7 @@ public class PostController {
 		@PathVariable Long postGroupId,
 		@Validated @RequestBody UpdatePostsMetadataRequest updatePostsMetadataRequest
 	) {
-		postService.updatePostsMetadata(postGroupId, updatePostsMetadataRequest);
+		postService.updatePostsMetadata(agentId, postGroupId, updatePostsMetadataRequest);
 		return ResponseEntity.ok().build();
 	}
 
@@ -181,7 +181,7 @@ public class PostController {
 		@PathVariable Long postGroupId,
 		@PathVariable Long postId
 	) {
-		postService.deletePost(postGroupId, postId);
+		postService.deletePost(agentId, postGroupId, postId);
 		return ResponseEntity.noContent().build();
 	}
 
@@ -200,7 +200,7 @@ public class PostController {
 		@PathVariable Long postGroupId,
 		@Validated @RequestBody List<Long> postIds
 	) {
-		postService.deletePosts(postGroupId, postIds);
+		postService.deletePosts(agentId, postGroupId, postIds);
 		return ResponseEntity.noContent().build();
 	}
 }

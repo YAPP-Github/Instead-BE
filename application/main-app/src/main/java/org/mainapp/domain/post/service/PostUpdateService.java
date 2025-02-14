@@ -7,11 +7,9 @@ import org.domainmodule.post.entity.PostImage;
 import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.post.repository.PostImageRepository;
 import org.domainmodule.post.repository.PostRepository;
-import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.repository.PostGroupRepository;
 import org.mainapp.domain.post.controller.request.UpdatePostContentRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostsMetadataRequest;
-import org.mainapp.domain.post.controller.request.type.UpdatePostsRequestItem;
 import org.mainapp.domain.post.exception.PostErrorCode;
 import org.mainapp.global.error.CustomException;
 import org.springframework.stereotype.Service;
@@ -31,20 +29,7 @@ public class PostUpdateService {
 	/**
 	 * 게시물 내용 수정 메서드. updateType에 따라 분기
 	 */
-	public void updatePostContent(Long postGroupId, Long postId, UpdatePostContentRequest request) {
-		// PostGroup 엔티티 조회
-		PostGroup postGroup = postGroupRepository.findById(postGroupId)
-			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
-
-		// Post 엔티티 조회
-		Post post = postRepository.findById(postId)
-			.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
-
-		// 검증: PostGroup에 해당하는 Post가 맞는지 검증
-		if (!post.getPostGroup().getId().equals(postGroupId)) {
-			throw new CustomException(PostErrorCode.INVALID_POST);
-		}
-
+	public void updatePostContent(Post post, UpdatePostContentRequest request) {
 		// content 필드 검증 및 Post 엔티티 수정
 		if (request.getContent() == null) {
 			throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
@@ -67,9 +52,8 @@ public class PostUpdateService {
 			throw new CustomException(PostErrorCode.INVALID_UPDATING_POST_TYPE);
 		}
 
-		// PostImage 엔티티 조회
-		List<PostImage> postImages = postImageRepository.findAllByPost(post);
-		List<String> savedImageUrls = postImages.stream()
+		// Post 엔티티 내 PostImage 엔티티 리스트 조회
+		List<String> savedImageUrls = post.getPostImages().stream()
 			.map(PostImage::getUrl)
 			.toList();
 
@@ -81,7 +65,7 @@ public class PostUpdateService {
 		postTransactionService.savePostImages(newPostImages);
 
 		// DB에만 존재하는 PostImage 엔티티 제거
-		List<PostImage> removedPostImages = postImages.stream()
+		List<PostImage> removedPostImages = post.getPostImages().stream()
 			.filter(postImage -> !request.getImageUrls().contains(postImage.getUrl()))
 			.toList();
 		postTransactionService.deletePostImages(removedPostImages);
@@ -90,24 +74,7 @@ public class PostUpdateService {
 	/**
 	 * 게시물 기타 정보 수정 메서드.
 	 */
-	public void updatePostsMetadata(Long postGroupId, UpdatePostsMetadataRequest request) {
-		// PostGroup 엔티티 조회
-		PostGroup postGroup = postGroupRepository.findById(postGroupId)
-			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
-
-		// Post 엔티티 리스트 조회
-		List<Long> postIds = request.getPosts().stream()
-			.map(UpdatePostsRequestItem::getPostId)
-			.toList();
-		List<Post> posts = postRepository.findAllById(postIds);
-
-		// 검증: PostGroup에 해당하는 Post가 맞는지 검증
-		posts.forEach(post -> {
-			if (!post.getPostGroup().getId().equals(postGroupId)) {
-				throw new CustomException(PostErrorCode.INVALID_POST);
-			}
-		});
-
+	public void updatePostsMetadata(List<Post> posts, UpdatePostsMetadataRequest request) {
 		// Post 엔티티 리스트 수정
 		request.getPosts()
 			.forEach(postRequest -> {

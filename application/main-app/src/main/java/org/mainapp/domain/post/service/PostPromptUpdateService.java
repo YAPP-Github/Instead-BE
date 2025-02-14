@@ -43,9 +43,7 @@ public class PostPromptUpdateService {
 	 * 단일 게시물을 prompt를 적용하여 업데이트하는 메서드
 	 */
 	@Transactional
-	public PostResponse updateSinglePostByPrompt(
-		SinglePostUpdateRequest request, Long agentId, Long postGroupId, Long postId) {
-		Post post = postTransactionService.getPostOrThrow(postId);
+	public PostResponse updateSinglePostByPrompt(Post post, SinglePostUpdateRequest request) {
 		// 프롬프트 적용
 		SummaryContentFormat newContent = updatePostContentByPrompt(post, request.prompt());
 		// DB값 업데이트
@@ -55,17 +53,10 @@ public class PostPromptUpdateService {
 	/**
 	 * 일괄로 게시물들을 prompt 적용 후 업데이트 하는 메서드
 	 */
-	public List<PostResponse> updateMultiplePostsByPrompt(
-		MultiplePostUpdateRequest request, Long agentId, Long postGroupId) {
-		List<Long> postIds = request.postsId();
-		String prompt = request.prompt();
-
-		List<Post> posts = postIds.stream()
-			.map(postTransactionService::getPostOrThrow)
-			.toList();
-
+	public List<PostResponse> updateMultiplePostsByPrompt(List<Post> posts, MultiplePostUpdateRequest request) {
+		// Post 리스트 업그레이드 비동기 작업 수행
 		List<CompletableFuture<SummaryContentFormat>> futures = posts.stream()
-			.map(post -> CompletableFuture.supplyAsync(() -> updatePostContentByPrompt(post, prompt)))
+			.map(post -> CompletableFuture.supplyAsync(() -> updatePostContentByPrompt(post, request.prompt())))
 			.toList();
 
 		// 모든 프롬프트 처리 완료 대기
@@ -74,7 +65,7 @@ public class PostPromptUpdateService {
 			.toList();
 
 		// DB 업데이트 및 결과 반환
-		return postTransactionService.updateMutiplePostAndPromptyHistory(posts, prompt, newContents);
+		return postTransactionService.updateMutiplePostAndPromptyHistory(posts, request.prompt(), newContents);
 	}
 
 	private SummaryContentFormat updatePostContentByPrompt(Post post, String prompt) {

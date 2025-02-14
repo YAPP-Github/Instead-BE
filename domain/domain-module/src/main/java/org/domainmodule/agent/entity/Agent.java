@@ -59,6 +59,7 @@ public class Agent extends BaseTimeEntity {
 	@Column(nullable = false)
 	private Boolean isActivated;
 
+	// TODO: OneToOne 관계에서 mappedBy 필드는 지연 로딩 설정해놔도 즉시 로딩으로 동작한다고 함, 여기서 추가 쿼리 계속 발생.
 	@OneToOne(mappedBy = "agent", fetch = FetchType.LAZY)
 	private SnsToken snsToken;
 

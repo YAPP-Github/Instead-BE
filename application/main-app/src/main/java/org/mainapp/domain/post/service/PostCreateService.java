@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
-import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
 import org.domainmodule.postgroup.entity.PostGroupRssCursor;
-import org.domainmodule.postgroup.repository.PostGroupRepository;
+import org.domainmodule.postgroup.repository.PostGroupImageRepository;
 import org.domainmodule.postgroup.repository.PostGroupRssCursorRepository;
 import org.domainmodule.rssfeed.entity.RssFeed;
 import org.domainmodule.rssfeed.repository.RssFeedRepository;
@@ -51,9 +51,8 @@ public class PostCreateService {
 
 	private final FeedService feedService;
 	private final OpenAiClient openAiClient;
-	private final PostRepository postRepository;
-	private final PostGroupRepository postGroupRepository;
 	private final PostGroupRssCursorRepository postGroupRssCursorRepository;
+	private final PostGroupImageRepository postGroupImageRepository;
 	private final RssFeedRepository rssFeedRepository;
 
 	private final ObjectMapper objectMapper;
@@ -64,12 +63,12 @@ public class PostCreateService {
 	/**
 	 * 참고자료 없는 게시물 그룹과 게시물 생성 및 저장 메서드
 	 */
-	public CreatePostsResponse createPostsWithoutRef(CreatePostsRequest request, Integer limit) {
+	public CreatePostsResponse createPostsWithoutRef(Agent agent, CreatePostsRequest request, Integer limit) {
 		// 게시물 생성
 		ChatCompletionResponse result = generatePostsWithoutRef(GeneratePostsVo.of(request, limit));
 
-		// PostGroup 엔티티 생성
-		PostGroup postGroup = PostGroup.createPostGroup(null, null, request.getTopic(), request.getPurpose(),
+		// PostGroup 엔티티 생성: 생성 횟수 1로 초기화
+		PostGroup postGroup = PostGroup.createPostGroup(agent, null, request.getTopic(), request.getPurpose(),
 			request.getReference(), request.getLength(), request.getContent(), 1);
 
 		// Post 엔티티 생성: OpenAI API 응답의 choices에서 답변 꺼내 json으로 파싱 후 엔티티 생성
@@ -95,7 +94,7 @@ public class PostCreateService {
 	/**
 	 * 뉴스 기사 기반 게시물 그룹과 게시물 생성 및 저장 메서드
 	 */
-	public CreatePostsResponse createPostsByNews(CreatePostsRequest request, Integer limit) {
+	public CreatePostsResponse createPostsByNews(Agent agent, CreatePostsRequest request, Integer limit) {
 		// newsCategory 필드 검증
 		if (request.getNewsCategory() == null) {
 			throw new CustomException(PostErrorCode.NO_NEWS_CATEGORY);
@@ -111,7 +110,7 @@ public class PostCreateService {
 			GeneratePostsVo.of(request, limit), feedPagingResult);
 
 		// PostGroup 엔티티 생성
-		PostGroup postGroup = PostGroup.createPostGroup(null, rssFeed, request.getTopic(), request.getPurpose(),
+		PostGroup postGroup = PostGroup.createPostGroup(agent, rssFeed, request.getTopic(), request.getPurpose(),
 			request.getReference(), request.getLength(), request.getContent(), 1);
 
 		// PostGroupRssCursor 엔티티 생성
@@ -143,7 +142,7 @@ public class PostCreateService {
 	/**
 	 * 이미지 기반 게시물 그룹과 게시물 생성 및 저장 메서드
 	 */
-	public CreatePostsResponse createPostsByImage(CreatePostsRequest request, Integer limit) {
+	public CreatePostsResponse createPostsByImage(Agent agent, CreatePostsRequest request, Integer limit) {
 		// imageUrls 필드 검증
 		if (request.getImageUrls() == null) {
 			throw new CustomException(PostErrorCode.NO_IMAGE_URLS);
@@ -153,7 +152,7 @@ public class PostCreateService {
 		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(request, limit));
 
 		// PostGroup 엔티티 생성
-		PostGroup postGroup = PostGroup.createPostGroup(null, null, request.getTopic(), request.getPurpose(),
+		PostGroup postGroup = PostGroup.createPostGroup(agent, null, request.getTopic(), request.getPurpose(),
 			request.getReference(), request.getLength(), request.getContent(), 1);
 
 		// PostGroupImage 엔티티 리스트 생성
@@ -274,8 +273,11 @@ public class PostCreateService {
 	 * 게시물 추가 생성: 이미지 기반 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createAdditionalPostsByImage(PostGroup postGroup, Integer limit, Integer order) {
+		// PostGroupImage 리스트 조회
+		List<PostGroupImage> postGroupImages = postGroupImageRepository.findAllByPostGroup(postGroup);
+
 		// 게시물 생성
-		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(postGroup, limit));
+		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(postGroup, postGroupImages, limit));
 
 		// Post 엔티티 리스트 생성
 		// order 지정에 사용할 반복변수를 위해 for문 사용
@@ -372,8 +374,8 @@ public class PostCreateService {
 		String imageRefPrompt = createPostPromptTemplate.getImageRefPrompt();
 
 		// 게시물 생성
-		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(openAiModel,
-			summaryContentSchema.getResponseFormat(), vo.limit(), null)
+		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(
+			openAiModel, summaryContentSchema.getResponseFormat(), vo.limit(), null)
 			.addDeveloperMessage(instructionPrompt)
 			.addUserTextMessage(topicPrompt)
 			.addUserImageMessage(imageRefPrompt, vo.imageUrls());

@@ -35,7 +35,22 @@ public record GeneratePostsVo(
 		// PostGroup의 feed가 null인 경우 처리
 		FeedCategoryType newsCategory = (postGroup.getFeed() == null) ? null : postGroup.getFeed().getCategory();
 
-		List<String> imageUrls = postGroup.getPostGroupImages().stream()
+		return new GeneratePostsVo(
+			postGroup.getTopic(),
+			postGroup.getPurpose(),
+			postGroup.getLength(),
+			postGroup.getContent(),
+			newsCategory,
+			null,
+			limit
+		);
+	}
+
+	public static GeneratePostsVo of(PostGroup postGroup, List<PostGroupImage> images, Integer limit) {
+		// PostGroup의 feed가 null인 경우 처리
+		FeedCategoryType newsCategory = (postGroup.getFeed() == null) ? null : postGroup.getFeed().getCategory();
+
+		List<String> imageUrls = images.stream()
 			.map(PostGroupImage::getUrl)
 			.toList();
 
