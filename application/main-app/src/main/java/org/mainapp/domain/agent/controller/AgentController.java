@@ -48,6 +48,7 @@ public class AgentController {
 		@PathVariable Long agentId,
 		@RequestBody UpdateAgentPersonalSettingRequest request
 	) {
+		agentService.updateAgentPersonalSetting(agentId, request);
 		return ResponseEntity.ok().build();
 	}
 }
