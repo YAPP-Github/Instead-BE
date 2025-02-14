@@ -10,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum AgentErrorCode implements ErrorCodeStatus {
 
-	AGENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Agent를 찾을 수 없습니다.");
+	AGENT_NOT_FOUND(HttpStatus.NOT_FOUND, "계정을 찾을 수 없습니다.");
+
 	private final HttpStatus httpStatus;
 	private final String message;
 }
