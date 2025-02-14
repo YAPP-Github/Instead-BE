@@ -26,7 +26,6 @@ public class AgentService {
 	 * @return 생성된 Agent 엔티티
 	 */
 	public Agent updateOrCreateAgent(TwitterUserInfoDto userInfo) {
-		//TODO 임시 설정한 부분 (이후 securityContext에서 userId가져오기)
 		Long userId = SecurityUtil.getCurrentUserId();
 		User user = userService.findUserById(userId);
 
