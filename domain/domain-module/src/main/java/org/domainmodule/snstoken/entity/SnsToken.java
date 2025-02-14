@@ -22,6 +22,8 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SnsToken extends BaseAuditEntity {
+	// TODO: SnsToken과 RefreshToken이 항상 헷갈려서, 연관된 테이블을 명시하는 쪽으로 네이밍 변경하면 어떨지 (UserToken, AgentToken 이런 식으로)
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "sns_token_id")

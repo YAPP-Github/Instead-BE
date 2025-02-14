@@ -122,6 +122,7 @@ public class PostTransactionService {
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
 	}
 
+	// TODO: 하위 서비스인 PostTransactionService에서 상위 서비스인 PostPromptHistoryService 주입받고 있음.
 	@Transactional
 	public PostResponse updateSinglePostAndPromptyHistory(Post post, String prompt, SummaryContentFormat newContent) {
 		// 프롬프트 기록 저장
