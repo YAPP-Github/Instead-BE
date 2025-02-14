@@ -173,19 +173,15 @@ public class PostService {
 	/**
 	 * 업로드가 확정되지 않은 상태의 게시물을 단건 삭제하는 메서드
 	 */
-	public void deletePost(Long postGroupId, Long postId) {
-		// PostGroup 엔티티 조회
-		PostGroup postGroup = postGroupRepository.findById(postGroupId)
+	public void deletePost(Long agentId, Long postGroupId, Long postId) {
+		// 사용자 인증 정보 및 PostGroup 조회
+		Long userId = SecurityUtil.getCurrentUserId();
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
 		// Post 엔티티 조회
-		Post post = postRepository.findById(postId)
+		Post post = postRepository.findByPostGroupAndId(postGroup, postId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
-
-		// 검증: PostGroup에 해당하는 Post가 맞는지 검증
-		if (!post.getPostGroup().getId().equals(postGroupId)) {
-			throw new CustomException(PostErrorCode.INVALID_POST);
-		}
 
 		// 검증: 삭제하려는 Post의 상태 확인
 		validateDeletingPostStatus(post);
@@ -197,14 +193,15 @@ public class PostService {
 	/**
 	 * 업로드가 확정되지 않은 상태의 게시물들을 일괄 삭제하는 메서드
 	 */
-	public void deletePosts(Long postGroupId, List<Long> postIds) {
-		// PostGroup 엔티티 조회
-		PostGroup postGroup = postGroupRepository.findById(postGroupId)
+	public void deletePosts(Long agentId, Long postGroupId, List<Long> postIds) {
+		// 사용자 인증 정보 및 PostGroup 조회
+		Long userId = SecurityUtil.getCurrentUserId();
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
 		// Post 엔티티 리스트 조회
 		// TODO: 지금은 단순히 조회한 Post의 개수를 가지고 검증하고 있는데, 상세 postId를 반환하기 위해 로직을 수정할 필요가 있을듯. 지금은 에러메시지에 변수를 담을 수 없는 상황이라 단순한 로직으로 구현함
-		List<Post> posts = postRepository.findAllById(postIds);
+		List<Post> posts = postRepository.findAllByPostGroupAndId(postGroup, postIds);
 		if (posts.size() < postIds.size()) {
 			throw new CustomException(PostErrorCode.POST_NOT_FOUND);
 		}

@@ -181,7 +181,7 @@ public class PostController {
 		@PathVariable Long postGroupId,
 		@PathVariable Long postId
 	) {
-		postService.deletePost(postGroupId, postId);
+		postService.deletePost(agentId, postGroupId, postId);
 		return ResponseEntity.noContent().build();
 	}
 
@@ -200,7 +200,7 @@ public class PostController {
 		@PathVariable Long postGroupId,
 		@Validated @RequestBody List<Long> postIds
 	) {
-		postService.deletePosts(postGroupId, postIds);
+		postService.deletePosts(agentId, postGroupId, postIds);
 		return ResponseEntity.noContent().build();
 	}
 }
