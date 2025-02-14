@@ -21,6 +21,7 @@ import org.mainapp.domain.post.controller.request.UpdatePostsMetadataRequest;
 import org.mainapp.domain.post.controller.request.type.UpdatePostsRequestItem;
 import org.mainapp.domain.post.controller.response.CreatePostsResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupPostsResponse;
+import org.mainapp.domain.post.controller.response.GetPostGroupsResponse;
 import org.mainapp.domain.post.controller.response.type.PostResponse;
 import org.mainapp.domain.post.exception.PostErrorCode;
 import org.mainapp.global.constants.PostGenerationCount;
@@ -84,6 +85,18 @@ public class PostService {
 			case NEWS -> postCreateService.createAdditionalPostsByNews(postGroup, limit, order);
 			case IMAGE -> postCreateService.createAdditionalPostsByImage(postGroup, limit, order);
 		};
+	}
+
+	/**
+	 * 사용자 연동 SNS 계정별 게시물 그룹 목록을 반환하는 메서드
+	 */
+	public GetPostGroupsResponse getPostGroups(Long agentId) {
+		// 사용자 인증 정보 및 PostGroup 리스트 조회
+		Long userId = SecurityUtil.getCurrentUserId();
+		List<PostGroup> postGroups = postGroupRepository.findAllByUserIdAndAgentId(userId, agentId);
+
+		// 반환
+		return GetPostGroupsResponse.from(postGroups);
 	}
 
 	/**

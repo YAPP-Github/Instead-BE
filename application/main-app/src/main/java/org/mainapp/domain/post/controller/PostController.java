@@ -85,7 +85,7 @@ public class PostController {
 	@Operation(summary = "계정별 게시물 그룹 목록 조회 API", description = "사용자가 연동한 SNS 계정 내의 게시물 그룹 목록을 조회합니다.")
 	@GetMapping
 	public ResponseEntity<GetPostGroupsResponse> getPostGroupsByAgent(@PathVariable Long agentId) {
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok(postService.getPostGroups(agentId));
 	}
 
 	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
