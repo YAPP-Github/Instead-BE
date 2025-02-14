@@ -66,9 +66,13 @@ public class PostGroup extends BaseTimeEntity {
 
 	private Integer generationCount;
 
+	private String thumbnailImage;
+
 	@Builder(access = AccessLevel.PRIVATE)
-	private PostGroup(Agent agent, RssFeed feed, String topic, PostGroupPurposeType purpose,
-		PostGroupReferenceType reference, PostGroupLengthType length, String content, Integer generationCount) {
+	private PostGroup(
+		Agent agent, RssFeed feed, String topic, PostGroupPurposeType purpose, PostGroupReferenceType reference,
+		PostGroupLengthType length, String content, Integer generationCount, String thumbnailImage
+	) {
 		this.agent = agent;
 		this.topic = topic;
 		this.purpose = purpose;
@@ -77,6 +81,7 @@ public class PostGroup extends BaseTimeEntity {
 		this.length = length;
 		this.content = content;
 		this.generationCount = generationCount;
+		this.thumbnailImage = thumbnailImage;
 	}
 
 	public static PostGroup createPostGroup(
@@ -87,7 +92,8 @@ public class PostGroup extends BaseTimeEntity {
 		PostGroupReferenceType reference,
 		PostGroupLengthType length,
 		String content,
-		Integer generationCount
+		Integer generationCount,
+		String thumbnailImage
 	) {
 		return PostGroup.builder()
 			.agent(agent)
@@ -98,6 +104,7 @@ public class PostGroup extends BaseTimeEntity {
 			.length(length)
 			.content(content)
 			.generationCount(generationCount)
+			.thumbnailImage(thumbnailImage)
 			.build();
 	}
 

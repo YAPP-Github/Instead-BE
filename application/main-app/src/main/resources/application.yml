@@ -26,3 +26,6 @@ client:
         url: https://api.openai.com/v1/chat/completions
         key: ${OPENAI_API_KEY}
         model: gpt-4o-mini
+
+default-image:
+    post-group: https://instead-dev.s3.ap-northeast-2.amazonaws.com/post-group/default.png
