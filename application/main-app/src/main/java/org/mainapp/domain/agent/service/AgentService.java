@@ -9,6 +9,7 @@ import org.domainmodule.agent.entity.type.AgentToneType;
 import org.domainmodule.agent.repository.AgentPersonalSettingRepository;
 import org.domainmodule.agent.repository.AgentRepository;
 import org.domainmodule.user.entity.User;
+import org.mainapp.domain.agent.controller.request.UpdateAgentPersonalSettingRequest;
 import org.mainapp.domain.agent.controller.response.GetAgentsResponse;
 import org.mainapp.domain.agent.controller.response.GetDetailAgentResponse;
 import org.mainapp.domain.agent.exception.AgentErrorCode;
@@ -90,5 +91,34 @@ public class AgentService {
 
 		// 반환
 		return GetDetailAgentResponse.from(agentPersonalSetting.getAgent(), agentPersonalSetting);
+	}
+
+	/**
+	 * 계정의 개인화 설정을 변경하는 메서드
+	 */
+	public void updateAgentPersonalSetting(Long agentId, UpdateAgentPersonalSettingRequest request) {
+		// 사용자 인증 정보 조회
+		Long userId = SecurityUtil.getCurrentUserId();
+
+		// 사용자 계정 및 개인화 설정 조회
+		AgentPersonalSetting agentPersonalSetting = agentPersonalSettingRepository.findByUserIdAndAgentId(
+			userId, agentId).orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
+
+		// 개인화 설정 수정
+		if (request.domain() != null) {
+			agentPersonalSetting.updateDomain(request.domain());
+		}
+		if (request.introduction() != null) {
+			agentPersonalSetting.updateIntroduction(request.introduction());
+		}
+		if (request.tone() != null) {
+			agentPersonalSetting.updateTone(request.tone());
+		}
+		if (request.customTone() != null) {
+			agentPersonalSetting.updateCustomTone(request.customTone());
+		}
+
+		// 변경사항 저장
+		agentTransactionService.saveAgentPersonalSetting(agentPersonalSetting);
 	}
 }
