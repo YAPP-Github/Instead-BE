@@ -71,7 +71,7 @@ public class WebSecurityConfig {
 				exceptionHandling
 					.authenticationEntryPoint(customAuthenticationEntryPoint.oAuth2EntryPoint())
 			)
-		.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+			.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
 	}
@@ -84,6 +84,7 @@ public class WebSecurityConfig {
 		configuration.addAllowedOriginPattern(UrlConstants.LOCAL_DOMAIN_URL);
 		configuration.addAllowedOriginPattern(UrlConstants.PROD_DOMAIN_URL);
 		configuration.addAllowedOriginPattern(UrlConstants.SERVER_DOMAIN_URL);
+		configuration.addAllowedOriginPattern(UrlConstants.DEV_SERVER_DOMAIN_URL);
 		configuration.addAllowedMethod("*");
 		configuration.addAllowedHeader("*");
 		configuration.setAllowCredentials(true);
