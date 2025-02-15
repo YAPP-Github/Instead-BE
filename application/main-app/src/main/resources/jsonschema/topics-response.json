@@ -1,0 +1,20 @@
+{
+	"name": "topics_response",
+	"strict": true,
+	"schema": {
+		"type": "object",
+		"properties": {
+			"topics": {
+				"type": "array",
+				"items": {
+					"type": "string",
+					"description": "recommended topic"
+				}
+			}
+		},
+		"additionalProperties": false,
+		"required": [
+			"topics"
+		]
+	}
+}
