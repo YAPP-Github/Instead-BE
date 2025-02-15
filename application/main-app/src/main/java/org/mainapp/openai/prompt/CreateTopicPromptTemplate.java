@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class CreateTopicPromptTemplate {
 
 	public String getGenerateTopicPrompt(String topic, Integer n) {
-		return topic + "이라는 주제와 관련된 세부 주제를 " + n + "개 추천해줘. 관련된 다른 주제여도 좋아.";
+		return topic + "이라는 주제와 관련된 중복되지 않는 세부 주제를 " + n + "개 추천해줘. 관련된 다른 주제여도 좋아.";
 	}
 
 	public String getExcludeExistTopicsPrompt(List<String> existTopics) {

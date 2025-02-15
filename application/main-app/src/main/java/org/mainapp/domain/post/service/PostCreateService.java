@@ -36,7 +36,6 @@ import org.mainapp.openai.prompt.CreateTopicPromptTemplate;
 import org.openaiclient.client.OpenAiClient;
 import org.openaiclient.client.dto.request.ChatCompletionRequest;
 import org.openaiclient.client.dto.response.ChatCompletionResponse;
-import org.openaiclient.client.dto.response.type.Choice;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -163,8 +162,11 @@ public class PostCreateService {
 			throw new CustomException(PostErrorCode.NO_IMAGE_URLS);
 		}
 
+		// 세부 주제 생성
+		List<String> topics = generateTopics(request.getTopic(), null, limit);
+
 		// 게시물 생성
-		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(request, limit));
+		List<ChatCompletionResponse> results = generatePostsByImage(GeneratePostsVo.of(request, limit), topics);
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(
@@ -180,9 +182,10 @@ public class PostCreateService {
 		// Post 엔티티 리스트 생성
 		// displayOrder 지정에 사용할 반복변수를 위해 for문 사용
 		List<Post> posts = new ArrayList<>();
-		for (int i = 0; i < result.getChoices().size(); i++) {
-			Choice choice = result.getChoices().get(i);
-			SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
+		for (int i = 0; i < results.size(); i++) {
+			ChatCompletionResponse result = results.get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(
+				result.getChoices().get(0).getMessage().getContent());
 			posts.add(Post.create(postGroup, null, content.getSummary(),
 				content.getContent(), PostStatusType.GENERATED, null, i + 1));
 		}
@@ -303,15 +306,26 @@ public class PostCreateService {
 		// PostGroupImage 리스트 조회
 		List<PostGroupImage> postGroupImages = postGroupImageRepository.findAllByPostGroup(postGroup);
 
+		// 기존 게시물 조회 후 기존 요약제목 추출
+		List<Post> existPosts = postRepository.findAllByPostGroup(postGroup);
+		List<String> existTopics = existPosts.stream()
+			.map(Post::getSummary)
+			.toList();
+
+		// 세부 주제 생성
+		List<String> topics = generateTopics(postGroup.getTopic(), existTopics, limit);
+
 		// 게시물 생성
-		ChatCompletionResponse result = generatePostsByImage(GeneratePostsVo.of(postGroup, postGroupImages, limit));
+		List<ChatCompletionResponse> results = generatePostsByImage(
+			GeneratePostsVo.of(postGroup, postGroupImages, limit), topics);
 
 		// Post 엔티티 리스트 생성
 		// order 지정에 사용할 반복변수를 위해 for문 사용
 		List<Post> posts = new ArrayList<>();
-		for (int i = 0; i < result.getChoices().size(); i++) {
-			Choice choice = result.getChoices().get(i);
-			SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
+		for (int i = 0; i < results.size(); i++) {
+			ChatCompletionResponse result = results.get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(
+				result.getChoices().get(0).getMessage().getContent());
 			posts.add(Post.create(postGroup, null, content.getSummary(),
 				content.getContent(), PostStatusType.GENERATED, null, order + i + 1));
 		}
@@ -423,23 +437,29 @@ public class PostCreateService {
 	 * 이미지 기반 게시물 생성 메서드. (프롬프트 설정 + 게시물 생성 작업 수행)
 	 * 예외 발생 시 PostGenerateFailedException 발생
 	 */
-	private ChatCompletionResponse generatePostsByImage(GeneratePostsVo vo) {
+	private List<ChatCompletionResponse> generatePostsByImage(GeneratePostsVo vo, List<String> topics) {
 		// 프롬프트 생성
 		String instructionPrompt = createPostPromptTemplate.getInstruction();
-		String topicPrompt = createPostPromptTemplate.getBasicTopicPrompt(
-			vo.topic(), vo.purpose(), vo.length(), vo.content());
+		List<String> topicPrompts = topics.stream()
+			.map(topic -> createPostPromptTemplate.getBasicTopicPrompt(topic, vo.purpose(), vo.length(), vo.content()))
+			.toList();
 		String imageRefPrompt = createPostPromptTemplate.getImageRefPrompt();
 
 		// 게시물 생성
-		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(
-			openAiModel, summaryContentSchema.getResponseFormat(), vo.limit(), null)
-			.addDeveloperMessage(instructionPrompt)
-			.addUserTextMessage(topicPrompt)
-			.addUserImageMessage(imageRefPrompt, vo.imageUrls());
+		List<CompletableFuture<ChatCompletionResponse>> resultFutures = topicPrompts.stream()
+			.map(topicPrompt -> openAiClient.getChatCompletionAsync(
+				new ChatCompletionRequest(openAiModel, summaryContentSchema.getResponseFormat(), null, null)
+					.addDeveloperMessage(instructionPrompt)
+					.addUserTextMessage(topicPrompt)
+					.addUserImageMessage(imageRefPrompt, vo.imageUrls())
+			))
+			.toList();
 
 		// TODO: 해당 client에서 RuntimeException이 아닌 구분되는 예외를 던지도록 수정하기
 		try {
-			return openAiClient.getChatCompletion(chatCompletionRequest);
+			return resultFutures.stream()
+				.map(CompletableFuture::join)
+				.toList();
 		} catch (RuntimeException e) {
 			throw new CustomException(PostErrorCode.POST_GENERATE_FAILED);
 		}
