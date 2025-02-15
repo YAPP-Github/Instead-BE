@@ -7,6 +7,7 @@ import java.util.concurrent.CompletableFuture;
 import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
+import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.entity.PostGroupImage;
 import org.domainmodule.postgroup.entity.PostGroupRssCursor;
@@ -27,8 +28,11 @@ import org.mainapp.domain.post.service.vo.GeneratePostsVo;
 import org.mainapp.global.constants.PostGenerationCount;
 import org.mainapp.global.error.CustomException;
 import org.mainapp.openai.contentformat.jsonschema.SummaryContentSchema;
+import org.mainapp.openai.contentformat.jsonschema.TopicsSchema;
 import org.mainapp.openai.contentformat.response.SummaryContentFormat;
+import org.mainapp.openai.contentformat.response.TopicsFormat;
 import org.mainapp.openai.prompt.CreatePostPromptTemplate;
+import org.mainapp.openai.prompt.CreateTopicPromptTemplate;
 import org.openaiclient.client.OpenAiClient;
 import org.openaiclient.client.dto.request.ChatCompletionRequest;
 import org.openaiclient.client.dto.response.ChatCompletionResponse;
@@ -46,14 +50,18 @@ import lombok.RequiredArgsConstructor;
 public class PostCreateService {
 
 	private final PostTransactionService postTransactionService;
+	private final CreateTopicPromptTemplate createTopicPromptTemplate;
 	private final CreatePostPromptTemplate createPostPromptTemplate;
 	private final SummaryContentSchema summaryContentSchema;
+	private final TopicsSchema topicsSchema;
 
 	private final FeedService feedService;
 	private final OpenAiClient openAiClient;
+
 	private final PostGroupRssCursorRepository postGroupRssCursorRepository;
 	private final PostGroupImageRepository postGroupImageRepository;
 	private final RssFeedRepository rssFeedRepository;
+	private final PostRepository postRepository;
 
 	private final ObjectMapper objectMapper;
 
@@ -67,19 +75,23 @@ public class PostCreateService {
 	 * 참고자료 없는 게시물 그룹과 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createPostsWithoutRef(Agent agent, CreatePostsRequest request, Integer limit) {
+		// 세부 주제 생성
+		List<String> topics = generateTopics(request.getTopic(), null, limit);
+
 		// 게시물 생성
-		ChatCompletionResponse result = generatePostsWithoutRef(GeneratePostsVo.of(request, limit));
+		List<ChatCompletionResponse> results = generatePostsWithoutRef(GeneratePostsVo.of(request, limit), topics);
 
 		// PostGroup 엔티티 생성: 생성 횟수 1로 초기화
 		PostGroup postGroup = PostGroup.createPostGroup(agent, null, request.getTopic(), request.getPurpose(),
 			request.getReference(), request.getLength(), request.getContent(), 1, postGroupDefaultImage);
 
-		// Post 엔티티 생성: OpenAI API 응답의 choices에서 답변 꺼내 json으로 파싱 후 엔티티 생성
+		// Post 엔티티 생성
 		// displayOrder 지정에 사용할 반복변수를 위해 for문 사용
 		List<Post> posts = new ArrayList<>();
-		for (int i = 0; i < result.getChoices().size(); i++) {
-			Choice choice = result.getChoices().get(i);
-			SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
+		for (int i = 0; i < results.size(); i++) {
+			ChatCompletionResponse result = results.get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(
+				result.getChoices().get(0).getMessage().getContent());
 			posts.add(Post.create(postGroup, null, content.getSummary(),
 				content.getContent(), PostStatusType.GENERATED, null, i + 1));
 		}
@@ -190,15 +202,25 @@ public class PostCreateService {
 	 * 게시물 추가 생성: 참고자료 없는 게시물 생성 및 저장 메서드
 	 */
 	public CreatePostsResponse createAdditionalPostsWithoutRef(PostGroup postGroup, Integer limit, Integer order) {
+		// 기존 게시물 조회 후 기존 요약제목 추출
+		List<Post> existPosts = postRepository.findAllByPostGroup(postGroup);
+		List<String> existTopics = existPosts.stream()
+			.map(Post::getSummary)
+			.toList();
+
+		// 세부 주제 생성
+		List<String> topics = generateTopics(postGroup.getTopic(), existTopics, limit);
+
 		// 게시물 생성
-		ChatCompletionResponse result = generatePostsWithoutRef(GeneratePostsVo.of(postGroup, limit));
+		List<ChatCompletionResponse> results = generatePostsWithoutRef(GeneratePostsVo.of(postGroup, limit), topics);
 
 		// Post 엔티티 리스트 생성
 		// order 지정에 사용할 반복변수를 위해 for문 사용
 		List<Post> posts = new ArrayList<>();
-		for (int i = 0; i < result.getChoices().size(); i++) {
-			Choice choice = result.getChoices().get(i);
-			SummaryContentFormat content = parseSummaryContentFormat(choice.getMessage().getContent());
+		for (int i = 0; i < results.size(); i++) {
+			ChatCompletionResponse result = results.get(i);
+			SummaryContentFormat content = parseSummaryContentFormat(
+				result.getChoices().get(0).getMessage().getContent());
 			posts.add(Post.create(postGroup, null, content.getSummary(),
 				content.getContent(), PostStatusType.GENERATED, null, order + i + 1));
 		}
@@ -312,23 +334,53 @@ public class PostCreateService {
 	}
 
 	/**
+	 * 요청된 주제와 관련된 세부 주제를 생성하는 메서드.
+	 */
+	public List<String> generateTopics(String topic, List<String> existTopics, Integer limit) {
+		// chat completion 요청 객체 생성
+		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(
+			openAiModel, topicsSchema.getResponseFormat(), null, null)
+			.addUserTextMessage(createTopicPromptTemplate.getGenerateTopicPrompt(topic, limit))
+			.addUserTextMessage(createTopicPromptTemplate.getExcludeExistTopicsPrompt(existTopics));
+
+		// 응답 객체 파싱 및 반환. 답변 생성 실패할 경우 요청된 주제만 담긴 리스트 반환
+		try {
+			ChatCompletionResponse result = openAiClient.getChatCompletion(chatCompletionRequest);
+			String content = result.getChoices().get(0).getMessage().getContent();
+			return parseTopicsFormat(content).getTopics();
+		} catch (RuntimeException e) {
+			ArrayList<String> topics = new ArrayList<>();
+			for (int i = 0; i < limit; i++) {
+				topics.add(topic);
+			}
+			return topics;
+		}
+	}
+
+	/**
 	 * 참고자료 없는 게시물 생성 메서드. (프롬프트 설정 + 게시물 생성 작업 수행)
 	 * 예외 발생 시 PostGenerateFailedException 발생
 	 */
-	private ChatCompletionResponse generatePostsWithoutRef(GeneratePostsVo vo) {
-		// 프롬프트 생성: Instruction + 주제 Prompt
+	private List<ChatCompletionResponse> generatePostsWithoutRef(GeneratePostsVo vo, List<String> topics) {
+		// 프롬프트 생성: Instruction + 주제 Prompt 리스트
 		String instructionPrompt = createPostPromptTemplate.getInstruction();
-		String topicPrompt = createPostPromptTemplate.getBasicTopicPrompt(vo.topic(), vo.purpose(), vo.length(),
-			vo.content());
+		List<String> topicPrompts = topics.stream()
+			.map(topic -> createPostPromptTemplate.getBasicTopicPrompt(topic, vo.purpose(), vo.length(), vo.content()))
+			.toList();
 
 		// 게시물 생성
-		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(
-			openAiModel, summaryContentSchema.getResponseFormat(), vo.limit(), null)
-			.addDeveloperMessage(instructionPrompt)
-			.addUserTextMessage(topicPrompt);
+		List<CompletableFuture<ChatCompletionResponse>> resultFutures = topicPrompts.stream()
+			.map(topicPrompt -> openAiClient.getChatCompletionAsync(
+				new ChatCompletionRequest(openAiModel, summaryContentSchema.getResponseFormat(), null, null)
+					.addDeveloperMessage(instructionPrompt)
+					.addUserTextMessage(topicPrompt)
+			))
+			.toList();
 
 		try {
-			return openAiClient.getChatCompletion(chatCompletionRequest);
+			return resultFutures.stream()
+				.map(CompletableFuture::join)
+				.toList();
 		} catch (RuntimeException e) {
 			throw new CustomException(PostErrorCode.POST_GENERATE_FAILED);
 		}
@@ -419,6 +471,15 @@ public class PostCreateService {
 			return objectMapper.readValue(content, SummaryContentFormat.class);
 		} catch (JsonProcessingException e) {
 			return SummaryContentFormat.createAlternativeFormat("생성된 게시물", content);
+		}
+	}
+
+	private TopicsFormat parseTopicsFormat(String content) {
+		try {
+			return objectMapper.readValue(content, TopicsFormat.class);
+		} catch (JsonProcessingException e) {
+			return new TopicsFormat();
+			// return SummaryContentFormat.createAlternativeFormat("생성된 게시물", content);
 		}
 	}
 }
