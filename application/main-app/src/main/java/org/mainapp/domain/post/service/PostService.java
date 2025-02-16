@@ -1,8 +1,11 @@
 package org.mainapp.domain.post.service;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.domainmodule.agent.entity.Agent;
@@ -113,9 +116,10 @@ public class PostService {
 		List<Post> posts = postRepository.findAllWithImagesByPostGroup(postGroup);
 
 		// 상태별로 그룹화
-		Map<String, List<PostResponse>> groupedPosts = posts.stream()
+		Map<PostStatusType, List<PostResponse>> groupedPosts = initializeEmptyStatusMap();
+		posts.stream()
 			.map(PostResponse::from)
-			.collect(Collectors.groupingBy(post -> post.getStatus().name()));
+			.forEach(post -> groupedPosts.get(post.getStatus()).add(post));
 
 		// displayOrder 오름차순으로 정렬
 		groupedPosts.forEach((status, list) ->
@@ -123,6 +127,17 @@ public class PostService {
 		);
 
 		return GetPostGroupPostsResponse.of(postGroup, groupedPosts);
+	}
+
+	/**
+	 * PostStatusType을 포함하는 빈 리스트 생성
+	 */
+	private Map<PostStatusType, List<PostResponse>> initializeEmptyStatusMap() {
+		return EnumSet.allOf(PostStatusType.class).stream()
+			.collect(Collectors.toMap(
+				Function.identity(),
+				status -> new ArrayList<>()
+			));
 	}
 
 	/**
