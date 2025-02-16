@@ -9,6 +9,7 @@ import org.domainmodule.user.repository.OauthRepository;
 import org.mainapp.domain.token.service.TokenServiceImpl;
 import org.mainapp.domain.user.service.UserServiceImpl;
 import org.mainapp.global.oauth2.userinfo.OAuth2UserInfo;
+import org.mainapp.global.util.JwtUtil;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -21,6 +22,7 @@ public class AuthServiceImpl implements AuthService {
 	private final OauthRepository oauthRepository;
 	private final UserServiceImpl userService;
 	private final TokenServiceImpl tokenService;
+	private final JwtUtil jwtUtil;
 
 	/**
 	 * Oauth2 Provider, ProviderId로 사용자 존재여부 확인후 없으면 회원가입 진행한다.
@@ -64,5 +66,15 @@ public class AuthServiceImpl implements AuthService {
 		ProviderType providerType = ProviderType.fromValue(oAuth2Response.getProvider());
 		Oauth oauth = Oauth.createOauth(user, providerType, oAuth2Response.getProviderId());
 		oauthRepository.save(oauth);
+	}
+
+	/**
+	 * 서비스 로그아웃 ( RefreshToken 제거 )
+	 */
+	@Override
+	@Transactional
+	public void logout(String accessToken) {
+		final Long userId = jwtUtil.getUserIdFromAccessToken(accessToken);
+		tokenService.deleteRefreshToken(userId);
 	}
 }

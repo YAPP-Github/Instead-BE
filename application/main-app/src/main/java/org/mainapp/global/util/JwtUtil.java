@@ -5,8 +5,10 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
+import org.mainapp.domain.token.exception.TokenErrorCode;
 import org.mainapp.global.constants.HeaderConstants;
 import org.mainapp.global.constants.JwtProperties;
+import org.mainapp.global.error.CustomException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -128,4 +130,13 @@ public class JwtUtil {
 		// authorities는 지금 ROLE이 필요 없어서 null, credentials은 비밀번호가 들어가는데 jwt이므로 패스
 		return new UsernamePasswordAuthenticationToken(userId, null, null);
 	}
+
+	public Long getUserIdFromAccessToken(String accessToken) {
+		try {
+			return Long.parseLong(extractUserId(accessToken, true));
+		} catch (Exception e) {
+			throw new CustomException(TokenErrorCode.ACCESS_TOKEN_NOT_FOUND);
+		}
+	}
+
 }
