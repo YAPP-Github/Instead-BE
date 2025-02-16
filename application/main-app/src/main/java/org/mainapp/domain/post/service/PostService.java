@@ -270,4 +270,15 @@ public class PostService {
 			throw new CustomException(PostErrorCode.INVALID_DELETING_POST_STATUS);
 		}
 	}
+
+	public List<PostResponse> getUploadReservedPosts(Long agentId, Long postGroupId) {
+		Long userId = SecurityUtil.getCurrentUserId();
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+
+		return postTransactionService.getPostsByGroupAndStatus(postGroup, PostStatusType.UPLOAD_RESERVED)
+			.stream()
+			.map(PostResponse::from)
+			.toList();
+	}
 }
