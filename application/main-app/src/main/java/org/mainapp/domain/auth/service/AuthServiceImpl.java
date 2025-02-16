@@ -37,9 +37,15 @@ public class AuthServiceImpl implements AuthService {
 	// 로그인
 	private Optional<User> findUserByOAuthInfo(OAuth2UserInfo oAuth2Response) {
 		ProviderType providerType = ProviderType.fromValue(oAuth2Response.getProvider());
+
 		return oauthRepository.findByProviderAndProviderId(providerType, oAuth2Response.getProviderId())
-			.map(Oauth::getUser);
+			.map(Oauth::getUser)
+			.map(user -> {
+				tokenService.generateRefreshToken(user.getId());
+				return user;
+			});
 	}
+
 
 	// 회원가입
 	private User registerUser(OAuth2UserInfo oAuth2Response) {
