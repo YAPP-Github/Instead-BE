@@ -159,10 +159,14 @@ public class PostService {
 		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
+		// Agent 조회
+		AgentPersonalSetting agentPersonalSetting = agentPersonalSettingRepository.findByUserIdAndAgentId(userId,
+			agentId).orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
+
 		// Post 조회
 		Post post = postTransactionService.getPostOrThrow(postGroup, postId);
 
-		return postPromptUpdateService.updateSinglePostByPrompt(post, request);
+		return postPromptUpdateService.updateSinglePostByPrompt(agentPersonalSetting, postGroup, post, request);
 	}
 
 	/**
@@ -176,12 +180,16 @@ public class PostService {
 		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
+		// Agent 조회
+		AgentPersonalSetting agentPersonalSetting = agentPersonalSettingRepository.findByUserIdAndAgentId(userId,
+			agentId).orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
+
 		// Post 리스트 조회
 		List<Post> posts = request.postsId().stream()
 			.map(postId -> postTransactionService.getPostOrThrow(postGroup, postId))
 			.toList();
 
-		return postPromptUpdateService.updateMultiplePostsByPrompt(posts, request);
+		return postPromptUpdateService.updateMultiplePostsByPrompt(agentPersonalSetting, postGroup, posts, request);
 	}
 
 	/**
