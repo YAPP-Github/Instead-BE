@@ -27,10 +27,10 @@ import org.mainapp.domain.post.service.dto.SavePostGroupWithRssCursorAndPostsDto
 import org.mainapp.domain.post.service.vo.GeneratePostsVo;
 import org.mainapp.global.constants.PostGenerationCount;
 import org.mainapp.global.error.CustomException;
+import org.mainapp.openai.contentformat.jsonschema.DetailTopicsSchema;
 import org.mainapp.openai.contentformat.jsonschema.SummaryContentSchema;
-import org.mainapp.openai.contentformat.jsonschema.TopicsSchema;
+import org.mainapp.openai.contentformat.response.DetailTopicsFormat;
 import org.mainapp.openai.contentformat.response.SummaryContentFormat;
-import org.mainapp.openai.contentformat.response.TopicsFormat;
 import org.mainapp.openai.prompt.CreatePostPromptTemplate;
 import org.mainapp.openai.prompt.CreateTopicPromptTemplate;
 import org.openaiclient.client.OpenAiClient;
@@ -52,7 +52,7 @@ public class PostCreateService {
 	private final CreateTopicPromptTemplate createTopicPromptTemplate;
 	private final CreatePostPromptTemplate createPostPromptTemplate;
 	private final SummaryContentSchema summaryContentSchema;
-	private final TopicsSchema topicsSchema;
+	private final DetailTopicsSchema detailTopicsSchema;
 
 	private final FeedService feedService;
 	private final OpenAiClient openAiClient;
@@ -75,7 +75,7 @@ public class PostCreateService {
 	 */
 	public CreatePostsResponse createPostsWithoutRef(Agent agent, CreatePostsRequest request, Integer limit) {
 		// 세부 주제 생성
-		List<String> topics = generateTopics(request.getTopic(), null, limit);
+		List<String> topics = generateDetailTopics(request.getTopic(), null, limit);
 
 		// 게시물 생성
 		List<ChatCompletionResponse> results = generatePostsWithoutRef(GeneratePostsVo.of(request, limit), topics);
@@ -163,7 +163,7 @@ public class PostCreateService {
 		}
 
 		// 세부 주제 생성
-		List<String> topics = generateTopics(request.getTopic(), null, limit);
+		List<String> topics = generateDetailTopics(request.getTopic(), null, limit);
 
 		// 게시물 생성
 		List<ChatCompletionResponse> results = generatePostsByImage(GeneratePostsVo.of(request, limit), topics);
@@ -212,7 +212,7 @@ public class PostCreateService {
 			.toList();
 
 		// 세부 주제 생성
-		List<String> topics = generateTopics(postGroup.getTopic(), existTopics, limit);
+		List<String> topics = generateDetailTopics(postGroup.getTopic(), existTopics, limit);
 
 		// 게시물 생성
 		List<ChatCompletionResponse> results = generatePostsWithoutRef(GeneratePostsVo.of(postGroup, limit), topics);
@@ -313,7 +313,7 @@ public class PostCreateService {
 			.toList();
 
 		// 세부 주제 생성
-		List<String> topics = generateTopics(postGroup.getTopic(), existTopics, limit);
+		List<String> topics = generateDetailTopics(postGroup.getTopic(), existTopics, limit);
 
 		// 게시물 생성
 		List<ChatCompletionResponse> results = generatePostsByImage(
@@ -350,10 +350,10 @@ public class PostCreateService {
 	/**
 	 * 요청된 주제와 관련된 세부 주제를 생성하는 메서드.
 	 */
-	public List<String> generateTopics(String topic, List<String> existTopics, Integer limit) {
+	public List<String> generateDetailTopics(String topic, List<String> existTopics, Integer limit) {
 		// chat completion 요청 객체 생성
 		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(
-			openAiModel, topicsSchema.getResponseFormat(), null, null)
+			openAiModel, detailTopicsSchema.getResponseFormat(), null, null)
 			.addUserTextMessage(createTopicPromptTemplate.getGenerateTopicPrompt(topic, limit))
 			.addUserTextMessage(createTopicPromptTemplate.getExcludeExistTopicsPrompt(existTopics));
 
@@ -494,11 +494,11 @@ public class PostCreateService {
 		}
 	}
 
-	private TopicsFormat parseTopicsFormat(String content) {
+	private DetailTopicsFormat parseTopicsFormat(String content) {
 		try {
-			return objectMapper.readValue(content, TopicsFormat.class);
+			return objectMapper.readValue(content, DetailTopicsFormat.class);
 		} catch (JsonProcessingException e) {
-			return new TopicsFormat();
+			return new DetailTopicsFormat();
 			// return SummaryContentFormat.createAlternativeFormat("생성된 게시물", content);
 		}
 	}

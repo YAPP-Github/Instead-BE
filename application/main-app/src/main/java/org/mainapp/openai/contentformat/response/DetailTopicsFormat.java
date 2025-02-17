@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.Getter;
 
 @Getter
-public class TopicsFormat {
+public class DetailTopicsFormat {
 
 	private List<String> topics;
 }

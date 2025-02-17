@@ -15,13 +15,13 @@ import lombok.Getter;
 
 @Getter
 @Component
-public class TopicsSchema implements ResponseSchema {
+public class DetailTopicsSchema implements ResponseSchema {
 
 	private final Map<String, Object> schema;
 
-	public TopicsSchema() throws IOException {
+	public DetailTopicsSchema() throws IOException {
 		ObjectMapper objectMapper = new ObjectMapper();
-		ClassPathResource resource = new ClassPathResource("jsonschema/topics-response.json");
+		ClassPathResource resource = new ClassPathResource("jsonschema/detail-topics-response.json");
 		try (InputStream inputStream = resource.getInputStream()) {
 			this.schema = objectMapper.readValue(inputStream, new TypeReference<Map<String, Object>>() {
 			});

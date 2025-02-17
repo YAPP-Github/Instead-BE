@@ -1,5 +1,5 @@
 {
-	"name": "topics_response",
+	"name": "detail_topics_response",
 	"strict": true,
 	"schema": {
 		"type": "object",
