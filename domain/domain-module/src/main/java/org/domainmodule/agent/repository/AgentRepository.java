@@ -7,6 +7,7 @@ import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.agent.entity.type.AgentPlatformType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface AgentRepository extends JpaRepository<Agent, Long> {
 
