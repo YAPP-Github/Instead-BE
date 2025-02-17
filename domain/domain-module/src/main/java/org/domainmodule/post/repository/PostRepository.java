@@ -67,4 +67,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		    limit 1
 		""")
 	Optional<Post> findLastGeneratedPost(PostGroup postGroup, PostStatusType status);
+
+	// postGroupt에서 특정 status를 가진 Post리스트 반환
+	List<Post> findAllByPostGroupAndStatus(PostGroup postGroup, PostStatusType status);
 }

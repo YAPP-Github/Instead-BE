@@ -23,6 +23,7 @@ import org.mainapp.domain.post.controller.request.UpdatePostContentRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostsMetadataRequest;
 import org.mainapp.domain.post.controller.request.type.UpdatePostsRequestItem;
 import org.mainapp.domain.post.controller.response.CreatePostsResponse;
+import org.mainapp.domain.post.controller.response.GetAgentReservedPostsResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupPostsResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupsResponse;
 import org.mainapp.domain.post.controller.response.type.PostResponse;
@@ -269,5 +270,16 @@ public class PostService {
 		if (!validStatuses.contains(post.getStatus())) {
 			throw new CustomException(PostErrorCode.INVALID_DELETING_POST_STATUS);
 		}
+	}
+
+	public GetAgentReservedPostsResponse getAgentReservedPosts(Long agentId, Long postGroupId) {
+		Long userId = SecurityUtil.getCurrentUserId();
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+
+		List<Post> posts = postTransactionService.getPostsByGroupAndStatus(postGroup,
+			PostStatusType.UPLOAD_RESERVED);
+
+		return GetAgentReservedPostsResponse.from(posts);
 	}
 }

@@ -8,6 +8,7 @@ import org.mainapp.domain.post.controller.request.SinglePostUpdateRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostContentRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostsMetadataRequest;
 import org.mainapp.domain.post.controller.response.CreatePostsResponse;
+import org.mainapp.domain.post.controller.response.GetAgentReservedPostsResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupPostsResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupsResponse;
 import org.mainapp.domain.post.controller.response.PromptHistoriesResponse;
@@ -209,5 +210,17 @@ public class PostController {
 	) {
 		postService.deletePosts(agentId, postGroupId, postIds);
 		return ResponseEntity.noContent().build();
+	}
+
+	@Operation(
+		summary = "계정별 예약 게시물 조회 API",
+		description = "sns 계정별 업로드가 예약된 상태(UPLOAD_RESERVED)인 게시물 목록을 조회합니다."
+	)
+	@GetMapping("/{postGroupId}/posts/upload-reserved")
+	public ResponseEntity<GetAgentReservedPostsResponse> getAgentReservedPosts(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId
+	) {
+		return ResponseEntity.ok(postService.getAgentReservedPosts(agentId, postGroupId));
 	}
 }
