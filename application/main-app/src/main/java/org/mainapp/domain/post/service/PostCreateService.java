@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import org.domainmodule.agent.entity.Agent;
+import org.domainmodule.agent.entity.AgentPersonalSetting;
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.post.repository.PostRepository;
@@ -73,15 +73,20 @@ public class PostCreateService {
 	/**
 	 * 참고자료 없는 게시물 그룹과 게시물 생성 및 저장 메서드
 	 */
-	public CreatePostsResponse createPostsWithoutRef(Agent agent, CreatePostsRequest request, Integer limit) {
+	public CreatePostsResponse createPostsWithoutRef(
+		AgentPersonalSetting agentPersonalSetting, CreatePostsRequest request, Integer limit
+	) {
 		// 세부 주제 생성
 		List<String> topics = generateDetailTopics(request.getTopic(), null, limit);
 
 		// 게시물 생성
-		List<ChatCompletionResponse> results = generatePostsWithoutRef(GeneratePostsVo.of(request, limit), topics);
+		List<ChatCompletionResponse> results = generatePostsWithoutRef(
+			GeneratePostsVo.of(agentPersonalSetting, request, limit), topics
+		);
 
 		// PostGroup 엔티티 생성: 생성 횟수 1로 초기화
-		PostGroup postGroup = PostGroup.createPostGroup(agent, null, request.getTopic(), request.getPurpose(),
+		PostGroup postGroup = PostGroup.createPostGroup(agentPersonalSetting.getAgent(), null, request.getTopic(),
+			request.getPurpose(),
 			request.getReference(), request.getLength(), request.getContent(), 1, postGroupDefaultImage);
 
 		// Post 엔티티 생성
@@ -108,7 +113,9 @@ public class PostCreateService {
 	/**
 	 * 뉴스 기사 기반 게시물 그룹과 게시물 생성 및 저장 메서드
 	 */
-	public CreatePostsResponse createPostsByNews(Agent agent, CreatePostsRequest request, Integer limit) {
+	public CreatePostsResponse createPostsByNews(
+		AgentPersonalSetting agentPersonalSetting, CreatePostsRequest request, Integer limit
+	) {
 		// newsCategory 필드 검증
 		if (request.getNewsCategory() == null) {
 			throw new CustomException(PostErrorCode.NO_NEWS_CATEGORY);
@@ -121,11 +128,14 @@ public class PostCreateService {
 
 		// 게시물 생성
 		List<ChatCompletionResponse> results = generatePostsByNews(
-			GeneratePostsVo.of(request, limit), feedPagingResult);
+			GeneratePostsVo.of(agentPersonalSetting, request, limit), feedPagingResult
+		);
 
 		// PostGroup 엔티티 생성
-		PostGroup postGroup = PostGroup.createPostGroup(agent, rssFeed, request.getTopic(), request.getPurpose(),
-			request.getReference(), request.getLength(), request.getContent(), 1, postGroupDefaultImage);
+		PostGroup postGroup = PostGroup.createPostGroup(
+			agentPersonalSetting.getAgent(), rssFeed, request.getTopic(), request.getPurpose(), request.getReference(),
+			request.getLength(), request.getContent(), 1, postGroupDefaultImage
+		);
 
 		// PostGroupRssCursor 엔티티 생성
 		String cursor = feedPagingResult.getFeedItems().get(feedPagingResult.getFeedItems().size() - 1).getId();
@@ -156,7 +166,9 @@ public class PostCreateService {
 	/**
 	 * 이미지 기반 게시물 그룹과 게시물 생성 및 저장 메서드
 	 */
-	public CreatePostsResponse createPostsByImage(Agent agent, CreatePostsRequest request, Integer limit) {
+	public CreatePostsResponse createPostsByImage(
+		AgentPersonalSetting agentPersonalSetting, CreatePostsRequest request, Integer limit
+	) {
 		// imageUrls 필드 검증
 		if (request.getImageUrls() == null || request.getImageUrls().isEmpty()) {
 			throw new CustomException(PostErrorCode.NO_IMAGE_URLS);
@@ -166,12 +178,14 @@ public class PostCreateService {
 		List<String> topics = generateDetailTopics(request.getTopic(), null, limit);
 
 		// 게시물 생성
-		List<ChatCompletionResponse> results = generatePostsByImage(GeneratePostsVo.of(request, limit), topics);
+		List<ChatCompletionResponse> results = generatePostsByImage(
+			GeneratePostsVo.of(agentPersonalSetting, request, limit), topics
+		);
 
 		// PostGroup 엔티티 생성
 		PostGroup postGroup = PostGroup.createPostGroup(
-			agent, null, request.getTopic(), request.getPurpose(), request.getReference(), request.getLength(),
-			request.getContent(), 1, request.getImageUrls().get(0)
+			agentPersonalSetting.getAgent(), null, request.getTopic(), request.getPurpose(), request.getReference(),
+			request.getLength(), request.getContent(), 1, request.getImageUrls().get(0)
 		);
 
 		// PostGroupImage 엔티티 리스트 생성
@@ -204,7 +218,9 @@ public class PostCreateService {
 	/**
 	 * 게시물 추가 생성: 참고자료 없는 게시물 생성 및 저장 메서드
 	 */
-	public CreatePostsResponse createAdditionalPostsWithoutRef(PostGroup postGroup, Integer limit, Integer order) {
+	public CreatePostsResponse createAdditionalPostsWithoutRef(
+		AgentPersonalSetting agentPersonalSetting, PostGroup postGroup, Integer limit, Integer order
+	) {
 		// 기존 게시물 조회 후 기존 요약제목 추출
 		List<Post> existPosts = postRepository.findAllByPostGroup(postGroup);
 		List<String> existTopics = existPosts.stream()
@@ -215,7 +231,9 @@ public class PostCreateService {
 		List<String> topics = generateDetailTopics(postGroup.getTopic(), existTopics, limit);
 
 		// 게시물 생성
-		List<ChatCompletionResponse> results = generatePostsWithoutRef(GeneratePostsVo.of(postGroup, limit), topics);
+		List<ChatCompletionResponse> results = generatePostsWithoutRef(
+			GeneratePostsVo.of(agentPersonalSetting, postGroup, limit), topics
+		);
 
 		// Post 엔티티 리스트 생성
 		// order 지정에 사용할 반복변수를 위해 for문 사용
@@ -249,7 +267,9 @@ public class PostCreateService {
 	 * 게시물 추가 생성: 뉴스 기사 기반 게시물 생성 및 저장 메서드
 	 * 피드 고갈 시 NEWS_FEED_EXHAUSTED
 	 */
-	public CreatePostsResponse createAdditionalPostsByNews(PostGroup postGroup, Integer limit, Integer order) {
+	public CreatePostsResponse createAdditionalPostsByNews(
+		AgentPersonalSetting agentPersonalSetting, PostGroup postGroup, Integer limit, Integer order
+	) {
 		// 피드 받아오기: RssFeed와 PostGroupRssCursor를 DB에서 조회
 		RssFeed rssFeed = rssFeedRepository.findByCategory(postGroup.getFeed().getCategory())
 			.orElseThrow(() -> new CustomException(PostErrorCode.RSS_FEED_NOT_FOUND));
@@ -264,7 +284,7 @@ public class PostCreateService {
 
 		// 게시물 생성
 		List<ChatCompletionResponse> results = generatePostsByNews(
-			GeneratePostsVo.of(postGroup, limit), feedPagingResult);
+			GeneratePostsVo.of(agentPersonalSetting, postGroup, limit), feedPagingResult);
 
 		// PostGroupRssCursor 업데이트
 		String cursor = feedPagingResult.getFeedItems().get(feedPagingResult.getFeedItems().size() - 1).getId();
@@ -302,7 +322,9 @@ public class PostCreateService {
 	/**
 	 * 게시물 추가 생성: 이미지 기반 게시물 생성 및 저장 메서드
 	 */
-	public CreatePostsResponse createAdditionalPostsByImage(PostGroup postGroup, Integer limit, Integer order) {
+	public CreatePostsResponse createAdditionalPostsByImage(
+		AgentPersonalSetting agentPersonalSetting, PostGroup postGroup, Integer limit, Integer order
+	) {
 		// PostGroupImage 리스트 조회
 		List<PostGroupImage> postGroupImages = postGroupImageRepository.findAllByPostGroup(postGroup);
 
@@ -317,7 +339,7 @@ public class PostCreateService {
 
 		// 게시물 생성
 		List<ChatCompletionResponse> results = generatePostsByImage(
-			GeneratePostsVo.of(postGroup, postGroupImages, limit), topics);
+			GeneratePostsVo.of(agentPersonalSetting, postGroup, postGroupImages, limit), topics);
 
 		// Post 엔티티 리스트 생성
 		// order 지정에 사용할 반복변수를 위해 for문 사용
@@ -377,7 +399,8 @@ public class PostCreateService {
 	 */
 	private List<ChatCompletionResponse> generatePostsWithoutRef(GeneratePostsVo vo, List<String> topics) {
 		// 프롬프트 생성: Instruction + 주제 Prompt 리스트
-		String instructionPrompt = createPostPromptTemplate.getTempInstructionPrompt();
+		String instructionPrompt = createPostPromptTemplate.getInstructionPrompt(
+			vo.domain(), vo.introduction(), vo.tone(), vo.customTone());
 		List<String> topicPrompts = topics.stream()
 			.map(topic -> createPostPromptTemplate.getTopicPrompt(topic, vo.purpose(), vo.length(), vo.content()))
 			.toList();
@@ -406,7 +429,8 @@ public class PostCreateService {
 	 */
 	private List<ChatCompletionResponse> generatePostsByNews(GeneratePostsVo vo, FeedPagingResult feedPagingResult) {
 		// 프롬프트 생성
-		String instructionPrompt = createPostPromptTemplate.getTempInstructionPrompt();
+		String instructionPrompt = createPostPromptTemplate.getInstructionPrompt(
+			vo.domain(), vo.introduction(), vo.tone(), vo.customTone());
 		String topicPrompt = createPostPromptTemplate.getTopicPrompt(
 			vo.topic(), vo.purpose(), vo.length(), vo.content());
 		List<String> refPrompts = feedPagingResult.getFeedItems().stream()
@@ -439,7 +463,8 @@ public class PostCreateService {
 	 */
 	private List<ChatCompletionResponse> generatePostsByImage(GeneratePostsVo vo, List<String> topics) {
 		// 프롬프트 생성
-		String instructionPrompt = createPostPromptTemplate.getTempInstructionPrompt();
+		String instructionPrompt = createPostPromptTemplate.getInstructionPrompt(
+			vo.domain(), vo.introduction(), vo.tone(), vo.customTone());
 		List<String> topicPrompts = topics.stream()
 			.map(topic -> createPostPromptTemplate.getTopicPrompt(topic, vo.purpose(), vo.length(), vo.content()))
 			.toList();

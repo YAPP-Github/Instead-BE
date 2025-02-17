@@ -8,7 +8,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.domainmodule.agent.entity.Agent;
+import org.domainmodule.agent.entity.AgentPersonalSetting;
+import org.domainmodule.agent.repository.AgentPersonalSettingRepository;
 import org.domainmodule.agent.repository.AgentRepository;
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
@@ -44,6 +45,7 @@ public class PostService {
 	private final PostPromptUpdateService postPromptUpdateService;
 	private final PostTransactionService postTransactionService;
 	private final AgentRepository agentRepository;
+	private final AgentPersonalSettingRepository agentPersonalSettingRepository;
 	private final PostGroupRepository postGroupRepository;
 	private final PostRepository postRepository;
 
@@ -53,13 +55,13 @@ public class PostService {
 	public CreatePostsResponse createPosts(Long agentId, CreatePostsRequest request, Integer limit) {
 		// 사용자 인증 정보 및 Agent 조회
 		Long userId = SecurityUtil.getCurrentUserId();
-		Agent agent = agentRepository.findByUserIdAndId(userId, agentId)
-			.orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
+		AgentPersonalSetting agentPersonalSetting = agentPersonalSettingRepository.findByUserIdAndAgentId(userId,
+			agentId).orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
 
 		return switch (request.getReference()) {
-			case NONE -> postCreateService.createPostsWithoutRef(agent, request, limit);
-			case NEWS -> postCreateService.createPostsByNews(agent, request, limit);
-			case IMAGE -> postCreateService.createPostsByImage(agent, request, limit);
+			case NONE -> postCreateService.createPostsWithoutRef(agentPersonalSetting, request, limit);
+			case NEWS -> postCreateService.createPostsByNews(agentPersonalSetting, request, limit);
+			case IMAGE -> postCreateService.createPostsByImage(agentPersonalSetting, request, limit);
 		};
 	}
 
@@ -78,6 +80,10 @@ public class PostService {
 			throw new CustomException(PostErrorCode.EXHAUSTED_GENERATION_COUNT);
 		}
 
+		// Agent 조회
+		AgentPersonalSetting agentPersonalSetting = agentPersonalSettingRepository.findByUserIdAndAgentId(userId,
+			agentId).orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
+
 		// displayOrder 설정을 위해 Post 조회
 		Integer order = postRepository.findLastGeneratedPost(postGroup, PostStatusType.GENERATED)
 			.map(Post::getDisplayOrder)
@@ -85,9 +91,10 @@ public class PostService {
 
 		// referenceType에 따라 분기
 		return switch (postGroup.getReference()) {
-			case NONE -> postCreateService.createAdditionalPostsWithoutRef(postGroup, limit, order);
-			case NEWS -> postCreateService.createAdditionalPostsByNews(postGroup, limit, order);
-			case IMAGE -> postCreateService.createAdditionalPostsByImage(postGroup, limit, order);
+			case NONE ->
+				postCreateService.createAdditionalPostsWithoutRef(agentPersonalSetting, postGroup, limit, order);
+			case NEWS -> postCreateService.createAdditionalPostsByNews(agentPersonalSetting, postGroup, limit, order);
+			case IMAGE -> postCreateService.createAdditionalPostsByImage(agentPersonalSetting, postGroup, limit, order);
 		};
 	}
 
