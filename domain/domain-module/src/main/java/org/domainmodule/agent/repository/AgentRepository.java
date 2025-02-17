@@ -7,6 +7,7 @@ import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.agent.entity.type.AgentPlatformType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface AgentRepository extends JpaRepository<Agent, Long> {
 
@@ -26,4 +27,11 @@ public interface AgentRepository extends JpaRepository<Agent, Long> {
 			and a.id = :agentId
 		""")
 	Optional<Agent> findByUserIdAndId(Long userId, Long agentId);
+
+	@Query("""
+		SELECT a FROM Agent a 
+		WHERE a.id = :agentId 
+		AND a.user.id = :userId
+	""")
+	Optional<Agent> findByAgentIdAndUserId(@Param("agentId") Long agentId, @Param("userId") Long userId);
 }
