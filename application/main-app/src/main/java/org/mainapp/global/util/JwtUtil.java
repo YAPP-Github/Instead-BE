@@ -5,8 +5,10 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
+import org.mainapp.domain.token.exception.TokenErrorCode;
 import org.mainapp.global.constants.HeaderConstants;
 import org.mainapp.global.constants.JwtProperties;
+import org.mainapp.global.error.CustomException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -116,16 +118,32 @@ public class JwtUtil {
 	}
 
 	// Http 요청 헤더에서 토큰 추출
-	public String resolveToken(@Nullable HttpServletRequest request, String header) {
+	private String resolveToken(@Nullable HttpServletRequest request, String header) {
 		String authHeader = request.getHeader(header);
 		if (authHeader == null) {
 			return null;
 		}
+		return extractAccessToken(authHeader);
+	}
+
+	/**
+	 * Bearer 토큰값 파싱
+	 */
+	private String extractAccessToken(String authHeader) {
 		return authHeader.replace(HeaderConstants.TOKEN_PREFIX, "");
 	}
 
 	public Authentication getAuthentication(String userId) {
 		// authorities는 지금 ROLE이 필요 없어서 null, credentials은 비밀번호가 들어가는데 jwt이므로 패스
 		return new UsernamePasswordAuthenticationToken(userId, null, null);
+	}
+
+	public Long getUserIdFromAccessToken(String authHeader) {
+		try {
+			String accessToken = extractAccessToken(authHeader);
+			return Long.parseLong(extractUserId(accessToken, true));
+		} catch (Exception e) {
+			throw new CustomException(TokenErrorCode.ACCESS_TOKEN_NOT_FOUND);
+		}
 	}
 }

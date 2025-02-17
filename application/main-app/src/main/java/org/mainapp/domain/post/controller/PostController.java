@@ -222,4 +222,17 @@ public class PostController {
 	) {
 		return ResponseEntity.ok(postService.getAgentReservedPosts(agentId));
 	}
+
+	@Operation(
+		summary = "개별 게시물 상세조회 API",
+		description = "게시물 클릭 시 단건 게시물에 대한 상세정보를 조회합니다."
+	)
+	@GetMapping("/{postGroupId}/posts/{postId}")
+	public ResponseEntity<PostResponse> getPostDetails(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId,
+		@PathVariable Long postId
+	) {
+		return ResponseEntity.ok(postService.getPostDetails(agentId, postGroupId, postId));
+	}
 }

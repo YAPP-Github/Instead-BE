@@ -66,10 +66,23 @@ public class TokenServiceImpl implements TokenService {
 			.orElseThrow(() -> new CustomException(TokenErrorCode.REFRESH_TOKEN_NOT_MATCHED));
 	}
 
+	/**
+	 * DB의 RefreshToken 엔티티 조회
+	 */
 	@Transactional
 	public String getRefreshToken(Long userId) {
 		return refreshTokenRepository.findByUserId(userId)
 			.orElseThrow(() -> new CustomException(TokenErrorCode.REFRESH_TOKEN_NOT_FOUND))
 			.getToken();
+	}
+
+	/**
+	 * 로그아웃 ( RefreshToken 제거 )
+	 */
+	@Transactional
+	public void deleteRefreshToken(Long userId) {
+		RefreshToken refreshToken = refreshTokenRepository.findByUserId(userId)
+			.orElseThrow(() -> new CustomException(TokenErrorCode.REFRESH_TOKEN_NOT_FOUND));
+		refreshTokenRepository.delete(refreshToken);
 	}
 }

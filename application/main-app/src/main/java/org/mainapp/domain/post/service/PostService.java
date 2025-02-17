@@ -272,10 +272,27 @@ public class PostService {
 		}
 	}
 
+	/**
+	 * 예약중인 게시물 조회
+	 */
 	public GetAgentReservedPostsResponse getAgentReservedPosts(Long agentId) {
 		Long userId = SecurityUtil.getCurrentUserId();
 		List<Post> posts = postRepository.findAllReservedPostsByUserAndAgent(userId, agentId, PostStatusType.UPLOAD_RESERVED);
 
 		return GetAgentReservedPostsResponse.from(posts);
+	}
+
+	/**
+	 * 단일 Post 상세내용 조회
+	 */
+	public PostResponse getPostDetails(Long agentId, Long postGroupId, Long postId) {
+		Long userId = SecurityUtil.getCurrentUserId();
+
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+
+		Post post = postRepository.findByPostGroupAndId(postGroup, postId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
+		return PostResponse.from(post);
 	}
 }

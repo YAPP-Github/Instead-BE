@@ -2,9 +2,11 @@ package org.mainapp.domain.user.service;
 
 import org.domainmodule.user.entity.User;
 import org.domainmodule.user.repository.UserRepository;
+import org.mainapp.domain.user.controller.response.UserInfoResponse;
 import org.mainapp.domain.user.exception.UserErrorCode;
 import org.mainapp.global.error.CustomException;
 import org.mainapp.global.oauth2.userinfo.OAuth2UserInfo;
+import org.mainapp.global.util.SecurityUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,5 +31,13 @@ public class UserServiceImpl implements UserService {
 	public User findUserById(Long userId) {
 		return userRepository.findById(userId)
 			.orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public UserInfoResponse getUserInfo() {
+		Long userId = SecurityUtil.getCurrentUserId();
+		User user = findUserById(userId);
+		return UserInfoResponse.of(user);
 	}
 }
