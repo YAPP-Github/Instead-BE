@@ -10,6 +10,7 @@ import org.domainmodule.agent.repository.AgentPersonalSettingRepository;
 import org.domainmodule.agent.repository.AgentRepository;
 import org.domainmodule.user.entity.User;
 import org.mainapp.domain.agent.controller.request.UpdateAgentPersonalSettingRequest;
+import org.mainapp.domain.agent.controller.response.GetAgentPlanResponse;
 import org.mainapp.domain.agent.controller.response.GetAgentsResponse;
 import org.mainapp.domain.agent.controller.response.GetDetailAgentResponse;
 import org.mainapp.domain.agent.exception.AgentErrorCode;
@@ -120,5 +121,12 @@ public class AgentService {
 
 		// 변경사항 저장
 		agentTransactionService.saveAgentPersonalSetting(agentPersonalSetting);
+	}
+
+	public GetAgentPlanResponse getAgentPlan(Long agentId) {
+		Long userId = SecurityUtil.getCurrentUserId();
+		Agent agent = agentRepository.findByUserIdAndId(userId, agentId)
+			.orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
+		return GetAgentPlanResponse.from(agent);
 	}
 }

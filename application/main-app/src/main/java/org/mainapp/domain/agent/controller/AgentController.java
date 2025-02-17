@@ -1,6 +1,7 @@
 package org.mainapp.domain.agent.controller;
 
 import org.mainapp.domain.agent.controller.request.UpdateAgentPersonalSettingRequest;
+import org.mainapp.domain.agent.controller.response.GetAgentPlanResponse;
 import org.mainapp.domain.agent.controller.response.GetAgentsResponse;
 import org.mainapp.domain.agent.controller.response.GetDetailAgentResponse;
 import org.mainapp.domain.agent.service.AgentService;
@@ -53,5 +54,11 @@ public class AgentController {
 	) {
 		agentService.updateAgentPersonalSetting(agentId, request);
 		return ResponseEntity.ok().build();
+	}
+
+	@Operation(summary = "계정 요금제 플랜 조회", description = "사용자가 연동한 SNS 계정의 요금제를 조회합니다.")
+	@GetMapping("/{agentId}/agent-plan")
+	public ResponseEntity<GetAgentPlanResponse> getAgentPlan(@PathVariable Long agentId) {
+		return ResponseEntity.ok(agentService.getAgentPlan(agentId));
 	}
 }
