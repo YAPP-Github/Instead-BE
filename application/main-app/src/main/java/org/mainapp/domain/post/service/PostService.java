@@ -275,13 +275,9 @@ public class PostService {
 	/**
 	 * 예약중인 게시물 조회
 	 */
-	public GetAgentReservedPostsResponse getAgentReservedPosts(Long agentId, Long postGroupId) {
+	public GetAgentReservedPostsResponse getAgentReservedPosts(Long agentId) {
 		Long userId = SecurityUtil.getCurrentUserId();
-		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
-			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
-
-		List<Post> posts = postTransactionService.getPostsByGroupAndStatus(postGroup,
-			PostStatusType.UPLOAD_RESERVED);
+		List<Post> posts = postRepository.findAllReservedPostsByUserAndAgent(userId, agentId, PostStatusType.UPLOAD_RESERVED);
 
 		return GetAgentReservedPostsResponse.from(posts);
 	}
