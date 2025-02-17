@@ -118,11 +118,15 @@ public class JwtUtil {
 	}
 
 	// Http 요청 헤더에서 토큰 추출
-	public String resolveToken(@Nullable HttpServletRequest request, String header) {
+	private String resolveToken(@Nullable HttpServletRequest request, String header) {
 		String authHeader = request.getHeader(header);
 		if (authHeader == null) {
 			return null;
 		}
+		return extractAccessToken(authHeader);
+	}
+
+	private String extractAccessToken(String authHeader) {
 		return authHeader.replace(HeaderConstants.TOKEN_PREFIX, "");
 	}
 
@@ -131,12 +135,12 @@ public class JwtUtil {
 		return new UsernamePasswordAuthenticationToken(userId, null, null);
 	}
 
-	public Long getUserIdFromAccessToken(String accessToken) {
+	public Long getUserIdFromAccessToken(String authHeader) {
 		try {
+			String accessToken = extractAccessToken(authHeader);
 			return Long.parseLong(extractUserId(accessToken, true));
 		} catch (Exception e) {
 			throw new CustomException(TokenErrorCode.ACCESS_TOKEN_NOT_FOUND);
 		}
 	}
-
 }
