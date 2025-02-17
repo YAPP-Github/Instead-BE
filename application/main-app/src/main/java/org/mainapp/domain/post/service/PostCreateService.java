@@ -377,9 +377,9 @@ public class PostCreateService {
 	 */
 	private List<ChatCompletionResponse> generatePostsWithoutRef(GeneratePostsVo vo, List<String> topics) {
 		// 프롬프트 생성: Instruction + 주제 Prompt 리스트
-		String instructionPrompt = createPostPromptTemplate.getInstruction();
+		String instructionPrompt = createPostPromptTemplate.getTempInstructionPrompt();
 		List<String> topicPrompts = topics.stream()
-			.map(topic -> createPostPromptTemplate.getBasicTopicPrompt(topic, vo.purpose(), vo.length(), vo.content()))
+			.map(topic -> createPostPromptTemplate.getTopicPrompt(topic, vo.purpose(), vo.length(), vo.content()))
 			.toList();
 
 		// 게시물 생성
@@ -406,8 +406,8 @@ public class PostCreateService {
 	 */
 	private List<ChatCompletionResponse> generatePostsByNews(GeneratePostsVo vo, FeedPagingResult feedPagingResult) {
 		// 프롬프트 생성
-		String instructionPrompt = createPostPromptTemplate.getInstruction();
-		String topicPrompt = createPostPromptTemplate.getBasicTopicPrompt(
+		String instructionPrompt = createPostPromptTemplate.getTempInstructionPrompt();
+		String topicPrompt = createPostPromptTemplate.getTopicPrompt(
 			vo.topic(), vo.purpose(), vo.length(), vo.content());
 		List<String> refPrompts = feedPagingResult.getFeedItems().stream()
 			.map(news -> createPostPromptTemplate.getNewsRefPrompt(news.getContentSummary(), news.getContent()))
@@ -439,9 +439,9 @@ public class PostCreateService {
 	 */
 	private List<ChatCompletionResponse> generatePostsByImage(GeneratePostsVo vo, List<String> topics) {
 		// 프롬프트 생성
-		String instructionPrompt = createPostPromptTemplate.getInstruction();
+		String instructionPrompt = createPostPromptTemplate.getTempInstructionPrompt();
 		List<String> topicPrompts = topics.stream()
-			.map(topic -> createPostPromptTemplate.getBasicTopicPrompt(topic, vo.purpose(), vo.length(), vo.content()))
+			.map(topic -> createPostPromptTemplate.getTopicPrompt(topic, vo.purpose(), vo.length(), vo.content()))
 			.toList();
 		String imageRefPrompt = createPostPromptTemplate.getImageRefPrompt();
 

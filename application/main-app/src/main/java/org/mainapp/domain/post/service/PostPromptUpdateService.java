@@ -82,7 +82,7 @@ public class PostPromptUpdateService {
 
 	private ChatCompletionResponse applyPrompt(String prompt, String previousResponse) {
 		// 프롬프트 생성: Instruction
-		String instructionPrompt = createPostPromptTemplate.getInstruction();
+		String instructionPrompt = createPostPromptTemplate.getTempInstructionPrompt();
 
 		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(
 			openAiModel, summaryContentSchema.getResponseFormat(), 1, null)
