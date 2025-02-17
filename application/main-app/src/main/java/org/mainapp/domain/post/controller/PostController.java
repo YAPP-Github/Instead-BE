@@ -216,11 +216,10 @@ public class PostController {
 		summary = "계정별 예약 게시물 조회 API",
 		description = "sns 계정별 업로드가 예약된 상태(UPLOAD_RESERVED)인 게시물 목록을 조회합니다."
 	)
-	@GetMapping("/{postGroupId}/posts/upload-reserved")
+	@GetMapping("/posts/upload-reserved")
 	public ResponseEntity<GetAgentReservedPostsResponse> getAgentReservedPosts(
-		@PathVariable Long agentId,
-		@PathVariable Long postGroupId
+		@PathVariable Long agentId
 	) {
-		return ResponseEntity.ok(postService.getAgentReservedPosts(agentId, postGroupId));
+		return ResponseEntity.ok(postService.getAgentReservedPosts(agentId));
 	}
 }

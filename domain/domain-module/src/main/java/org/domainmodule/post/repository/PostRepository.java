@@ -68,6 +68,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		""")
 	Optional<Post> findLastGeneratedPost(PostGroup postGroup, PostStatusType status);
 
-	// postGroupt에서 특정 status를 가진 Post리스트 반환
-	List<Post> findAllByPostGroupAndStatus(PostGroup postGroup, PostStatusType status);
+	// userId, Agent, PostGroup, 특정 status를 가진 모든 Post조회
+	@Query("""
+        SELECT p FROM Post p
+        JOIN FETCH p.postGroup pg
+        JOIN FETCH pg.agent a
+        WHERE a.user.id = :userId
+        AND a.id = :agentId
+        AND p.status = :status
+    """)
+	List<Post> findAllReservedPostsByUserAndAgent(@Param("userId") Long userId,
+		@Param("agentId") Long agentId,
+		@Param("status") PostStatusType status);
 }
