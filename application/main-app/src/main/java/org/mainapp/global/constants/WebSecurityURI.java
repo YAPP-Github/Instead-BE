@@ -9,11 +9,9 @@ import lombok.NoArgsConstructor;
 public final class WebSecurityURI {
 
 	public static final List<String> PUBLIC_URIS = List.of(
-		"/login/oauth2/code/google",
 		"/swagger-ui/**",
 		"/v3/api-docs/**",
 		"/swagger-resources/**",
-		"/twitter/**",
 		"/common/health/**"
 	);
 
