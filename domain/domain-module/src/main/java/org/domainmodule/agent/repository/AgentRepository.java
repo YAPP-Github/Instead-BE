@@ -27,11 +27,4 @@ public interface AgentRepository extends JpaRepository<Agent, Long> {
 			and a.id = :agentId
 		""")
 	Optional<Agent> findByUserIdAndId(Long userId, Long agentId);
-
-	@Query("""
-		SELECT a FROM Agent a 
-		WHERE a.id = :agentId 
-		AND a.user.id = :userId
-	""")
-	Optional<Agent> findByAgentIdAndUserId(@Param("agentId") Long agentId, @Param("userId") Long userId);
 }

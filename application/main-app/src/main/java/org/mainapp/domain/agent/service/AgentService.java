@@ -125,7 +125,7 @@ public class AgentService {
 
 	public GetAgentPlanResponse getAgentPlan(Long agentId) {
 		Long userId = SecurityUtil.getCurrentUserId();
-		Agent agent = agentRepository.findByAgentIdAndUserId(agentId, userId)
+		Agent agent = agentRepository.findByUserIdAndId(userId, agentId)
 			.orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
 		return GetAgentPlanResponse.from(agent);
 	}
