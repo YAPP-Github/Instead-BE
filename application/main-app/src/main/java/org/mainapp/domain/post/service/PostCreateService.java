@@ -31,8 +31,8 @@ import org.mainapp.openai.contentformat.jsonschema.DetailTopicsSchema;
 import org.mainapp.openai.contentformat.jsonschema.SummaryContentSchema;
 import org.mainapp.openai.contentformat.response.DetailTopicsFormat;
 import org.mainapp.openai.contentformat.response.SummaryContentFormat;
+import org.mainapp.openai.prompt.CreateDetailTopicsPromptTemplate;
 import org.mainapp.openai.prompt.CreatePostPromptTemplate;
-import org.mainapp.openai.prompt.CreateTopicPromptTemplate;
 import org.openaiclient.client.OpenAiClient;
 import org.openaiclient.client.dto.request.ChatCompletionRequest;
 import org.openaiclient.client.dto.response.ChatCompletionResponse;
@@ -49,7 +49,7 @@ import lombok.RequiredArgsConstructor;
 public class PostCreateService {
 
 	private final PostTransactionService postTransactionService;
-	private final CreateTopicPromptTemplate createTopicPromptTemplate;
+	private final CreateDetailTopicsPromptTemplate createDetailTopicsPromptTemplate;
 	private final CreatePostPromptTemplate createPostPromptTemplate;
 	private final SummaryContentSchema summaryContentSchema;
 	private final DetailTopicsSchema detailTopicsSchema;
@@ -354,8 +354,8 @@ public class PostCreateService {
 		// chat completion 요청 객체 생성
 		ChatCompletionRequest chatCompletionRequest = new ChatCompletionRequest(
 			openAiModel, detailTopicsSchema.getResponseFormat(), null, null)
-			.addUserTextMessage(createTopicPromptTemplate.getGenerateTopicPrompt(topic, limit))
-			.addUserTextMessage(createTopicPromptTemplate.getExcludeExistTopicsPrompt(existTopics));
+			.addUserTextMessage(createDetailTopicsPromptTemplate.getGenerateDetailTopicsPrompt(topic, limit))
+			.addUserTextMessage(createDetailTopicsPromptTemplate.getExcludeExistTopicsPrompt(existTopics));
 
 		// 응답 객체 파싱 및 반환. 답변 생성 실패할 경우 요청된 주제만 담긴 리스트 반환
 		try {

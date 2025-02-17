@@ -5,9 +5,9 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CreateTopicPromptTemplate {
+public class CreateDetailTopicsPromptTemplate {
 
-	public String getGenerateTopicPrompt(String topic, Integer n) {
+	public String getGenerateDetailTopicsPrompt(String topic, Integer n) {
 		return topic + "이라는 주제와 관련된 중복되지 않는 세부 주제를 " + n + "개 추천해줘. 관련된 다른 주제여도 좋아.";
 	}
 
