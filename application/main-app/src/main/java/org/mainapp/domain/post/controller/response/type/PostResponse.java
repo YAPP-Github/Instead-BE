@@ -19,6 +19,9 @@ public class PostResponse {
 	@Schema(description = "게시물 id", example = "1")
 	private Long id;
 
+	@Schema(description = "게시물이 포함된 게시물 그룹 id", example = "1")
+	private Long postGroupId;
+
 	@Schema(description = "게시물 생성 일시", example = "2025-01-01T00:00:00.000Z")
 	private LocalDateTime createdAt;
 
@@ -50,6 +53,7 @@ public class PostResponse {
 
 		return new PostResponse(
 			post.getId(),
+			post.getPostGroup().getId(),
 			post.getCreatedAt(),
 			post.getUpdatedAt(),
 			post.getDisplayOrder(),
