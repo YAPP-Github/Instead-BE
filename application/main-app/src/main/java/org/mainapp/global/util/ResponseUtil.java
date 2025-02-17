@@ -21,17 +21,29 @@ public class ResponseUtil {
 	}
 
 	private void createHttpOnlyCookie(HttpServletResponse response, String refreshToken) {
-		long refreshTokenExpirationSC = Duration.ofMillis(jwtProperties.getRefreshTokenExpirationMs()).toSeconds();
+		long refreshTokenExpirationSc = Duration.ofMillis(jwtProperties.getRefreshTokenExpirationMs()).toSeconds();
 
 		Cookie cookie = new Cookie(HeaderConstants.REFRESH_TOKEN_HEADER, refreshToken);
 		cookie.setHttpOnly(true);
 		cookie.setSecure(true);
 		cookie.setPath("/");
-		cookie.setMaxAge((int) refreshTokenExpirationSC);
+		cookie.setMaxAge((int) refreshTokenExpirationSc);
 		response.addCookie(cookie);
 	}
 
 	public void setContentType(HttpServletResponse response, String contentType) {
 		response.setContentType(contentType);
+	}
+
+	/**
+	 * 쿠키에 token 즉시 만료
+	 */
+	public void expireHttpOnlyCookie(HttpServletResponse response, String headerConstants) {
+		Cookie cookie = new Cookie(headerConstants, null);
+		cookie.setHttpOnly(true);
+		cookie.setSecure(true);
+		cookie.setPath("/");
+		cookie.setMaxAge(0);
+		response.addCookie(cookie);
 	}
 }

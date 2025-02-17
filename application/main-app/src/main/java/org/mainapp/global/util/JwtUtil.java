@@ -126,6 +126,9 @@ public class JwtUtil {
 		return extractAccessToken(authHeader);
 	}
 
+	/**
+	 * Bearer 토큰값 파싱
+	 */
 	private String extractAccessToken(String authHeader) {
 		return authHeader.replace(HeaderConstants.TOKEN_PREFIX, "");
 	}
