@@ -17,4 +17,9 @@ public final class UrlConstants {
 
 	// 공통 상수
 	public static final String BASE_URI = "/yapp";
+
+	//Twitter Login Redirect URL
+	public static final String TWITTER_LOGIN_REDIRECT_URL = "/account/x";
+	//Google Login Redirect URL
+	public static final String GOOGLE_LOGIN_REDIRECT_URL = "/api/auth/google/callback";
 }

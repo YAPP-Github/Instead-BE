@@ -35,6 +35,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
 		// 응답 처리
 		responseUtil.setContentType(response, "application/json;charset=UTF-8");
-		response.sendRedirect(UrlConstants.LOCAL_DOMAIN_URL  + "/api/auth/callback/google" );
+		response.sendRedirect(UrlConstants.LOCAL_DOMAIN_URL  + UrlConstants.GOOGLE_LOGIN_REDIRECT_URL);
 	}
 }
