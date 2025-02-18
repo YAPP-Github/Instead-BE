@@ -87,7 +87,7 @@ public class WebSecurityConfig {
 		configuration.addAllowedOriginPattern(UrlConstants.DEV_SERVER_DOMAIN_URL);
 		configuration.addAllowedMethod("*");
 		configuration.addAllowedHeader("*");
-		configuration.setAllowCredentials(true);
+		configuration.setAllowCredentials(true); // 쿠키 허용
 		configuration.addExposedHeader(SET_COOKIE);
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

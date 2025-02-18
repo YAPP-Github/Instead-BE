@@ -2,6 +2,7 @@ package org.mainapp.global.oauth2.handler;
 
 import java.io.IOException;
 
+import org.mainapp.global.constants.UrlConstants;
 import org.mainapp.global.oauth2.CustomUserDetails;
 import org.mainapp.global.util.JwtUtil;
 import org.mainapp.global.util.ResponseUtil;
@@ -34,7 +35,6 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 
 		// 응답 처리
 		responseUtil.setContentType(response, "application/json;charset=UTF-8");
-		//TODO 이미 헤더와 쿠키에 값을 넣어서 리턴하므로 상의 후 제거
-		response.getWriter().write("{\"accessToken\": \"" + accessToken + "\", \"refreshToken\": \"" + refreshToken + "\"}");
+		response.sendRedirect(UrlConstants.LOCAL_DOMAIN_URL  + "/api/auth/callback/google" );
 	}
 }
