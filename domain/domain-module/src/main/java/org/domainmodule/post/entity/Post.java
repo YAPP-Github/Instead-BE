@@ -8,6 +8,7 @@ import org.domainmodule.common.entity.BaseAuditEntity;
 import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.postgroup.entity.PostGroup;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -55,8 +56,11 @@ public class Post extends BaseAuditEntity {
 
 	private Integer displayOrder;
 
-	@OneToMany(mappedBy = "post")
+	@OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private List<PostImage> postImages = new ArrayList<>();
+
+	@OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<PromptHistory> promptHistories = new ArrayList<>();
 
 	@Builder(access = AccessLevel.PRIVATE)
 	private Post(
