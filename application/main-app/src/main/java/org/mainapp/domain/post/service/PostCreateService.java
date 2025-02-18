@@ -96,7 +96,7 @@ public class PostCreateService {
 			ChatCompletionResponse result = results.get(i);
 			SummaryContentFormat content = parseSummaryContentFormat(
 				result.getChoices().get(0).getMessage().getContent());
-			posts.add(Post.create(postGroup, null, content.getSummary(),
+			posts.add(Post.create(postGroup, null, topics.get(i),
 				content.getContent(), PostStatusType.GENERATED, null, i + 1));
 		}
 
@@ -200,7 +200,7 @@ public class PostCreateService {
 			ChatCompletionResponse result = results.get(i);
 			SummaryContentFormat content = parseSummaryContentFormat(
 				result.getChoices().get(0).getMessage().getContent());
-			posts.add(Post.create(postGroup, null, content.getSummary(),
+			posts.add(Post.create(postGroup, null, topics.get(i),
 				content.getContent(), PostStatusType.GENERATED, null, i + 1));
 		}
 
@@ -242,7 +242,7 @@ public class PostCreateService {
 			ChatCompletionResponse result = results.get(i);
 			SummaryContentFormat content = parseSummaryContentFormat(
 				result.getChoices().get(0).getMessage().getContent());
-			posts.add(Post.create(postGroup, null, content.getSummary(),
+			posts.add(Post.create(postGroup, null, topics.get(i),
 				content.getContent(), PostStatusType.GENERATED, null, order + i + 1));
 		}
 
@@ -348,7 +348,7 @@ public class PostCreateService {
 			ChatCompletionResponse result = results.get(i);
 			SummaryContentFormat content = parseSummaryContentFormat(
 				result.getChoices().get(0).getMessage().getContent());
-			posts.add(Post.create(postGroup, null, content.getSummary(),
+			posts.add(Post.create(postGroup, null, topics.get(i),
 				content.getContent(), PostStatusType.GENERATED, null, order + i + 1));
 		}
 
