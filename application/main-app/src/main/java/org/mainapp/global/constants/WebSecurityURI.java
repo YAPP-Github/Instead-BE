@@ -12,8 +12,7 @@ public final class WebSecurityURI {
 		"/swagger-ui/**",
 		"/v3/api-docs/**",
 		"/swagger-resources/**",
-		"/common/health/**",
-		"/twitter/**"
+		"/common/health/**"
 	);
 
 	public static final List<String> CORS_ALLOW_URIS =
