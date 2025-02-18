@@ -10,8 +10,10 @@ import org.mainapp.domain.post.controller.request.UpdatePostsMetadataRequest;
 import org.mainapp.domain.post.controller.response.CreatePostsResponse;
 import org.mainapp.domain.post.controller.response.GetAgentReservedPostsResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupPostsResponse;
+import org.mainapp.domain.post.controller.response.GetPostGroupTopicResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupsResponse;
 import org.mainapp.domain.post.controller.response.PromptHistoriesResponse;
+import org.mainapp.domain.post.controller.response.type.PostGroupResponse;
 import org.mainapp.domain.post.controller.response.type.PostResponse;
 import org.mainapp.domain.post.service.PostPromptHistoryService;
 import org.mainapp.domain.post.service.PostService;
@@ -195,14 +197,17 @@ public class PostController {
 
 	@Operation(summary = "게시물 그룹 조회 API", description = "사용자가 연동한 SNS 계정 내의 게시물 그룹을 단건 조회합니다.")
 	@GetMapping("/{postGroupId}")
-	public ResponseEntity<Void> getPostGroup(@PathVariable Long agentId, @PathVariable Long postGroupId) {
-		return ResponseEntity.ok().build();
+	public ResponseEntity<PostGroupResponse> getPostGroup(@PathVariable Long agentId, @PathVariable Long postGroupId) {
+		return ResponseEntity.ok(postService.getPostGroup(agentId, postGroupId));
 	}
 
 	@Operation(summary = "게시물 그룹 주제 조회 API", description = "화면 헤더 Breadcrumb에 표시할 게시물 그룹 주제를 조회합니다.")
 	@GetMapping("/{postGroupId}/topic")
-	public ResponseEntity<Void> getPostGroupTopic(@PathVariable Long agentId, @PathVariable Long postGroupId) {
-		return ResponseEntity.ok().build();
+	public ResponseEntity<GetPostGroupTopicResponse> getPostGroupTopic(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId
+	) {
+		return ResponseEntity.ok(postService.getPostGroupTopic(agentId, postGroupId));
 	}
 
 	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")

@@ -27,4 +27,12 @@ public interface PostGroupRepository extends JpaRepository<PostGroup, Long> {
 			and pg.id = :postGroupId
 		""")
 	Optional<PostGroup> findByUserIdAndAgentIdAndId(Long userId, Long agentId, Long postGroupId);
+
+	@Query("""
+			select pg.topic from PostGroup pg
+			where pg.agent.user.id = :userId
+			and pg.agent.id = :agentId
+			and pg.id = :postGroupId
+		""")
+	Optional<String> findTopicByUserIdAndAgentIdAndId(Long userId, Long agentId, Long postGroupId);
 }

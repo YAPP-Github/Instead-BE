@@ -26,7 +26,9 @@ import org.mainapp.domain.post.controller.request.type.UpdatePostsRequestItem;
 import org.mainapp.domain.post.controller.response.CreatePostsResponse;
 import org.mainapp.domain.post.controller.response.GetAgentReservedPostsResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupPostsResponse;
+import org.mainapp.domain.post.controller.response.GetPostGroupTopicResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupsResponse;
+import org.mainapp.domain.post.controller.response.type.PostGroupResponse;
 import org.mainapp.domain.post.controller.response.type.PostResponse;
 import org.mainapp.domain.post.exception.PostErrorCode;
 import org.mainapp.global.constants.PostGenerationCount;
@@ -108,6 +110,26 @@ public class PostService {
 
 		// 반환
 		return GetPostGroupsResponse.from(postGroups);
+	}
+
+	/**
+	 * 게시물 그룹을 단건 조회하는 메서드
+	 */
+	public PostGroupResponse getPostGroup(Long agentId, Long postGroupId) {
+		Long userId = SecurityUtil.getCurrentUserId();
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+		return PostGroupResponse.from(postGroup);
+	}
+
+	/**
+	 * 게시물 그룹의 주제를 조회하는 메서드
+	 */
+	public GetPostGroupTopicResponse getPostGroupTopic(Long agentId, Long postGroupId) {
+		Long userId = SecurityUtil.getCurrentUserId();
+		String topic = postGroupRepository.findTopicByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+		return new GetPostGroupTopicResponse(topic);
 	}
 
 	/**
@@ -292,7 +314,8 @@ public class PostService {
 	 */
 	public GetAgentReservedPostsResponse getAgentReservedPosts(Long agentId) {
 		Long userId = SecurityUtil.getCurrentUserId();
-		List<Post> posts = postRepository.findAllReservedPostsByUserAndAgent(userId, agentId, PostStatusType.UPLOAD_RESERVED);
+		List<Post> posts = postRepository.findAllReservedPostsByUserAndAgent(userId, agentId,
+			PostStatusType.UPLOAD_RESERVED);
 
 		return GetAgentReservedPostsResponse.from(posts);
 	}
