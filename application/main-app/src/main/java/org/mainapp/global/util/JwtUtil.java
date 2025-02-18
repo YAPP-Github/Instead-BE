@@ -118,7 +118,7 @@ public class JwtUtil {
 	}
 
 	// Http 요청 헤더에서 토큰 추출
-	private String resolveToken(@Nullable HttpServletRequest request, String header) {
+	public String resolveToken(@Nullable HttpServletRequest request, String header) {
 		String authHeader = request.getHeader(header);
 		if (authHeader == null) {
 			return null;
