@@ -16,7 +16,9 @@ public record AgentResponse(
 	LocalDateTime createdAt,
 	@Schema(description = "SNS 종류", example = "X")
 	AgentPlatformType platform,
-	@Schema(description = "SNS 계정 id (외부 SNS 내)", example = "1")
+	@Schema(description = "SNS 계정 이름 (사용자가 입력한 ID)", example = "test123")
+	String accountName,
+	@Schema(description = "SNS 고유 id (Sns 계정 식별을 위한 값)", example = "1342312")
 	String accountId,
 	@Schema(description = "계정 한줄소개", example = "최신 AI 소식을 전해드려요!")
 	String bio,
@@ -33,6 +35,7 @@ public record AgentResponse(
 			agent.getId(),
 			agent.getCreatedAt(),
 			agent.getPlatform(),
+			agent.getAccountName(),
 			agent.getAccountId(),
 			agent.getBio(),
 			agent.getProfileImage(),
