@@ -6,6 +6,7 @@ import org.domainmodule.agent.entity.Agent;
 import org.mainapp.domain.agent.service.AgentService;
 import org.mainapp.domain.sns.exception.SnsErrorCode;
 import org.mainapp.domain.sns.token.SnsTokenService;
+import org.mainapp.global.constants.UrlConstants;
 import org.mainapp.global.error.CustomException;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
@@ -39,14 +40,17 @@ public class TwitterService {
 	/**
 	 * Authorization Code를 처리하여 토큰 발급
 	 * 사용자 계정(Agent)과 SNS 토큰(SnsToken)을 저장
+	 * 로그인 이후 redirectUrl 리턴
 	 */
 	@Transactional
-	public void loginOrRegister(String code) {
+	public String loginOrRegister(String code) {
 		TwitterToken tokenResponse = twitterApiService.getTwitterAuthorizationToken(code);
 		TwitterUserInfoDto userInfo = getTwitterUserInfo(tokenResponse);
 
 		Agent agent = agentService.updateOrCreateAgent(userInfo);
 		snsTokenService.createOrUpdateSnsToken(agent, tokenResponse);
+
+		return UrlConstants.LOCAL_DOMAIN_URL  + UrlConstants.TWITTER_LOGIN_REDIRECT_URL;
 	}
 
 	private TwitterUserInfoDto getTwitterUserInfo(TwitterToken token) {

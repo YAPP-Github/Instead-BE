@@ -32,30 +32,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
-		// String accessToken = jwtUtil.resolveToken(request, HeaderConstants.ACCESS_TOKEN_HEADER);
-		//
-		// if (accessToken == null) {
-		// 	throw new CustomException(TokenErrorCode.ACCESS_TOKEN_NOT_FOUND);
-		// }
-		// String userId = jwtUtil.extractUserId(accessToken, true);
-		//
-		// // AccessToken이 만료되었을 때
-		// if (!jwtUtil.isTokenValid(accessToken, true)) {
-		//
-		// 	String refreshToken = getRefreshTokenFromCookies(request);
-		// 	if (refreshToken == null) {
-		// 		throw new CustomException(TokenErrorCode.REFRESH_TOKEN_NOT_FOUND);
-		// 	}
-		// 	// RefreshToken 검증
-		// 	userId = jwtUtil.extractUserId(refreshToken, false);
-		// 	validateRefreshToken(userId, refreshToken);
-		//
-		// 	String newAccessToken = jwtUtil.generateAccessToken(userId);
-		// 	String newRefreshToken = tokenService.generateRefreshToken(Long.parseLong(userId));
-		// 	responseUtil.setTokensInResponse(response, newAccessToken, newRefreshToken);
-		// }
 
-		String userId = "1";
+		String accessToken = jwtUtil.resolveToken(request, HeaderConstants.ACCESS_TOKEN_HEADER);
+
+		if (accessToken == null) {
+			throw new CustomException(TokenErrorCode.ACCESS_TOKEN_NOT_FOUND);
+		}
+		String userId = jwtUtil.extractUserId(accessToken, true);
+
+		// AccessToken이 만료되었을 때
+		if (!jwtUtil.isTokenValid(accessToken, true)) {
+
+			String refreshToken = getRefreshTokenFromCookies(request);
+			if (refreshToken == null) {
+				throw new CustomException(TokenErrorCode.REFRESH_TOKEN_NOT_FOUND);
+			}
+			// RefreshToken 검증
+			userId = jwtUtil.extractUserId(refreshToken, false);
+			validateRefreshToken(userId, refreshToken);
+
+			String newAccessToken = jwtUtil.generateAccessToken(userId);
+			String newRefreshToken = tokenService.generateRefreshToken(Long.parseLong(userId));
+			responseUtil.setTokensInResponse(response, newAccessToken, newRefreshToken);
+		}
 
 		SecurityContextHolder.getContext().setAuthentication(jwtUtil.getAuthentication(userId));
 		filterChain.doFilter(request, response);
