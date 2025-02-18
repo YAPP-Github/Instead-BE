@@ -8,7 +8,8 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.domainmodule.agent.entity.Agent;
+import org.domainmodule.agent.entity.AgentPersonalSetting;
+import org.domainmodule.agent.repository.AgentPersonalSettingRepository;
 import org.domainmodule.agent.repository.AgentRepository;
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
@@ -25,7 +26,9 @@ import org.mainapp.domain.post.controller.request.type.UpdatePostsRequestItem;
 import org.mainapp.domain.post.controller.response.CreatePostsResponse;
 import org.mainapp.domain.post.controller.response.GetAgentReservedPostsResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupPostsResponse;
+import org.mainapp.domain.post.controller.response.GetPostGroupTopicResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupsResponse;
+import org.mainapp.domain.post.controller.response.type.PostGroupResponse;
 import org.mainapp.domain.post.controller.response.type.PostResponse;
 import org.mainapp.domain.post.exception.PostErrorCode;
 import org.mainapp.global.constants.PostGenerationCount;
@@ -44,6 +47,7 @@ public class PostService {
 	private final PostPromptUpdateService postPromptUpdateService;
 	private final PostTransactionService postTransactionService;
 	private final AgentRepository agentRepository;
+	private final AgentPersonalSettingRepository agentPersonalSettingRepository;
 	private final PostGroupRepository postGroupRepository;
 	private final PostRepository postRepository;
 
@@ -53,13 +57,13 @@ public class PostService {
 	public CreatePostsResponse createPosts(Long agentId, CreatePostsRequest request, Integer limit) {
 		// 사용자 인증 정보 및 Agent 조회
 		Long userId = SecurityUtil.getCurrentUserId();
-		Agent agent = agentRepository.findByUserIdAndId(userId, agentId)
-			.orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
+		AgentPersonalSetting agentPersonalSetting = agentPersonalSettingRepository.findByUserIdAndAgentId(userId,
+			agentId).orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
 
 		return switch (request.getReference()) {
-			case NONE -> postCreateService.createPostsWithoutRef(agent, request, limit);
-			case NEWS -> postCreateService.createPostsByNews(agent, request, limit);
-			case IMAGE -> postCreateService.createPostsByImage(agent, request, limit);
+			case NONE -> postCreateService.createPostsWithoutRef(agentPersonalSetting, request, limit);
+			case NEWS -> postCreateService.createPostsByNews(agentPersonalSetting, request, limit);
+			case IMAGE -> postCreateService.createPostsByImage(agentPersonalSetting, request, limit);
 		};
 	}
 
@@ -78,6 +82,10 @@ public class PostService {
 			throw new CustomException(PostErrorCode.EXHAUSTED_GENERATION_COUNT);
 		}
 
+		// Agent 조회
+		AgentPersonalSetting agentPersonalSetting = agentPersonalSettingRepository.findByUserIdAndAgentId(userId,
+			agentId).orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
+
 		// displayOrder 설정을 위해 Post 조회
 		Integer order = postRepository.findLastGeneratedPost(postGroup, PostStatusType.GENERATED)
 			.map(Post::getDisplayOrder)
@@ -85,9 +93,10 @@ public class PostService {
 
 		// referenceType에 따라 분기
 		return switch (postGroup.getReference()) {
-			case NONE -> postCreateService.createAdditionalPostsWithoutRef(postGroup, limit, order);
-			case NEWS -> postCreateService.createAdditionalPostsByNews(postGroup, limit, order);
-			case IMAGE -> postCreateService.createAdditionalPostsByImage(postGroup, limit, order);
+			case NONE ->
+				postCreateService.createAdditionalPostsWithoutRef(agentPersonalSetting, postGroup, limit, order);
+			case NEWS -> postCreateService.createAdditionalPostsByNews(agentPersonalSetting, postGroup, limit, order);
+			case IMAGE -> postCreateService.createAdditionalPostsByImage(agentPersonalSetting, postGroup, limit, order);
 		};
 	}
 
@@ -101,6 +110,26 @@ public class PostService {
 
 		// 반환
 		return GetPostGroupsResponse.from(postGroups);
+	}
+
+	/**
+	 * 게시물 그룹을 단건 조회하는 메서드
+	 */
+	public PostGroupResponse getPostGroup(Long agentId, Long postGroupId) {
+		Long userId = SecurityUtil.getCurrentUserId();
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+		return PostGroupResponse.from(postGroup);
+	}
+
+	/**
+	 * 게시물 그룹의 주제를 조회하는 메서드
+	 */
+	public GetPostGroupTopicResponse getPostGroupTopic(Long agentId, Long postGroupId) {
+		Long userId = SecurityUtil.getCurrentUserId();
+		String topic = postGroupRepository.findTopicByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+		return new GetPostGroupTopicResponse(topic);
 	}
 
 	/**
@@ -152,10 +181,14 @@ public class PostService {
 		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
+		// Agent 조회
+		AgentPersonalSetting agentPersonalSetting = agentPersonalSettingRepository.findByUserIdAndAgentId(userId,
+			agentId).orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
+
 		// Post 조회
 		Post post = postTransactionService.getPostOrThrow(postGroup, postId);
 
-		return postPromptUpdateService.updateSinglePostByPrompt(post, request);
+		return postPromptUpdateService.updateSinglePostByPrompt(agentPersonalSetting, postGroup, post, request);
 	}
 
 	/**
@@ -169,12 +202,16 @@ public class PostService {
 		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 
+		// Agent 조회
+		AgentPersonalSetting agentPersonalSetting = agentPersonalSettingRepository.findByUserIdAndAgentId(userId,
+			agentId).orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
+
 		// Post 리스트 조회
 		List<Post> posts = request.postsId().stream()
 			.map(postId -> postTransactionService.getPostOrThrow(postGroup, postId))
 			.toList();
 
-		return postPromptUpdateService.updateMultiplePostsByPrompt(posts, request);
+		return postPromptUpdateService.updateMultiplePostsByPrompt(agentPersonalSetting, postGroup, posts, request);
 	}
 
 	/**
@@ -277,7 +314,8 @@ public class PostService {
 	 */
 	public GetAgentReservedPostsResponse getAgentReservedPosts(Long agentId) {
 		Long userId = SecurityUtil.getCurrentUserId();
-		List<Post> posts = postRepository.findAllReservedPostsByUserAndAgent(userId, agentId, PostStatusType.UPLOAD_RESERVED);
+		List<Post> posts = postRepository.findAllReservedPostsByUserAndAgent(userId, agentId,
+			PostStatusType.UPLOAD_RESERVED);
 
 		return GetAgentReservedPostsResponse.from(posts);
 	}
