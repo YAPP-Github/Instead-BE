@@ -53,7 +53,8 @@ public class AgentService {
 			userInfo.id(),
 			userInfo.description(),
 			userInfo.profileImageUrl(),
-			userInfo.subscriptionType()
+			userInfo.subscriptionType(),
+			userInfo.username()
 		);
 		AgentPersonalSetting newAgentPersonalSetting = AgentPersonalSetting.create(
 			newAgent, "", "", AgentToneType.LESS_FORMAL, "");
@@ -61,7 +62,7 @@ public class AgentService {
 	}
 
 	private Agent updatAgent(Agent agent, TwitterUserInfoDto userInfo) {
-		agent.updateInfo(userInfo.description(), userInfo.profileImageUrl(), userInfo.subscriptionType());
+		agent.updateInfo(userInfo.description(), userInfo.profileImageUrl(), userInfo.subscriptionType(), userInfo.username());
 		return agentTransactionService.saveAgent(agent);
 	}
 

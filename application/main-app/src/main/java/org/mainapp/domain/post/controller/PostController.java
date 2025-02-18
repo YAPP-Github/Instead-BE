@@ -219,6 +219,16 @@ public class PostController {
 		return ResponseEntity.ok(postService.getPostsByPostGroup(agentId, postGroupId));
 	}
 
+	@Operation(summary = "게시물 그룹 제거 API", description = "게시물 그룹에 해당되는 모든 게시물들을 삭제합니다.")
+	@DeleteMapping("/{postGroupId}")
+	public ResponseEntity<Void> deletePostGroup(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId
+	) {
+		postService.deletePostGroup(agentId, postGroupId);
+		return ResponseEntity.noContent().build();
+	}
+
 	@Operation(summary = "게시물 프롬프트 내역 조회 API", description = "게시물 결과 수정 단계에서 프롬프트 내역을 조회합니다.")
 	@GetMapping("/{postGroupId}/posts/{postId}/prompt-histories")
 	public ResponseEntity<List<PromptHistoriesResponse>> getPromptHistories(

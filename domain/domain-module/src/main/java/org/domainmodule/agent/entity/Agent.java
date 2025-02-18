@@ -43,6 +43,9 @@ public class Agent extends BaseTimeEntity {
 	@Column(nullable = false, unique = true, length = 100)
 	private String accountId;
 
+	@Column(length = 200)
+	private String accountName;
+
 	@Column(length = 255)
 	private String bio;
 
@@ -70,6 +73,7 @@ public class Agent extends BaseTimeEntity {
 		String accountId,
 		String bio,
 		String profileImage,
+		String accountName,
 		AgentPlanType agentPlan
 	) {
 		this.user = user;
@@ -77,6 +81,7 @@ public class Agent extends BaseTimeEntity {
 		this.accountId = accountId;
 		this.bio = bio;
 		this.profileImage = profileImage;
+		this.accountName = accountName;
 		this.autoMode = Boolean.FALSE;
 		this.agentPlan = agentPlan;
 		this.isActivated = Boolean.TRUE;
@@ -88,7 +93,8 @@ public class Agent extends BaseTimeEntity {
 		String accountId,
 		String bio,
 		String profileImage,
-		String subscriptionType
+		String subscriptionType,
+		String accountName
 	) {
 		return Agent.builder()
 			.user(user)
@@ -97,17 +103,20 @@ public class Agent extends BaseTimeEntity {
 			.bio(bio)
 			.profileImage(profileImage)
 			.agentPlan(AgentPlanType.fromSubscription(subscriptionType))
+			.accountName(accountName)
 			.build();
 	}
 
 	public void updateInfo(
 		String bio,
 		String profileImage,
-		String agentType
+		String agentType,
+		String accountName
 
 	) {
 		this.bio = bio;
 		this.profileImage = profileImage;
 		this.agentPlan = AgentPlanType.fromSubscription(agentType);
+		this.accountName = accountName;
 	}
 }
