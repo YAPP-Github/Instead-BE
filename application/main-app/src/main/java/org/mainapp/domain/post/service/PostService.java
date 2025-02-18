@@ -35,6 +35,7 @@ import org.mainapp.global.constants.PostGenerationCount;
 import org.mainapp.global.error.CustomException;
 import org.mainapp.global.util.SecurityUtil;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -332,5 +333,19 @@ public class PostService {
 		Post post = postRepository.findByPostGroupAndId(postGroup, postId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
 		return PostResponse.from(post);
+	}
+
+	/**
+	 * PostGroup 삭제 - Group에 속한 모든 Post 제거
+	 */
+	@Transactional
+	public void deletePostGroup(Long agentId, Long postGroupId) {
+		Long userId = SecurityUtil.getCurrentUserId();
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+		List<Post> posts = postRepository.findAllByPostGroup(postGroup);
+
+		postRepository.deleteAll(posts);
+		postGroupRepository.delete(postGroup);
 	}
 }

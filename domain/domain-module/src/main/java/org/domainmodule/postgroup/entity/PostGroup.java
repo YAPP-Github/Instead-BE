@@ -10,6 +10,7 @@ import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
 import org.domainmodule.postgroup.entity.type.PostGroupReferenceType;
 import org.domainmodule.rssfeed.entity.RssFeed;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -21,6 +22,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -55,9 +57,6 @@ public class PostGroup extends BaseTimeEntity {
 	@JoinColumn(name = "feed_id")
 	private RssFeed feed;
 
-	@OneToMany(mappedBy = "postGroup")
-	private List<PostGroupImage> postGroupImages = new ArrayList<>();
-
 	@Enumerated(EnumType.STRING)
 	private PostGroupLengthType length;
 
@@ -67,6 +66,12 @@ public class PostGroup extends BaseTimeEntity {
 	private Integer generationCount;
 
 	private String thumbnailImage;
+
+	@OneToMany(mappedBy = "postGroup", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private List<PostGroupImage> postGroupImages = new ArrayList<>();
+
+	@OneToOne(mappedBy = "postGroup", cascade = CascadeType.REMOVE, orphanRemoval = true)
+	private PostGroupRssCursor postGroupRssCursor;
 
 	@Builder(access = AccessLevel.PRIVATE)
 	private PostGroup(
