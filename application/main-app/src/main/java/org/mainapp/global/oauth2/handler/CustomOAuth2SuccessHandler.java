@@ -34,7 +34,15 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 		responseUtil.setTokensInResponse(response, accessToken, refreshToken);
 
 		// 응답 처리
-		responseUtil.setContentType(response, "application/json;charset=UTF-8");
-		response.sendRedirect(UrlConstants.LOCAL_DOMAIN_URL  + UrlConstants.GOOGLE_LOGIN_REDIRECT_URL);
+		// responseUtil.setContentType(response, "application/json;charset=UTF-8");
+		// response.sendRedirect(UrlConstants.LOCAL_DOMAIN_URL  + UrlConstants.GOOGLE_LOGIN_REDIRECT_URL);
+
+		//TODO 임시방편
+		// Redirect URL에 accessToken 추가
+		String redirectUrl = String.format("%s%s?token=%s",
+			UrlConstants.LOCAL_DOMAIN_URL,
+			UrlConstants.GOOGLE_LOGIN_REDIRECT_URL,
+			accessToken);
+		response.sendRedirect(redirectUrl);
 	}
 }
