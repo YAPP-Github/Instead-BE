@@ -434,7 +434,8 @@ public class PostCreateService {
 		String topicPrompt = createPostPromptTemplate.getTopicPrompt(
 			vo.topic(), vo.purpose(), vo.length(), vo.content());
 		List<String> refPrompts = feedPagingResult.getFeedItems().stream()
-			.map(news -> createPostPromptTemplate.getNewsRefPrompt(news.getContentSummary(), news.getContent()))
+			.map(news ->
+				createPostPromptTemplate.getNewsRefPrompt(news.getTitle(), news.getContentSummary(), news.getContent()))
 			.toList();
 
 		// 게시물 생성하기: 각 뉴스 기사별로 OpenAI API 호출 및 답변 생성
