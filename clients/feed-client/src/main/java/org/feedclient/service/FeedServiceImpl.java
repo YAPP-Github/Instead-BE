@@ -1,5 +1,6 @@
 package org.feedclient.service;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -34,10 +35,7 @@ public class FeedServiceImpl implements FeedService {
 		List<RssItem> rssItems = rssClient.getRssFeed(feedUrl).getItems();
 
 		// 페이지네이션 수행
-		List<RssItem> pagedRssItems = rssItems.stream()
-			.sorted(Comparator.comparing(RssItem::getDatePublished))
-			.limit(limit)
-			.toList();
+		List<RssItem> pagedRssItems = getPagedRssItems(rssItems, limit);
 
 		// 본문 파싱 수행
 		List<FeedItem> pagedFeedItems = parseRssItems(pagedRssItems);
@@ -66,11 +64,57 @@ public class FeedServiceImpl implements FeedService {
 	}
 
 	/**
+	 * RSS 피드에 초기 pagination을 수행. 별도 정렬 없이 RSS 자체 정렬 유지하기 때문에 앞에 있는 요소가 뒤의 요소보다 최신 기사
+	 */
+	private static List<RssItem> getPagedRssItems(List<RssItem> rssItems, int limit) {
+		Collections.reverse(rssItems);
+		return rssItems.stream().limit(limit).collect(Collectors.toList());
+	}
+
+	/**
+	 * cursor를 기준으로 RSS 피드에 pagination을 수행. 별도 정렬 없이 RSS 자체 정렬 유지하기 때문에 앞에 있는 요소가 뒤의 요소보다 최신 기사
+	 * 1. 현재 피드에 cursor 존재 -> cursor 이전 요소부터 limit만큼 반환, 맨 앞에 도달한 경우 eof true로 반환
+	 * 2. 현재 피드에 cursor 존재X (피드가 갱신된 경우) -> 맨 뒤 요소부터 limit만큼 반환
+	 */
+	private static List<RssItem> getPagedRssItems(
+		List<RssItem> rssItems,
+		String cursorId,
+		int limit,
+		AtomicBoolean eof
+	) {
+		Optional<RssItem> cursorItem = rssItems.stream()
+			.filter(item -> cursorId.equals(item.getId()))
+			.findFirst();
+
+		if (cursorItem.isPresent()) {
+			// 현재 피드에 cursor가 존재
+			int cursorIndex = rssItems.indexOf(cursorItem.get());
+			List<RssItem> result;
+
+			if (cursorIndex <= limit) {
+				// 피드 끝에 도달한 경우
+				eof.set(true);
+				result = rssItems.subList(0, cursorIndex);
+			} else {
+				// 피드 끝에 도달하지 않은 경우
+				result = rssItems.subList(cursorIndex - limit, cursorIndex);
+			}
+
+			Collections.reverse(result);
+			return result;
+		} else {
+			// 현재 피드에 cursor 존재 X
+			Collections.reverse(rssItems);
+			return rssItems.stream().limit(limit).collect(Collectors.toList());
+		}
+	}
+
+	/**
 	 * cursor를 기준으로 RSS 피드에 pagination을 수행
 	 * 1. 현재 피드에 cursor 존재 -> 날짜순으로 정렬한 뒤 cursor 다음 요소부터 limit만큼 반환, 끝에 도달한 경우 eof true로 반환
 	 * 2. 현재 피드에 cursor 존재X (피드가 갱신된 경우) -> 날짜순으로 정렬한 뒤 첫 요소부터 limit만큼 반환
 	 */
-	private static List<RssItem> getPagedRssItems(
+	private static List<RssItem> getPagedRssItemsByDatePublished(
 		List<RssItem> rssItems,
 		String cursorId,
 		int limit,

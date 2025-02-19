@@ -19,7 +19,7 @@ class FeedServiceImplTest {
 	@Test
 	void getPagedFeedTest() {
 		// Given
-		String feedUrl = "https://rss.app/feeds/v1.1/t3OECiAGSXYOG8h5.json";
+		String feedUrl = "https://rss.app/feeds/v1.1/zHvdVTrJSiWM5qfm.json";
 
 		// When
 		FeedPagingResult newsFeed = feedService.getPagedFeed(feedUrl, 5);
@@ -42,10 +42,10 @@ class FeedServiceImplTest {
 	@Test
 	void getPagedFeedByCursorTest() {
 		// Given
-		String feedUrl = "https://rss.app/feeds/v1.1/t3OECiAGSXYOG8h5.json";
+		String feedUrl = "https://rss.app/feeds/v1.1/zHvdVTrJSiWM5qfm.json";
 
 		// When
-		FeedPagingResult newsFeed = feedService.getPagedFeed(feedUrl, "448f82132b9b63e67fb8e5aba1987317", 5);
+		FeedPagingResult newsFeed = feedService.getPagedFeed(feedUrl, "bcc71628d40e410be723c65dc9af409e", 5);
 		for (FeedItem feedItem : newsFeed.getFeedItems()) {
 			System.out.println(feedItem.getId() + ": " + feedItem.getTitle());
 			System.out.println(feedItem.getDatePublished());
