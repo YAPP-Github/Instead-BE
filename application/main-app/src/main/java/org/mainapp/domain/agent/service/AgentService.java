@@ -35,10 +35,9 @@ public class AgentService {
 	 * X API 로그인을 성공한 후 Agent와 SnsToken 생성 및 저장
 	 * @return 생성된 Agent 엔티티
 	 */
-	public Agent updateOrCreateAgent(TwitterUserInfoDto userInfo) {
+	public Agent updateOrCreateAgent(TwitterUserInfoDto userInfo, String userId) {
 		// 사용자 인증 정보 조회
-		Long userId = SecurityUtil.getCurrentUserId();
-		User user = userService.findUserById(userId);
+		User user = userService.findUserById(Long.parseLong(userId));
 
 		// Agent가 이미 존재하는지 확인
 		return agentRepository.findByAccountIdAndPlatform(userInfo.id(), AgentPlatformType.X)

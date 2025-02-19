@@ -1,18 +1,15 @@
 package org.mainapp.domain.sns.twitter;
 
-import java.net.URI;
-
 import org.domainmodule.agent.entity.Agent;
 import org.mainapp.domain.agent.service.AgentService;
 import org.mainapp.domain.sns.exception.SnsErrorCode;
 import org.mainapp.domain.sns.token.SnsTokenService;
 import org.mainapp.global.constants.UrlConstants;
 import org.mainapp.global.error.CustomException;
+import org.mainapp.global.util.JwtUtil;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.snsclient.twitter.service.TwitterApiService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -25,16 +22,14 @@ public class TwitterService {
 	private final TwitterApiService twitterApiService;
 	private final AgentService agentService;
 	private final SnsTokenService snsTokenService;
-
+	private final JwtUtil jwtUtil;
 	/**
 	 * Twitter Authorization URL 생성 및 리다이렉트 ResponseEntity 반환
 	 */
-	public ResponseEntity<Void> createRedirectResponse() {
+	public String createRedirectResponse(String accessToken) {
 		// 리다이렉트 URL 생성
-		String redirectUrl = twitterApiService.getTwitterAuthorizationUrl();
-		return ResponseEntity.status(HttpStatus.SEE_OTHER)
-			.location(URI.create(redirectUrl))
-			.build();
+		final Long userId = jwtUtil.getUserIdFromAccessToken(accessToken);
+		return twitterApiService.getTwitterAuthorizationUrl(userId.toString());
 	}
 
 	/**
@@ -43,11 +38,11 @@ public class TwitterService {
 	 * 로그인 이후 redirectUrl 리턴
 	 */
 	@Transactional
-	public String loginOrRegister(String code) {
+	public String loginOrRegister(String code, String userId) {
 		TwitterToken tokenResponse = twitterApiService.getTwitterAuthorizationToken(code);
 		TwitterUserInfoDto userInfo = getTwitterUserInfo(tokenResponse);
 
-		Agent agent = agentService.updateOrCreateAgent(userInfo);
+		Agent agent = agentService.updateOrCreateAgent(userInfo, userId);
 		snsTokenService.createOrUpdateSnsToken(agent, tokenResponse);
 
 		return UrlConstants.LOCAL_DOMAIN_URL  + UrlConstants.TWITTER_LOGIN_REDIRECT_URL;
