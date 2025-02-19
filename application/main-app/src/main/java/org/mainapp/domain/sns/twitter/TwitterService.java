@@ -23,6 +23,7 @@ public class TwitterService {
 	private final AgentService agentService;
 	private final SnsTokenService snsTokenService;
 	private final JwtUtil jwtUtil;
+
 	/**
 	 * Twitter Authorization URL 생성 및 리다이렉트 ResponseEntity 반환
 	 */
@@ -45,7 +46,8 @@ public class TwitterService {
 		Agent agent = agentService.updateOrCreateAgent(userInfo, userId);
 		snsTokenService.createOrUpdateSnsToken(agent, tokenResponse);
 
-		return UrlConstants.LOCAL_DOMAIN_URL  + UrlConstants.TWITTER_LOGIN_REDIRECT_URL;
+		// return UrlConstants.LOCAL_DOMAIN_URL  + UrlConstants.TWITTER_LOGIN_REDIRECT_URL;
+		return UrlConstants.LOCAL_DOMAIN_URL + "/" + agent.getId();
 	}
 
 	private TwitterUserInfoDto getTwitterUserInfo(TwitterToken token) {
