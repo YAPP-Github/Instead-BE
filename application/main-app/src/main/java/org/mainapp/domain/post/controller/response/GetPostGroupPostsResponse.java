@@ -24,7 +24,7 @@ public class GetPostGroupPostsResponse {
 	@Schema(description = "게시물 그룹에 해당하는 게시물 목록")
 	private Map<PostStatusType, List<PostResponse>> posts;
 
-	public static GetPostGroupPostsResponse of(PostGroup postGroup,Map<PostStatusType, List<PostResponse>> posts) {
+	public static GetPostGroupPostsResponse of(PostGroup postGroup, Map<PostStatusType, List<PostResponse>> posts) {
 		return new GetPostGroupPostsResponse(PostGroupResponse.from(postGroup), posts);
 	}
 }
