@@ -68,8 +68,9 @@ public class CreatePostPromptTemplate {
 	 * 게시물 그룹에 설정된 참고자료 Prompt.
 	 * "뉴스를 참고하는" 게시물 그룹을 위해 뉴스에 대한 참고자료 Prompt를 생성
 	 */
-	public String getNewsRefPrompt(String summary, String content) {
+	public String getNewsRefPrompt(String title, String summary, String content) {
 		return "다음 뉴스 기사 내용을 바탕으로 게시물을 생성해줘:\n"
+			+ "제목: " + title + "\n"
 			+ "요약: " + summary + "\n"
 			+ "본문: " + content;
 	}
