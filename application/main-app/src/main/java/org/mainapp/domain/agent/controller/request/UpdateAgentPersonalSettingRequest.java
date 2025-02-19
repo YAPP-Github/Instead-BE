@@ -22,8 +22,7 @@ public record UpdateAgentPersonalSettingRequest(
 	@Nullable
 	AgentToneType tone,
 	@Schema(description = "계정 말투가 CUSTOM인 경우 적용되는 사용자 설정 말투", example = "20대 중반의 차분한 여성같은 말투, 중간중간 이모지 사용")
-	@Size(max = 50, message = "사용자 지정 말투는 50자 이내로 작성해주세요.")
-	@NotBlank(message = "사용자 지정 말투는 빈 문자열로 설정할 수 없습니다.")
+	@Size(max = 500, message = "사용자 지정 말투는 500자 이내로 작성해주세요.")
 	String customTone
 ) {
 
