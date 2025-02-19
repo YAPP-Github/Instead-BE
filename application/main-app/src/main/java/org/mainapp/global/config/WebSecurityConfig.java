@@ -39,7 +39,7 @@ public class WebSecurityConfig {
 		http.httpBasic(AbstractHttpConfigurer::disable)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.anonymous(AbstractHttpConfigurer::disable)
-			.cors(withDefaults())
+			.cors(cors->cors.configurationSource(corsConfigurationSource()))
 			.csrf(AbstractHttpConfigurer::disable)
 			.sessionManagement(
 				session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
