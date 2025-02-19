@@ -19,7 +19,10 @@ public class CreatePostPromptTemplate {
 		String customTone
 	) {
 		StringBuilder prompt = new StringBuilder();
-		prompt.append("너는 SNS 계정을 관리하는 역할이고, 지금부터 소개해줄 계정의 컨셉에 맞게 게시물을 생성해야 해.\n");
+		prompt
+			.append("너는 SNS 계정을 관리하는 역할이고, 지금부터 소개해줄 계정의 컨셉에 맞게 게시물을 생성해야 해.\n")
+			.append("답변은 반드시 설정한 JSON 포맷으로 생성해야 해. ")
+			.append("content는 게시물 내용이 들어가는 필드고, summary는 게시물의 핵심 내용을 잘 드러낼 수 있는 한 문장 정도 길이의 제목이며 반드시 명사형으로 마쳐야 해.\n");
 
 		// 계정 소개 설정
 		if (introduction != null) {
@@ -43,7 +46,7 @@ public class CreatePostPromptTemplate {
 				.append(customTone).append("\n");
 		}
 
-		prompt.append("여기까지 너가 관리해야 할 계정에 대한 설정이야. 이 설정을 바탕으로 게시물 내용을 생성해야 해.\n\n");
+		prompt.append("여기까지 너가 관리해야 할 계정에 대한 설정이야. 이 설정을 바탕으로 게시물 내용을 생성해야 해.\n");
 		return prompt.toString();
 	}
 
@@ -125,7 +128,7 @@ public class CreatePostPromptTemplate {
 	 * "뉴스를 참고하는" 게시물 그룹을 위해 뉴스에 대한 참고자료 Prompt를 생성
 	 */
 	public String getNewsRefPrompt(String title, String summary, String content) {
-		return "다음 뉴스 기사 내용을 바탕으로 게시물을 생성해줘:\n"
+		return "게시물을 생성할 때 뉴스 기사 내용을 참고해서 생성해야 해. 이때 앞서 설정한 주제를 뉴스 기사 내용과 최대한 관련지어서 생성하도록 해:\n"
 			+ "제목: " + title + "\n"
 			+ "요약: " + summary + "\n"
 			+ "본문: " + content;
