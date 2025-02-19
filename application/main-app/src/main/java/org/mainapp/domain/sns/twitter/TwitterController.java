@@ -23,7 +23,9 @@ public class TwitterController {
 
 	private final TwitterService twitterService;
 
-	@Operation(summary = "X(Twitter) 계정 연결 API", description = "X(Twitter) 계정 연결을 위해 OAuth2 로그인 페이지로 이동하는 Url을 반환")
+	@Operation(summary = "X(Twitter) 계정 연결 API",
+		description = "X(Twitter) 계정 연결을 위해 OAuth2 로그인 페이지로 이동하는 Url을 반환"
+	)
 	@GetMapping("/login")
 	public ResponseEntity<TwitterRedirectResponse> redirectToTwitterAuth(
 		@RequestHeader("Authorization") String accessToken
@@ -32,6 +34,7 @@ public class TwitterController {
 		return ResponseEntity.ok(TwitterRedirectResponse.from(url));
 	}
 
+	@Operation(summary = "X(Twitter) 로그인 성공 후 Redirect", description = "/twitter/login 요청 후 자동으로 리다이렉트되는 api입니다 (직접 호출 X)")
 	@GetMapping("/success")
 	public void handleTwitterLoginCallback(
 		@RequestParam String code,
