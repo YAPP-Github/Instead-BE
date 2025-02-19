@@ -62,7 +62,8 @@ public class AgentService {
 	}
 
 	private Agent updatAgent(Agent agent, TwitterUserInfoDto userInfo) {
-		agent.updateInfo(userInfo.description(), userInfo.profileImageUrl(), userInfo.subscriptionType(), userInfo.username());
+		agent.updateInfo(userInfo.description(), userInfo.profileImageUrl(), userInfo.subscriptionType(),
+			userInfo.username());
 		return agentTransactionService.saveAgent(agent);
 	}
 
@@ -115,6 +116,9 @@ public class AgentService {
 		}
 		if (request.tone() != null) {
 			agentPersonalSetting.updateTone(request.tone());
+			if (request.tone() != AgentToneType.CUSTOM) {
+				agentPersonalSetting.updateCustomTone("");
+			}
 		}
 		if (request.customTone() != null) {
 			agentPersonalSetting.updateCustomTone(request.customTone());
