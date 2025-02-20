@@ -57,7 +57,7 @@ public class PostResponse {
 			post.getCreatedAt(),
 			post.getUpdatedAt(),
 			post.getDisplayOrder(),
-			post.getSummary(),
+			post.getTitle(),
 			post.getContent(),
 			postImages,
 			post.getStatus(),

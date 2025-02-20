@@ -40,7 +40,7 @@ public class AgentPersonalSetting {
 	@Enumerated(EnumType.STRING)
 	private AgentToneType tone;
 
-	@Column(length = 50)
+	@Column(length = 500)
 	private String customTone;
 
 	@Builder(access = AccessLevel.PRIVATE)
