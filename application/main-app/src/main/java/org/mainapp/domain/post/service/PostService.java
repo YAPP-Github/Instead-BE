@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.agent.entity.AgentPersonalSetting;
 import org.domainmodule.agent.repository.AgentPersonalSettingRepository;
 import org.domainmodule.agent.repository.AgentRepository;
@@ -22,7 +23,9 @@ import org.mainapp.domain.post.controller.request.MultiplePostUpdateRequest;
 import org.mainapp.domain.post.controller.request.SinglePostUpdateRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostContentRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostsMetadataRequest;
+import org.mainapp.domain.post.controller.request.UpdateReservedPostsRequest;
 import org.mainapp.domain.post.controller.request.type.UpdatePostsRequestItem;
+import org.mainapp.domain.post.controller.request.type.UpdateReservedPostsRequestItem;
 import org.mainapp.domain.post.controller.response.CreatePostsResponse;
 import org.mainapp.domain.post.controller.response.GetAgentReservedPostsResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupPostsResponse;
@@ -247,6 +250,26 @@ public class PostService {
 		List<Post> posts = postRepository.findAllByPostGroupAndId(postGroup, postIds);
 
 		postUpdateService.updatePostsMetadata(posts, request);
+	}
+
+	/**
+	 * 계정별 예약 게시물 예약일시 수정 메서드.
+	 */
+	public void updateReservedPostsUploadTime(Long agentId, UpdateReservedPostsRequest request) {
+		// 사용자 인증 정보 및 Agent 조회
+		Long userId = SecurityUtil.getCurrentUserId();
+		Agent agent = agentRepository.findByUserIdAndId(userId, agentId)
+			.orElseThrow(() -> new CustomException(AgentErrorCode.AGENT_NOT_FOUND));
+
+		// postId 리스트 추출
+		List<Long> postIds = request.posts().stream()
+			.map(UpdateReservedPostsRequestItem::postId)
+			.toList();
+
+		// Post 리스트 조회
+		List<Post> posts = postRepository.findAllByAgentAndId(agent, postIds);
+
+		postUpdateService.updateReservedPostsUploadTime(posts, request);
 	}
 
 	/**

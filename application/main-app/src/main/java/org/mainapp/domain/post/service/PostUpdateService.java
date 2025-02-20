@@ -5,11 +5,10 @@ import java.util.List;
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.PostImage;
 import org.domainmodule.post.entity.type.PostStatusType;
-import org.domainmodule.post.repository.PostImageRepository;
 import org.domainmodule.post.repository.PostRepository;
-import org.domainmodule.postgroup.repository.PostGroupRepository;
 import org.mainapp.domain.post.controller.request.UpdatePostContentRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostsMetadataRequest;
+import org.mainapp.domain.post.controller.request.UpdateReservedPostsRequest;
 import org.mainapp.domain.post.exception.PostErrorCode;
 import org.mainapp.global.error.CustomException;
 import org.springframework.stereotype.Service;
@@ -21,10 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class PostUpdateService {
 
 	private final PostTransactionService postTransactionService;
-
-	private final PostGroupRepository postGroupRepository;
 	private final PostRepository postRepository;
-	private final PostImageRepository postImageRepository;
 
 	/**
 	 * 게시물 내용 수정 메서드. updateType에 따라 분기
@@ -92,6 +88,24 @@ public class PostUpdateService {
 				if (postRequest.getDisplayOrder() != null) {
 					post.updateDisplayOrder(postRequest.getDisplayOrder());
 				}
+			});
+
+		// 수정 내용 저장
+		postTransactionService.savePosts(posts);
+	}
+
+	/**
+	 * 계정별 예약 게시물 예약일시 수정 메서드.
+	 */
+	public void updateReservedPostsUploadTime(List<Post> posts, UpdateReservedPostsRequest request) {
+		// Post 엔티티 리스트 수정
+		request.posts()
+			.forEach(postRequest -> {
+				Post post = postRepository.findById(postRequest.postId())  // 1차 캐시 조회
+					.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
+
+				post.updateStatus(PostStatusType.UPLOAD_RESERVED);
+				post.updateUploadTime(postRequest.uploadTime());
 			});
 
 		// 수정 내용 저장
