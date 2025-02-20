@@ -105,9 +105,9 @@ public class PostService {
 	 * 사용자 연동 SNS 계정별 게시물 그룹 목록을 반환하는 메서드
 	 */
 	public GetPostGroupsResponse getPostGroups(Long agentId) {
-		// 사용자 인증 정보 및 PostGroup 리스트 조회
+		// 사용자 인증 정보 및 PostGroup 리스트 최신순 조회
 		Long userId = SecurityUtil.getCurrentUserId();
-		List<PostGroup> postGroups = postGroupRepository.findAllByUserIdAndAgentId(userId, agentId);
+		List<PostGroup> postGroups = postGroupRepository.findAllByUserIdAndAgentIdOrderByLatest(userId, agentId);
 
 		// 반환
 		return GetPostGroupsResponse.from(postGroups);

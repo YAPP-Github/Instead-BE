@@ -24,6 +24,16 @@ public interface PostGroupRepository extends JpaRepository<PostGroup, Long> {
 			join fetch pg.agent.user
 			where pg.agent.user.id = :userId
 			and pg.agent.id = :agentId
+			order by pg.id desc
+		""")
+	List<PostGroup> findAllByUserIdAndAgentIdOrderByLatest(Long userId, Long agentId);
+
+	@Query("""
+			select pg from PostGroup pg
+			join fetch pg.agent
+			join fetch pg.agent.user
+			where pg.agent.user.id = :userId
+			and pg.agent.id = :agentId
 			and pg.id = :postGroupId
 		""")
 	Optional<PostGroup> findByUserIdAndAgentIdAndId(Long userId, Long agentId, Long postGroupId);
