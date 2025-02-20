@@ -92,6 +92,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		    WHERE a.user.id = :userId
 		    AND a.id = :agentId
 		    AND p.status = :status
+		    ORDER BY p.uploadTime
 		""")
 	List<Post> findAllReservedPostsByUserAndAgent(@Param("userId") Long userId,
 		@Param("agentId") Long agentId,
