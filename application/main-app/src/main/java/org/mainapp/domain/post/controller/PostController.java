@@ -7,6 +7,7 @@ import org.mainapp.domain.post.controller.request.MultiplePostUpdateRequest;
 import org.mainapp.domain.post.controller.request.SinglePostUpdateRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostContentRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostsMetadataRequest;
+import org.mainapp.domain.post.controller.request.UpdateReservedPostsRequest;
 import org.mainapp.domain.post.controller.response.CreatePostsResponse;
 import org.mainapp.domain.post.controller.response.GetAgentReservedPostsResponse;
 import org.mainapp.domain.post.controller.response.GetPostGroupPostsResponse;
@@ -36,7 +37,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/agents/{agentId}/post-groups")
+@RequestMapping("/agents/{agentId}")
 @RequiredArgsConstructor
 @Tag(name = "Post API", description = "게시물에 대한 요청을 처리하는 API입니다.")
 public class PostController {
@@ -58,7 +59,7 @@ public class PostController {
 
 			게시물 그룹별 최대 게시물 생성 가능 횟수를 채우게 되면 eof가 true로 응답됩니다. 이 경우 추가 생성이 제한됩니다."""
 	)
-	@PostMapping("/posts")
+	@PostMapping("/post-groups/posts")
 	public ResponseEntity<CreatePostsResponse> createPosts(
 		@PathVariable Long agentId,
 		@RequestParam(defaultValue = PostGenerationCount.POST_GENERATION_POST_COUNT) Integer limit,
@@ -76,7 +77,7 @@ public class PostController {
 
 			게시물 그룹별 최대 게시물 생성 가능 횟수를 채우게 되면 eof가 true로 응답됩니다. 이 경우 추가 생성이 제한됩니다."""
 	)
-	@PostMapping("/{postGroupId}/posts")
+	@PostMapping("/post-groups/{postGroupId}/posts")
 	public ResponseEntity<CreatePostsResponse> createAdditionalPosts(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
@@ -100,7 +101,7 @@ public class PostController {
 
 			이미지 리스트를 보내주시면, 서버에서 DB에 저장된 기존 이미지 리스트를 조회해 두 버전을 비교하고 반영합니다."""
 	)
-	@PutMapping("/{postGroupId}/posts/{postId}")
+	@PutMapping("/post-groups/{postGroupId}/posts/{postId}")
 	public ResponseEntity<Void> updatePostContent(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
@@ -118,7 +119,7 @@ public class PostController {
 
 			**변경이 필요한 필드에만 값을 넣어주시고, 변경이 없는 필드는 비워주시면 됩니다.**"""
 	)
-	@PutMapping("/{postGroupId}/posts")
+	@PutMapping("/post-groups/{postGroupId}/posts")
 	public ResponseEntity<Void> updatePosts(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
@@ -128,8 +129,17 @@ public class PostController {
 		return ResponseEntity.ok().build();
 	}
 
+	@Operation(summary = "계정별 예약 게시물 예약일시 수정 API", description = "주제에 관계 없이 계정별 예약 게시물의 예약 시간을 수정합니다.")
+	@GetMapping("/posts/upload-reserved")
+	public ResponseEntity<Void> updateReservedPostsUploadTime(
+		@PathVariable Long agentId,
+		@RequestBody UpdateReservedPostsRequest updateReservedPostsRequest
+	) {
+		return ResponseEntity.ok().build();
+	}
+
 	@Operation(summary = "게시물 프롬프트 기반 개별 수정 API", description = "개별 게시물에 대해 입력된 프롬프트를 바탕으로 수정합니다.")
-	@PatchMapping("/{postGroupId}/posts/{postId}/prompt")
+	@PatchMapping("/post-groups/{postGroupId}/posts/{postId}/prompt")
 	public ResponseEntity<PostResponse> updateSinglePostByPrompt(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
@@ -141,7 +151,7 @@ public class PostController {
 	}
 
 	@Operation(summary = "게시물 프롬프트 기반 일괄 수정 API", description = "일괄 게시물에 대해 입력된 프롬프트를 바탕으로 수정합니다.")
-	@PatchMapping("/{postGroupId}/posts/prompt")
+	@PatchMapping("/post-groups/{postGroupId}/posts/prompt")
 	public ResponseEntity<List<PostResponse>> updateMultiplePostsByPrompt(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
@@ -160,7 +170,7 @@ public class PostController {
 
 			**업로드가 확정된 상태의 게시물은 삭제할 수 없습니다. (예약 완료, 업로드 완료, 업로드 실패)**"""
 	)
-	@DeleteMapping("/{postGroupId}/posts/{postId}")
+	@DeleteMapping("/post-groups/{postGroupId}/posts/{postId}")
 	public ResponseEntity<Void> deletePost(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
@@ -179,7 +189,7 @@ public class PostController {
 
 			**업로드가 확정된 상태의 게시물은 삭제할 수 없습니다. (예약 완료, 업로드 완료, 업로드 실패)**"""
 	)
-	@DeleteMapping("/{postGroupId}/posts")
+	@DeleteMapping("/post-groups/{postGroupId}/posts")
 	public ResponseEntity<Void> deletePosts(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
@@ -190,19 +200,19 @@ public class PostController {
 	}
 
 	@Operation(summary = "계정별 게시물 그룹 목록 조회 API", description = "사용자가 연동한 SNS 계정 내의 게시물 그룹 목록을 조회합니다.")
-	@GetMapping
+	@GetMapping("/post-groups")
 	public ResponseEntity<GetPostGroupsResponse> getPostGroupsByAgent(@PathVariable Long agentId) {
 		return ResponseEntity.ok(postService.getPostGroups(agentId));
 	}
 
 	@Operation(summary = "게시물 그룹 조회 API", description = "사용자가 연동한 SNS 계정 내의 게시물 그룹을 단건 조회합니다.")
-	@GetMapping("/{postGroupId}")
+	@GetMapping("/post-groups/{postGroupId}")
 	public ResponseEntity<PostGroupResponse> getPostGroup(@PathVariable Long agentId, @PathVariable Long postGroupId) {
 		return ResponseEntity.ok(postService.getPostGroup(agentId, postGroupId));
 	}
 
 	@Operation(summary = "게시물 그룹 주제 조회 API", description = "화면 헤더 Breadcrumb에 표시할 게시물 그룹 주제를 조회합니다.")
-	@GetMapping("/{postGroupId}/topic")
+	@GetMapping("/post-groups/{postGroupId}/topic")
 	public ResponseEntity<GetPostGroupTopicResponse> getPostGroupTopic(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId
@@ -211,7 +221,7 @@ public class PostController {
 	}
 
 	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
-	@GetMapping("/{postGroupId}/posts")
+	@GetMapping("/post-groups/{postGroupId}/posts")
 	public ResponseEntity<GetPostGroupPostsResponse> getPostsByPostGroup(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId
@@ -220,7 +230,7 @@ public class PostController {
 	}
 
 	@Operation(summary = "게시물 그룹 제거 API", description = "게시물 그룹에 해당되는 모든 게시물들을 삭제합니다.")
-	@DeleteMapping("/{postGroupId}")
+	@DeleteMapping("/post-groups/{postGroupId}")
 	public ResponseEntity<Void> deletePostGroup(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId
@@ -230,7 +240,7 @@ public class PostController {
 	}
 
 	@Operation(summary = "게시물 프롬프트 내역 조회 API", description = "게시물 결과 수정 단계에서 프롬프트 내역을 조회합니다.")
-	@GetMapping("/{postGroupId}/posts/{postId}/prompt-histories")
+	@GetMapping("/post-groups/{postGroupId}/posts/{postId}/prompt-histories")
 	public ResponseEntity<List<PromptHistoriesResponse>> getPromptHistories(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
@@ -243,7 +253,7 @@ public class PostController {
 		summary = "계정별 예약 게시물 조회 API",
 		description = "sns 계정별 업로드가 예약된 상태(UPLOAD_RESERVED)인 게시물 목록을 조회합니다."
 	)
-	@GetMapping("/posts/upload-reserved")
+	@GetMapping("/post-groups/posts/upload-reserved")
 	public ResponseEntity<GetAgentReservedPostsResponse> getAgentReservedPosts(
 		@PathVariable Long agentId
 	) {
@@ -254,7 +264,7 @@ public class PostController {
 		summary = "개별 게시물 상세조회 API",
 		description = "게시물 클릭 시 단건 게시물에 대한 상세정보를 조회합니다."
 	)
-	@GetMapping("/{postGroupId}/posts/{postId}")
+	@GetMapping("/post-groups/{postGroupId}/posts/{postId}")
 	public ResponseEntity<PostResponse> getPostDetails(
 		@PathVariable Long agentId,
 		@PathVariable Long postGroupId,
