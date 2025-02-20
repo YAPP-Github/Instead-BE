@@ -40,7 +40,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 		//TODO 임시방편
 		// Redirect URL에 accessToken 추가
 		String redirectUrl = String.format("%s%s?token=%s",
-			UrlConstants.LOCAL_DOMAIN_URL,
+			UrlConstants.PROD_DOMAIN_URL,
 			UrlConstants.GOOGLE_LOGIN_REDIRECT_URL,
 			accessToken);
 		response.sendRedirect(redirectUrl);

@@ -49,7 +49,7 @@ public class WebSecurityConfig {
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		defaultBasicFilterChain(http);
 
-		//http.requiresChannel(rcc -> rcc.anyRequest().requiresSecure()); //https만 요청가능
+		http.requiresChannel(rcc -> rcc.anyRequest().requiresSecure()); //https만 요청가능
 		http.authorizeHttpRequests(
 				authorize ->
 					authorize
