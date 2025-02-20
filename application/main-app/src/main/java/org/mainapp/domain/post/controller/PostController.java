@@ -130,11 +130,12 @@ public class PostController {
 	}
 
 	@Operation(summary = "계정별 예약 게시물 예약일시 수정 API", description = "주제에 관계 없이 계정별 예약 게시물의 예약 시간을 수정합니다.")
-	@GetMapping("/posts/upload-reserved")
+	@PutMapping("/posts/upload-reserved")
 	public ResponseEntity<Void> updateReservedPostsUploadTime(
 		@PathVariable Long agentId,
-		@RequestBody UpdateReservedPostsRequest updateReservedPostsRequest
+		@Validated @RequestBody UpdateReservedPostsRequest updateReservedPostsRequest
 	) {
+		postService.updateReservedPostsUploadTime(agentId, updateReservedPostsRequest);
 		return ResponseEntity.ok().build();
 	}
 

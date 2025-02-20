@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.postgroup.entity.PostGroup;
@@ -24,6 +25,14 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		""")
 	List<Post> findPostsWithSnsTokenByTimeRange(LocalDateTime startTime, LocalDateTime endTime,
 		@Param("status") PostStatusType status);
+
+	// Agent와 postIds에 해당하는 Post 리스트를 조회
+	@Query("""
+			select p from Post p
+			where p.postGroup.agent = :agent
+			and p.id in :postIds
+		""")
+	List<Post> findAllByAgentAndId(Agent agent, List<Long> postIds);
 
 	// PostGroup과 postIds에 해당하는 Post 리스트를 조회
 	@Query("""
@@ -77,13 +86,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 	// userId, Agent, PostGroup, 특정 status를 가진 모든 Post조회
 	@Query("""
-        SELECT p FROM Post p
-        JOIN FETCH p.postGroup pg
-        JOIN FETCH pg.agent a
-        WHERE a.user.id = :userId
-        AND a.id = :agentId
-        AND p.status = :status
-    """)
+		    SELECT p FROM Post p
+		    JOIN FETCH p.postGroup pg
+		    JOIN FETCH pg.agent a
+		    WHERE a.user.id = :userId
+		    AND a.id = :agentId
+		    AND p.status = :status
+		""")
 	List<Post> findAllReservedPostsByUserAndAgent(@Param("userId") Long userId,
 		@Param("agentId") Long agentId,
 		@Param("status") PostStatusType status);
