@@ -25,7 +25,9 @@ public class RssFeed {
 
 	@Enumerated(EnumType.STRING)
 	private FeedCategoryType category;
-
+	
 	@Column(nullable = false, length = 500)
 	private String url;
+
+	private Boolean isActivated;
 }
