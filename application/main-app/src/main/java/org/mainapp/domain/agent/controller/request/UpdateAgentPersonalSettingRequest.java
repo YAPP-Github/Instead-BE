@@ -5,18 +5,18 @@ import org.domainmodule.agent.entity.type.AgentToneType;
 import org.springframework.lang.Nullable;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 @Schema(description = "계정 개인화 설정 수정 API 요청 본문")
 public record UpdateAgentPersonalSettingRequest(
 	@Schema(description = "계정 분야", example = "IT 기술")
 	@Size(max = 20, message = "계정 분야는 20자 이내로 작성해주세요.")
-	@NotBlank(message = "계정 분야는 빈 문자열로 설정할 수 없습니다.")
+	@NotNull(message = "계정 분야를 입력해주세요.")
 	String domain,
 	@Schema(description = "계정 소개", example = "최신 IT 기술 소식을 전달하는 계정")
 	@Size(max = 500, message = "계정 소개는 500자 이내로 작성해주세요.")
-	@NotBlank(message = "계정 소개는 빈 문자열로 설정할 수 없습니다.")
+	@NotNull(message = "계정 소개를 입력해주세요.")
 	String introduction,
 	@Schema(description = "계정 말투에 대한 Enum", example = "CUSTOM")
 	@Nullable
