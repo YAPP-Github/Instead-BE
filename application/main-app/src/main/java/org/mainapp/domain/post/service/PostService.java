@@ -232,6 +232,7 @@ public class PostService {
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
 
 		postUpdateService.updatePostContent(post, request);
+		post.updateStatus(PostStatusType.EDITING);
 	}
 
 	/**
