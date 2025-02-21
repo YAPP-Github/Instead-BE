@@ -19,7 +19,7 @@ public class NewsCategoryService {
 	 * 전체 RssFeed를 조회하는 메서드
 	 */
 	public List<NewsCategoryResponse> getNewsCategories() {
-		List<RssFeed> rssFeeds = rssFeedRepository.findAll();
+		List<RssFeed> rssFeeds = rssFeedRepository.findAllActivated();
 		return rssFeeds.stream()
 			.map(NewsCategoryResponse::of)
 			.toList();
