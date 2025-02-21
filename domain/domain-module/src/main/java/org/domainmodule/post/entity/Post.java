@@ -111,6 +111,7 @@ public class Post extends BaseAuditEntity {
 
 	public void updateDisplayOrder(Integer displayOrder) {
 		this.displayOrder = displayOrder;
+		this.markPreventUpdatedAt(); // updateAt 갱신 방지
 	}
 
 	public void updateContent(String content) {
