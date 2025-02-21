@@ -120,7 +120,7 @@ public class AgentService {
 				agentPersonalSetting.updateCustomTone("");
 			}
 		}
-		if (request.customTone() != null) {
+		if (request.tone() == AgentToneType.CUSTOM && request.customTone() != null) {
 			agentPersonalSetting.updateCustomTone(request.customTone());
 		}
 
