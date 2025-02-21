@@ -1,10 +1,12 @@
 package org.openaiclient.client;
 
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 import org.openaiclient.client.dto.request.ChatCompletionRequest;
 import org.openaiclient.client.dto.response.ChatCompletionResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -19,7 +21,11 @@ public class OpenAiClient {
 		@Value("${client.openai.url}") String url,
 		@Value("${client.openai.key}") String key
 	) {
+		SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+		requestFactory.setConnectTimeout(Duration.ofSeconds(5));
+		requestFactory.setReadTimeout(Duration.ofSeconds(30));
 		this.openAiClient = RestClient.builder()
+			.requestFactory(requestFactory)
 			.baseUrl(url)
 			.defaultHeader("Authorization", "Bearer " + key)
 			.defaultHeader("Content-Type", "application/json")
