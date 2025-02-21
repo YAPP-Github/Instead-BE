@@ -88,6 +88,8 @@ public class PostUpdateService {
 				if (postRequest.getDisplayOrder() != null) {
 					post.updateDisplayOrder(postRequest.getDisplayOrder());
 				}
+				post.markPreventUpdatedAt(); // updateAt 갱신 방지
+
 			});
 
 		// 수정 내용 저장
