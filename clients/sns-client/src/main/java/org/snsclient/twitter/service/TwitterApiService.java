@@ -24,7 +24,7 @@ public class TwitterApiService {
 		//TODO userID를 트위터 로그인 같이 감아보내는데 Base64인코딩해서 암호화하기
 
 		// 기존 state 값을 교체하여 하나만 유지
-		return url.replaceAll("&state=[^&]*", "") + "&state=" + userId + "&prompt=select_account";
+		return url.replaceAll("&state=[^&]*", "") + "&state=" + userId + "&prompt=login";
 	}
 
 	/**
