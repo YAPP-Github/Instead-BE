@@ -45,3 +45,4 @@ public class TwitterController {
 		response.sendRedirect(redirectUrl);
 	}
 }
+
