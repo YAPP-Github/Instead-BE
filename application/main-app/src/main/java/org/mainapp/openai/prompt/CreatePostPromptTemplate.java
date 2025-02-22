@@ -82,6 +82,9 @@ public class CreatePostPromptTemplate {
 			prompt.append("그리고 다음과 같은 내용을 반드시 포함하도록 해: ").append(content).append("\n");
 		}
 
+		// 문장마다 줄바꿈 추가
+		prompt.append("그리고 문장마다 줄바꿈을 적용해야해.\n");
+
 		// 이모지 포함 설정
 		prompt.append("마지막으로, 문장 중간중간에 내용과 관련된 emoji를 종종 추가하도록 해.\n");
 
