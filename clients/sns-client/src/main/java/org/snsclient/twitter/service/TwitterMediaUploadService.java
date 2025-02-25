@@ -26,10 +26,10 @@ public class TwitterMediaUploadService {
 	private final ObjectMapper objectMapper;
 	private final TwitterRestClient twitterRestClient;
 	private final ImageDownloadClient imageDownloadClient;
-	private final String TWITTER_MEDIA_UPLOAD_URL = "https://api.x.com/2/media/upload";
 
 	/**
 	 * Presigned URL을 사용해 S3에서 이미지 다운로드 후 Twitter에 이미지 업로드
+	 * https://docs.x.com/x-api/media/quickstart/media-upload-chunked
 	 */
 	public String uploadMedia(String presignedUrl, String accessToken) throws TwitterException {
 		// 이미지 다운로드
@@ -56,7 +56,7 @@ public class TwitterMediaUploadService {
 		body.add("total_bytes", String.valueOf(totalBytes));
 		body.add("media_type", "image/jpeg");
 
-		return twitterRestClient.postMediaRequest(body, accessToken, TWITTER_MEDIA_UPLOAD_URL);
+		return twitterRestClient.uploadMedia(body, accessToken);
 	}
 
 	/**
@@ -75,11 +75,9 @@ public class TwitterMediaUploadService {
 		}).contentType(MediaType.IMAGE_JPEG);
 
 		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-		builder.build().forEach(
-			(key, value) -> body.put(key, new ArrayList<>(value))
-		);
+		builder.build().forEach((key, value) -> body.put(key, new ArrayList<>(value)));
 
-		twitterRestClient.postMediaRequest(body, accessToken, TWITTER_MEDIA_UPLOAD_URL);
+		twitterRestClient.uploadMedia(body, accessToken);
 	}
 
 	/**
@@ -90,13 +88,13 @@ public class TwitterMediaUploadService {
 		body.add("command", "FINALIZE");
 		body.add("media_id", mediaId);
 
-		return twitterRestClient.postMediaRequest(body, accessToken, TWITTER_MEDIA_UPLOAD_URL);
+		return twitterRestClient.uploadMedia(body, accessToken);
 	}
 
 	/**
 	 * 응답 JSON에서 media_id 추출
 	 */
-	private String extractMediaId(String responseBody) {
+	private String extractMediaId(String responseBody) throws TwitterException {
 		try {
 			JsonNode jsonNode = objectMapper.readTree(responseBody);
 			JsonNode dataNode = jsonNode.get("data");
@@ -106,8 +104,8 @@ public class TwitterMediaUploadService {
 			}
 			return null;
 		} catch (Exception e) {
-			log.error("Twitter 응답 JSON 파싱 실패", e);
-			throw new RuntimeException("Twitter 응답 JSON 파싱 실패", e);
+			log.error("Twitter Media 업로드 응답 JSON 파싱 실패", e);
+			throw new TwitterException("Twitter Media 업로드 응답 JSON 파싱 실패", e);
 		}
 	}
 }

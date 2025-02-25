@@ -2,6 +2,7 @@ package org.snsclient.twitter.client;
 
 import java.net.URI;
 
+import org.snsclient.twitter.constants.ApiUrls;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.snsclient.twitter.dto.response.TwitterUserResponse;
 import org.springframework.http.HttpHeaders;
@@ -24,11 +25,11 @@ public class TwitterRestClient {
 	/**
 	 * Twitter API에 Media Upload 요청
 	 */
-	public String postMediaRequest(MultiValueMap<String, Object> body, String accessToken, String url) throws
+	public String uploadMedia(MultiValueMap<String, Object> body, String accessToken) throws
 		TwitterException {
 		try {
 			return webClient.post()
-				.uri(URI.create(url))
+				.uri(URI.create(ApiUrls.TWITTER_MEDIA_UPLOAD_URL))
 				.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
 				.contentType(MediaType.MULTIPART_FORM_DATA)
 				.bodyValue(body)
@@ -42,10 +43,11 @@ public class TwitterRestClient {
 		}
 	}
 
-	public TwitterUserInfoDto getUserGetMeRequest(String userFields, String accessToken, String url) throws
+
+	public TwitterUserInfoDto getUserGetMeRequest(String userFields, String accessToken) throws
 		TwitterException {
 		try {
-			URI uri = UriComponentsBuilder.fromHttpUrl(url)
+			URI uri = UriComponentsBuilder.fromHttpUrl(ApiUrls.TWITTER_GET_ME_URL)
 				.queryParam("user.fields", userFields)
 				.build()
 				.encode()

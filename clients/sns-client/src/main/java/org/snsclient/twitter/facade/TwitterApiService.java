@@ -3,7 +3,7 @@ package org.snsclient.twitter.facade;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.snsclient.twitter.service.Twitter4jService;
-import org.snsclient.twitter.service.TwitterGetMeService;
+import org.snsclient.twitter.service.TwitterUserService;
 import org.snsclient.twitter.service.TwitterMediaUploadService;
 import org.springframework.stereotype.Service;
 
@@ -15,7 +15,7 @@ import twitter4j.TwitterException;
 @Service
 @RequiredArgsConstructor
 public class TwitterApiService {
-	private final TwitterGetMeService twitterGetMeService;
+	private final TwitterUserService twitterUserService;
 	private final TwitterMediaUploadService twitterMediaUploadService;
 	private final Twitter4jService twitter4jService;
 
@@ -62,6 +62,6 @@ public class TwitterApiService {
 	 * X로 부터 유저 본인의 정보 받아오기
 	 */
 	public TwitterUserInfoDto getUserInfo(String accessToken) throws TwitterException {
-		return twitterGetMeService.getUserInfo(accessToken);
+		return twitterUserService.getUserInfo(accessToken);
 	}
 }
