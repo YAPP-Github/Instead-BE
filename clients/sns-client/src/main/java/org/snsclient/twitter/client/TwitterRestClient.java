@@ -63,15 +63,4 @@ public class TwitterRestClient {
 			throw new TwitterException("Twitter 사용자 정보 요청 중 에러 발생: " + e.getMessage(), e);
 		}
 	}
-
-	/**
-	 * S3에서 이미지 다운로드
-	 */
-	public byte[] downloadImageFromS3(String presignedUrl) {
-		return webClient.get()
-			.uri(presignedUrl)
-			.retrieve()
-			.bodyToMono(byte[].class)
-			.block();
-	}
 }

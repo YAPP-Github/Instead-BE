@@ -2,6 +2,7 @@ package org.snsclient.twitter.service;
 
 import java.util.ArrayList;
 
+import org.snsclient.client.ImageDownloadClient;
 import org.snsclient.twitter.client.TwitterRestClient;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
@@ -24,19 +25,15 @@ public class TwitterMediaUploadService {
 
 	private final ObjectMapper objectMapper;
 	private final TwitterRestClient twitterRestClient;
-
+	private final ImageDownloadClient imageDownloadClient;
 	private final String TWITTER_MEDIA_UPLOAD_URL = "https://api.x.com/2/media/upload";
 
 	/**
 	 * Presigned URL을 사용해 S3에서 이미지 다운로드 후 Twitter에 이미지 업로드
 	 */
 	public String uploadMedia(String presignedUrl, String accessToken) throws TwitterException {
-		byte[] imageBytes = twitterRestClient.downloadImageFromS3(presignedUrl);
-		if (imageBytes == null || imageBytes.length == 0) {
-			throw new RuntimeException("이미지 다운로드 실패");
-		}
-
-		log.info("✅ S3에서 이미지 다운로드 완료 (크기: {} bytes)", imageBytes.length);
+		// 이미지 다운로드
+		byte[] imageBytes = imageDownloadClient.downloadImage(presignedUrl);
 
 		// INIT 요청 (업로드 준비 요청)
 		String initResponse = initUpload(imageBytes.length, accessToken);

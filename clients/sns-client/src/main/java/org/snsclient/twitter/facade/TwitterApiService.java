@@ -1,7 +1,10 @@
-package org.snsclient.twitter.service;
+package org.snsclient.twitter.facade;
 
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
+import org.snsclient.twitter.service.Twitter4jService;
+import org.snsclient.twitter.service.TwitterGetMeService;
+import org.snsclient.twitter.service.TwitterMediaUploadService;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -42,7 +45,7 @@ public class TwitterApiService {
 	}
 
 	/**
-	 * 트윗 생성 API 호출 메서드
+	 * 글 생성 API 호출 메서드
 	 */
 	public Long postTweet(String accessToken, String content, Long[] mediaIds) throws TwitterException {
 		return twitter4jService.postTweet(accessToken, content, mediaIds);
