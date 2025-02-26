@@ -17,7 +17,7 @@ public class CreateDetailTopicsPromptTemplate {
 		}
 
 		List<String> existTopicsPrompt = existTopics.stream()
-			.map(existTopic -> "- " + existTopic + "\n")
+			.map(existTopic -> existTopic + "\n")
 			.toList();
 
 		return "세부 주제를 추천할 때, 다음 주제를과 겹치지 않는 내용으로 추천해줘.\n" + existTopicsPrompt;
