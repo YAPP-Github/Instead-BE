@@ -23,20 +23,7 @@ import twitter4j.conf.ConfigurationBuilder;
 @RequiredArgsConstructor
 public class Twitter4jService {
 	private final Twitter4jConfig config;
-	private final String[] scopes = {"media.write", "tweet.read", "tweet.write", "users.read", "offline.access"};
 	private final OAuth2TokenProvider twitterOAuth2TokenProvider;
-
-	/**
-	 * authorization url 생성 메서드
-	 * @return authorization url
-	 */
-	public String getTwitterAuthorizationUrl() {
-		return twitterOAuth2TokenProvider.createAuthorizeUrl(
-			config.getClientId(),
-			config.getRedirectUri(),
-			scopes,
-			config.getChallenge());
-	}
 
 	/**
 	 * 발급받은 code를 가지고 access token(2시간 동안 유효)을 발급받는 메서드
