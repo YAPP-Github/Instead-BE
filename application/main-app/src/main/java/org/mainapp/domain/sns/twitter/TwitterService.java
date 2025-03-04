@@ -9,7 +9,7 @@ import org.mainapp.global.error.CustomException;
 import org.mainapp.global.util.JwtUtil;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
-import org.snsclient.twitter.service.TwitterApiService;
+import org.snsclient.twitter.facade.TwitterApiService;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
@@ -47,7 +47,6 @@ public class TwitterService {
 		snsTokenService.createOrUpdateSnsToken(agent, tokenResponse);
 
 		// TODO 리다이렉트 URL 트위터가 들어가도록 변경
-		// return UrlConstants.LOCAL_DOMAIN_URL  + UrlConstants.TWITTER_LOGIN_REDIRECT_URL;
 		return UrlConstants.PROD_DOMAIN_URL + "/" + agent.getId();
 	}
 
