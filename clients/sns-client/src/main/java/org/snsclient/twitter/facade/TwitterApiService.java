@@ -3,6 +3,7 @@ package org.snsclient.twitter.facade;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.snsclient.twitter.service.Twitter4jService;
+import org.snsclient.twitter.service.TwitterAuthService;
 import org.snsclient.twitter.service.TwitterUserService;
 import org.snsclient.twitter.service.TwitterMediaUploadService;
 import org.springframework.stereotype.Service;
@@ -18,16 +19,13 @@ public class TwitterApiService {
 	private final TwitterUserService twitterUserService;
 	private final TwitterMediaUploadService twitterMediaUploadService;
 	private final Twitter4jService twitter4jService;
+	private final TwitterAuthService twitterAuthService;
 
 	/**
 	 * authorization url 생성 메서드
 	 */
 	public String getTwitterAuthorizationUrl(String userId) {
-		String url = twitter4jService.getTwitterAuthorizationUrl();
-		//TODO userID를 트위터 로그인 같이 감아보내는데 Base64인코딩해서 암호화하기
-
-		// 기존 state 값을 교체하여 하나만 유지
-		return url.replaceAll("&state=[^&]*", "") + "&state=" + userId + "&prompt=select_account";
+		return twitterAuthService.getTwitterAuthorizationUrl(userId);
 	}
 
 	/**

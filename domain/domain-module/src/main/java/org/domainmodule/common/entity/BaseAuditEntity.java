@@ -7,6 +7,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Transient;
 import lombok.Getter;
@@ -21,6 +22,11 @@ public class BaseAuditEntity extends BaseTimeEntity {
 
 	@Transient
 	private boolean preventUpdatedAt = false;
+
+	@PrePersist
+	public void prePersist() {
+		this.updatedAt = LocalDateTime.now(); // 초기 저장 시 updatedAt 설정
+	}
 
 	@PreUpdate
 	public void setPreventUpdatedAt() {
