@@ -1,6 +1,7 @@
 package org.snsclient.twitter.service;
 
 import org.snsclient.twitter.config.Twitter4jConfig;
+import org.snsclient.util.TwitterOauthUtil;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
@@ -17,30 +18,31 @@ public class TwitterAuthService {
 	 * authorization url 생성 메서드
 	 * @return authorization url
 	 */
-	public String getTwitterAuthorizationUrl(String userId) {
+	public String getTwitterAuthorizationUrl(String userId, String clientId) {
 		return createAuthorizeUrl(
 			userId,
-			config.getClientId(),
+			clientId,
 			config.getRedirectUri(),
 			scopes,
 			config.getChallenge());
 	}
 
 	private String createAuthorizeUrl(String userId, String clientId, String redirectUri, String[] scopes, String challenge) {
-		if (challenge == null || challenge.isEmpty()) {
-			challenge = "challenge";
-		}
-
 		String scope = String.join("%20", scopes);
+
+		// Base64 URL-safe 인코딩
+		String state = TwitterOauthUtil.encodeStateToBase64(userId, clientId);
 
 		return "https://twitter.com/i/oauth2/authorize?response_type=code&" +
 			"client_id=" + clientId + "&" +
 			"redirect_uri=" + redirectUri + "&" +
 			"scope=" + scope + "&" +
-			"state=" + userId + "&" +
+			"state=" + state + "&" +
 			"code_challenge=" + challenge + "&" +
 			"code_challenge_method=plain"  + "&" +
 			"prompt=select_account";
 	}
+
+
 
 }

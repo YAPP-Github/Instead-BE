@@ -30,10 +30,10 @@ public class Twitter4jService {
 	 * @param code 발급받은 code (10분간 유효)
 	 * @return access token
 	 */
-	public TwitterToken getTwitterAuthorizationToken(String code) {
+	public TwitterToken getTwitterAuthorizationToken(String code, String clientId) {
 		try {
 			OAuth2TokenProvider.Result result = twitterOAuth2TokenProvider.getAccessToken(
-				config.getClientId(),
+				clientId,
 				config.getRedirectUri(),
 				code,
 				config.getChallenge()
