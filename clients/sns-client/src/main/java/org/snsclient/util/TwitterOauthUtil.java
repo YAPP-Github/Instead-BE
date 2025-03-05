@@ -19,4 +19,14 @@ public class TwitterOauthUtil {
 			throw new RuntimeException("Twitter Oauth encode 실패", e);
 		}
 	}
+
+	// Base64 형식을 디코딩
+	public static Map<String, String> decodeStateFromBase64(String base64State) {
+		try {
+			String jsonState = new String(Base64.getUrlDecoder().decode(base64State), StandardCharsets.UTF_8);
+			return objectMapper.readValue(jsonState, Map.class);
+		} catch (Exception e) {
+			throw new RuntimeException("Twitter Oauth decode 실패", e);
+		}
+	}
 }

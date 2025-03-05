@@ -7,13 +7,13 @@ import org.mainapp.domain.agent.service.AgentService;
 import org.mainapp.domain.sns.exception.SnsErrorCode;
 import org.mainapp.domain.sns.token.SnsTokenService;
 import org.mainapp.domain.sns.twitter.request.OAuthClientCredentials;
-import org.mainapp.domain.sns.utils.TwitterOauthUtil;
 import org.mainapp.global.constants.UrlConstants;
 import org.mainapp.global.error.CustomException;
 import org.mainapp.global.util.JwtUtil;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.snsclient.twitter.facade.TwitterApiService;
+import org.snsclient.util.TwitterOauthUtil;
 import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
