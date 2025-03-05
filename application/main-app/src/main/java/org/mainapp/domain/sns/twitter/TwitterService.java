@@ -45,7 +45,6 @@ public class TwitterService {
 
 		Agent agent = agentService.updateOrCreateAgent(userInfo, userId);
 		snsTokenService.createOrUpdateSnsToken(agent, tokenResponse);
-
 		// TODO 리다이렉트 URL 트위터가 들어가도록 변경
 		return UrlConstants.PROD_DOMAIN_URL + "/" + agent.getId();
 	}
