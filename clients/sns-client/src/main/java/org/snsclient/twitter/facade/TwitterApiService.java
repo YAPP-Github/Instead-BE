@@ -24,15 +24,15 @@ public class TwitterApiService {
 	/**
 	 * authorization url 생성 메서드
 	 */
-	public String getTwitterAuthorizationUrl(String userId) {
-		return twitterAuthService.getTwitterAuthorizationUrl(userId);
+	public String getTwitterAuthorizationUrl(String userId, String clientId) {
+		return twitterAuthService.getTwitterAuthorizationUrl(userId, clientId);
 	}
 
 	/**
 	 * 발급받은 code를 가지고 access token(2시간 동안 유효)을 발급받는 메서드
 	 */
-	public TwitterToken getTwitterAuthorizationToken(String code) {
-		return twitter4jService.getTwitterAuthorizationToken(code);
+	public TwitterToken getTwitterAuthorizationToken(String code, String clientId) {
+		return twitter4jService.getTwitterAuthorizationToken(code, clientId);
 	}
 
 	/**
