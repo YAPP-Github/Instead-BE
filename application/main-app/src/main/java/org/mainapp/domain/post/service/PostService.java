@@ -1,10 +1,18 @@
 package org.mainapp.domain.post.service;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableSet;
+import java.util.Random;
+import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -14,12 +22,14 @@ import org.domainmodule.agent.repository.AgentPersonalSettingRepository;
 import org.domainmodule.agent.repository.AgentRepository;
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.type.PostStatusType;
+import org.domainmodule.post.entity.type.UploadTimeType;
 import org.domainmodule.post.repository.PostRepository;
 import org.domainmodule.postgroup.entity.PostGroup;
 import org.domainmodule.postgroup.repository.PostGroupRepository;
 import org.mainapp.domain.agent.exception.AgentErrorCode;
 import org.mainapp.domain.post.controller.request.CreatePostsRequest;
 import org.mainapp.domain.post.controller.request.MultiplePostUpdateRequest;
+import org.mainapp.domain.post.controller.request.ReserveUploadTimeRequest;
 import org.mainapp.domain.post.controller.request.SinglePostUpdateRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostContentRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostsMetadataRequest;
@@ -271,6 +281,89 @@ public class PostService {
 		List<Post> posts = postRepository.findAllByAgentAndId(agent, postIds);
 
 		postUpdateService.updateReservedPostsUploadTime(posts, request);
+	}
+
+	/**
+	 *  업로드 시간 빠른 예약하는 메서드
+	 */
+	public GetAgentReservedPostsResponse reserveReadyToUploadPosts(Long agentId, Long postGroupId, ReserveUploadTimeRequest request) {
+		Long userId = SecurityUtil.getCurrentUserId();
+
+		// PostGroup의 예약 시간 정할 글 (displayOrder ASC 정렬)
+		List<Post> readyToUploadPosts = postRepository.findPostsByUserAndAgentAndStatus(
+			userId, agentId, postGroupId, PostStatusType.READY_TO_UPLOAD);
+
+		// 해당 Agent의 이미 예약 시간 확정 글
+		List<Post> confirmedUploadPosts = postRepository.findAllReservedPostsByUserAndAgent(
+			userId, agentId, PostStatusType.UPLOAD_CONFIRMED);
+
+		// 하루에 업로드할 개수, 업로드 시작 날짜, 업로드할 전체
+		int dailyUploadCount = request.dailyUploadCount();
+		LocalDate startDate = request.uploadStartTime().toLocalDate();
+		int totalPosts = readyToUploadPosts.size();
+
+		// 업로드할 시간대 범위 가져오기
+		UploadTimeType uploadTimeType = request.uploadTimeType();
+		LocalTime timeSlotStart = uploadTimeType.getStartTime();
+		LocalTime timeSlotEnd = uploadTimeType.getEndTime();
+
+		// 기존 예약된 게시물의 업로드 시간 저장
+		Map<LocalDate, NavigableSet<LocalDateTime>> reservedTimesByDate = confirmedUploadPosts.stream()
+			.collect(Collectors.groupingBy(
+				post -> post.getUploadTime().toLocalDate(),
+				Collectors.mapping(Post::getUploadTime, Collectors.toCollection(TreeSet::new))
+			));
+
+		// 하루에 업로드할 개수를 고려하여 랜덤한 업로드 시간 생성
+		List<LocalDateTime> randomAvailableTimes = generateRandomUploadTimes(
+			startDate, timeSlotStart, timeSlotEnd, totalPosts, dailyUploadCount, reservedTimesByDate
+		);
+
+		// 랜덤한 시간을 오름차순 정렬
+		Collections.sort(randomAvailableTimes);
+
+		// readyToUploadPosts에 예약 시간 배정
+		for (int i = 0; i < totalPosts; i++) {
+			Post post = readyToUploadPosts.get(i);
+			post.updateUploadTime(randomAvailableTimes.get(i));
+			post.updateStatus(PostStatusType.UPLOAD_CONFIRMED);
+		}
+
+		// 변경된 post 저장
+		postRepository.saveAll(readyToUploadPosts);
+
+		return GetAgentReservedPostsResponse.from(readyToUploadPosts);
+	}
+
+	/**
+	 * 랜덤한 업로드 시간을 생성하는 메서드 (하루 업로드 제한 적용)
+	 */
+	private List<LocalDateTime> generateRandomUploadTimes(LocalDate startDate, LocalTime start, LocalTime end,
+		int totalPosts, int dailyUploadCount, Map<LocalDate, NavigableSet<LocalDateTime>> reservedTimesByDate) {
+
+		List<LocalDateTime> availableTimes = new ArrayList<>();
+		Random random = new Random();
+		LocalDate currentDate = startDate;
+		int assignedCount = 0;
+
+		while (availableTimes.size() < totalPosts) {
+			// 하루에 올릴 개수 초과 시, 다음 날로 이동
+			if (assignedCount >= dailyUploadCount) {
+				assignedCount = 0;
+				currentDate = currentDate.plusDays(1);
+			}
+
+			// 랜덤한 분(minute) 생성 (start ~ end 사이)
+			int randomMinute = random.nextInt((int) Duration.between(start, end).toMinutes());
+			LocalDateTime randomTime = LocalDateTime.of(currentDate, start.plusMinutes(randomMinute));
+
+			// 기존 예약된 시간과 겹치지 않으면 추가
+			if (!reservedTimesByDate.getOrDefault(currentDate, new TreeSet<>()).contains(randomTime)) {
+				availableTimes.add(randomTime);
+				assignedCount++;
+			}
+		}
+		return availableTimes;
 	}
 
 	/**

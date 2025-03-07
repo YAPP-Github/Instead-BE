@@ -84,7 +84,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		""")
 	Optional<Post> findLastGeneratedPost(PostGroup postGroup, PostStatusType status);
 
-	// userId, Agent, PostGroup, 특정 status를 가진 모든 Post조회
+	// Agen 게시글 중, 특정 status를 가진 모든 Post를 uploadTime 오름차순으로 조회
 	@Query("""
 		    SELECT p FROM Post p
 		    JOIN FETCH p.postGroup pg
@@ -94,7 +94,25 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		    AND p.status = :status
 		    ORDER BY p.uploadTime
 		""")
-	List<Post> findAllReservedPostsByUserAndAgent(@Param("userId") Long userId,
+	List<Post> findAllReservedPostsByUserAndAgent(
+		@Param("userId") Long userId,
 		@Param("agentId") Long agentId,
+		@Param("status") PostStatusType status);
+
+	// user, agent, postgroup, 특정 status를 가진 post를 displayOrder 오름차순 순서로 조회
+	@Query("""
+    SELECT p FROM Post p
+    JOIN p.postGroup pg
+    JOIN pg.agent a
+    WHERE a.user.id = :userId
+    AND a.id = :agentId
+    AND p.status = :status
+    AND pg.id = :postGroupId
+    ORDER BY p.displayOrder ASC
+    """)
+	List<Post> findPostsByUserAndAgentAndStatus(
+		@Param("userId") Long userId,
+		@Param("agentId") Long agentId,
+		@Param("postGroupId") Long postGroupId,
 		@Param("status") PostStatusType status);
 }
