@@ -293,7 +293,7 @@ public class PostService {
 		List<Post> readyToUploadPosts = postRepository.findPostsByUserAndAgentAndStatus(
 			userId, agentId, postGroupId, PostStatusType.READY_TO_UPLOAD);
 
-		// 해당 Agent의 이미 예약 시간 확정 글
+		// 해당 Agent의 이미 예약 시간 확정 + 업로드 대기 상태 글
 		List<Post> confirmedUploadPosts = postRepository.findAllReservedPostsByUserAndAgent(
 			userId, agentId, PostStatusType.UPLOAD_CONFIRMED);
 
@@ -326,7 +326,7 @@ public class PostService {
 		for (int i = 0; i < totalPosts; i++) {
 			Post post = readyToUploadPosts.get(i);
 			post.updateUploadTime(randomAvailableTimes.get(i));
-			post.updateStatus(PostStatusType.UPLOAD_CONFIRMED);
+			post.updateStatus(PostStatusType.UPLOAD_RESERVED);
 		}
 
 		// 변경된 post 저장
@@ -419,8 +419,11 @@ public class PostService {
 	 */
 	private void validateDeletingPostStatus(Post post) {
 		// 삭제 가능한 상태: 생성됨, 수정중, 수정완료
-		List<PostStatusType> validStatuses = List.of(PostStatusType.GENERATED, PostStatusType.EDITING,
-			PostStatusType.READY_TO_UPLOAD);
+		List<PostStatusType> validStatuses = List.of(
+			PostStatusType.GENERATED,
+			PostStatusType.EDITING,
+			PostStatusType.READY_TO_UPLOAD,
+			PostStatusType.UPLOAD_RESERVED);
 
 		if (!validStatuses.contains(post.getStatus())) {
 			throw new CustomException(PostErrorCode.INVALID_DELETING_POST_STATUS);
@@ -433,7 +436,7 @@ public class PostService {
 	public GetAgentReservedPostsResponse getAgentReservedPosts(Long agentId) {
 		Long userId = SecurityUtil.getCurrentUserId();
 		List<Post> posts = postRepository.findAllReservedPostsByUserAndAgent(userId, agentId,
-			PostStatusType.UPLOAD_RESERVED);
+			PostStatusType.UPLOAD_CONFIRMED);
 
 		return GetAgentReservedPostsResponse.from(posts);
 	}
