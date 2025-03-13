@@ -293,9 +293,13 @@ public class PostService {
 		List<Post> readyToUploadPosts = postRepository.findPostsByUserAndAgentAndStatus(
 			userId, agentId, postGroupId, PostStatusType.READY_TO_UPLOAD);
 
-		// 해당 Agent의 이미 예약 시간 확정 + 업로드 대기 상태 글
-		List<Post> confirmedUploadPosts = postRepository.findAllReservedPostsByUserAndAgent(
-			userId, agentId, PostStatusType.UPLOAD_CONFIRMED);
+		// 해당 Agent의 이미 예약 시간 확정 + 업로드 대기 상태인 글
+		List<PostStatusType> postStatusTypeList = List.of(
+			PostStatusType.UPLOAD_RESERVED,
+			PostStatusType.UPLOAD_CONFIRMED
+		);
+		List<Post> confirmedUploadPosts = postRepository.findAllReservedPostsByUserAndAgentAndStatus(
+			userId, agentId, postStatusTypeList);
 
 		// 하루에 업로드할 개수, 업로드 시작 날짜, 업로드할 전체
 		int dailyUploadCount = request.dailyUploadCount();

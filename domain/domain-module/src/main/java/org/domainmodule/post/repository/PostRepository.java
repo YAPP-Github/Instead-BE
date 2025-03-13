@@ -99,7 +99,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		@Param("agentId") Long agentId,
 		@Param("status") PostStatusType status);
 
-	// user, agent, postgroup, 특정 status를 가진 post를 displayOrder 오름차순 순서로 조회
+	// user, agent, postgroup, status를 가진 post를 displayOrder 오름차순 순서로 조회
 	@Query("""
     SELECT p FROM Post p
     JOIN p.postGroup pg
@@ -115,4 +115,18 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		@Param("agentId") Long agentId,
 		@Param("postGroupId") Long postGroupId,
 		@Param("status") PostStatusType status);
+
+	@Query("""
+    SELECT p FROM Post p
+    JOIN p.postGroup pg
+    JOIN pg.agent a
+    WHERE a.user.id = :userId
+    AND a.id = :agentId
+    AND p.status IN :statusList
+    ORDER BY p.uploadTime
+    """)
+	List<Post> findAllReservedPostsByUserAndAgentAndStatus(
+		@Param("userId") Long userId,
+		@Param("agentId") Long agentId,
+		@Param("statusList") List<PostStatusType> statusList);
 }
