@@ -84,11 +84,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		""")
 	Optional<Post> findLastGeneratedPost(PostGroup postGroup, PostStatusType status);
 
-	// Agen 게시글 중, 특정 status를 가진 모든 Post를 uploadTime 오름차순으로 조회
+	// Agent 게시글 중, 특정 status를 가진 모든 Post를 uploadTime 오름차순으로 조회
 	@Query("""
 		    SELECT p FROM Post p
-		    JOIN FETCH p.postGroup pg
-		    JOIN FETCH pg.agent a
+		    JOIN p.postGroup pg
+		    JOIN pg.agent a
 		    WHERE a.user.id = :userId
 		    AND a.id = :agentId
 		    AND p.status = :status
