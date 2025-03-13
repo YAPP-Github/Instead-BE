@@ -299,7 +299,7 @@ public class PostService {
 
 		// 하루에 업로드할 개수, 업로드 시작 날짜, 업로드할 전체
 		int dailyUploadCount = request.dailyUploadCount();
-		LocalDate startDate = request.uploadStartTime().toLocalDate();
+		LocalDate startDate = request.uploadStartDate();
 		int totalPosts = readyToUploadPosts.size();
 
 		// 업로드할 시간대 범위 가져오기
