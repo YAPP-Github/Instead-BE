@@ -140,7 +140,7 @@ public class PostController {
 		return ResponseEntity.ok().build();
 	}
 
-	@Operation(summary = "업로드 시간 빠른 예약하기 API", description = "포스트 수, 업로드 시작 시간, 시간대, postGroupId를 받아 READY_TO_UPLOAD 상태인 Post의 예약 시간을 일괄로 확정합니다.")
+	@Operation(summary = "업로드 시간 빠른 예약하기 API", description = "READY_TO_UPLOAD 상태인 Post들의 예약 시간을 일괄로 설정합니다.")
 	@PutMapping("/post-groups/{postGroupId}/posts/reserved-all")
 	public ResponseEntity<GetAgentReservedPostsResponse> reserveReadyToUploadPosts(
 		@PathVariable Long agentId,

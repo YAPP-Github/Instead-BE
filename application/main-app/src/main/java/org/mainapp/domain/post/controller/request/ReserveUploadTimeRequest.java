@@ -1,6 +1,6 @@
 package org.mainapp.domain.post.controller.request;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import org.domainmodule.post.entity.type.UploadTimeType;
 
@@ -12,9 +12,9 @@ public record ReserveUploadTimeRequest(
 	@Schema(description = "하루에 업로드 할 글의 수", example = "2")
 	@NotNull(message = "업로드 할 글의 수를 지정해주세요.")
 	int dailyUploadCount,
-	@Schema(description = "업로드 시작 시간", example = "2025-01-01T00:00:00.000Z")
-	@NotNull(message = "업로드 시작 시간을 지정해주세요.")
-	LocalDateTime uploadStartTime,
+	@Schema(description = "업로드 시작 시간", example = "2025-01-01")
+	@NotNull(message = "업로드 시작 날짜을 지정해주세요.")
+	LocalDate uploadStartDate,
 	@Schema(description = "업로드 할 시간대", example = "MORNING")
 	@NotNull(message = "업로드 할 시간대를 지정해주세요.")
 	UploadTimeType uploadTimeType
