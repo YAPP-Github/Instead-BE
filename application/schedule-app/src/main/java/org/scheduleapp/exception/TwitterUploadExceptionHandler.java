@@ -1,5 +1,8 @@
 package org.scheduleapp.exception;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
+
 import org.domainmodule.post.entity.type.PostStatusType;
 import org.springframework.stereotype.Component;
 import org.scheduleapp.post.PostService;
@@ -15,13 +18,14 @@ import twitter4j.TwitterException;
 public class TwitterUploadExceptionHandler {
 
 	private final PostService postService;
+	private static final int MAX_RETRY_COUNT = 1;
 
-	public void handleUploadSuccess(UploadPostDto uploadPostDto, Long tweetId) {
+	public void handleUploadSuccess(UploadPostDto uploadPostDto, String tweetId) {
 		postService.updatePostStatus(uploadPostDto.post(), PostStatusType.UPLOADED);
 		log.info("Tweet 업로드 성공 - Post ID: {}, Tweet ID: {}", uploadPostDto.post().getId(), tweetId);
 	}
 
-	public void handleUploadError(UploadPostDto uploadPostDto, Throwable exception, int retryCount, Runnable retryAction) {
+	public CompletableFuture<Void> handleUploadError(UploadPostDto uploadPostDto, Throwable exception, int retryCount, Supplier<CompletableFuture<Void>> retryAction) {
 		if (exception instanceof TwitterException twitterException) {
 			int statusCode = twitterException.getStatusCode();
 			switch (statusCode) {
@@ -32,13 +36,18 @@ public class TwitterUploadExceptionHandler {
 				default -> handleUnknownError(twitterException, uploadPostDto);
 			}
 		}
+		return CompletableFuture.failedFuture(exception);
 	}
 
 	//401 Unauthorized: 토큰을 재발급 후 재시도
-	private void handleUnauthorizedError(UploadPostDto uploadPostDto, int retryCount, Runnable retryAction) {
+	private CompletableFuture<Void> handleUnauthorizedError(UploadPostDto uploadPostDto, int retryCount, Supplier<CompletableFuture<Void>> retryAction) {
 		log.warn("권한 부족 - Post ID: {}. 토큰을 재발급 후 재시도합니다.", uploadPostDto.post().getId());
-		// 전달받은 재시도 로직 실행 (토큰 갱신 후 업로드 재시도)
-		retryAction.run();
+		if (retryCount < MAX_RETRY_COUNT) {
+			return retryAction.get();
+		} else {
+			log.error("최대 재시도 횟수 도달 - Post ID: {}", uploadPostDto.post().getId());
+			return CompletableFuture.completedFuture(null);
+		}
 	}
 
 	// 403 Forbidden: 권한 부족으로 업로드 불가

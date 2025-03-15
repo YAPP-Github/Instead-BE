@@ -85,7 +85,7 @@ public class TwitterClient {
 
 		try {
 			String responseBody = webClient.post()
-				.uri("/token")
+				.uri(URI.create(ApiUrls.TWITTER_GET_TOKEN_URL))
 				.header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
 				.bodyValue(params)
 				.retrieve()
@@ -105,6 +105,68 @@ public class TwitterClient {
 
 		} catch (Exception e) {
 			throw new TwitterException("Twitter AccessToken 발급 요청 중 오류 발생: " + e.getMessage(), e);
+		}
+	}
+
+	public TwitterToken refreshTokenRequest(String refreshToken, String clientId) throws TwitterException {
+		Map<String, String> params = Map.of(
+			"grant_type", "refresh_token",
+			"refresh_token", refreshToken,
+			"client_id", clientId
+		);
+
+		try {
+			String responseBody = webClient.post()
+				.uri(URI.create(ApiUrls.TWITTER_GET_TOKEN_URL))
+				.header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
+				.bodyValue(params)
+				.retrieve()
+				.bodyToMono(String.class)
+				.block();
+
+			if (responseBody == null) {
+				throw new TwitterException("Twitter RefreshToken 요청 응답이 비어 있습니다.");
+			}
+
+			JSONObject json = new JSONObject(responseBody);
+			return TwitterToken.of(
+				json.getString("access_token"),
+				json.getString("refresh_token"),
+				json.getLong("expires_in")
+			);
+
+		} catch (Exception e) {
+			throw new TwitterException("Twitter RefreshToken 요청 중 오류 발생: " + e.getMessage(), e);
+		}
+	}
+
+	public String postTweet(String accessToken, String text, Long[] mediaIds) throws TwitterException {
+		// 요청 바디 생성
+		Map<String, Object> requestBody = Map.of(
+			"text", text,
+			"media", Map.of("media_ids", mediaIds)
+		);
+
+		String responseBody = webClient.post()
+			.uri(URI.create(ApiUrls.TWITTER_POST_TWEET_URL))
+			.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+			.bodyValue(requestBody)
+			.retrieve()
+			.bodyToMono(String.class)
+			.block();
+
+		if (responseBody == null) {
+			throw new TwitterException("Twitter 응답이 비어 있습니다.");
+		}
+
+		JSONObject jsonResponse = new JSONObject(responseBody);
+
+		if (jsonResponse.has("data")) {
+			JSONObject data = jsonResponse.getJSONObject("data");
+			return data.getString("id");
+		} else {
+			throw new TwitterException ("Twitter 응답에 'data' 객체가 없습니다.");
 		}
 	}
 }

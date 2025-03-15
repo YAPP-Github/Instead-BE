@@ -2,8 +2,8 @@ package org.snsclient.twitter.facade;
 
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
-import org.snsclient.twitter.service.Twitter4jService;
 import org.snsclient.twitter.service.TwitterAuthService;
+import org.snsclient.twitter.service.TwitterTweetService;
 import org.snsclient.twitter.service.TwitterUserService;
 import org.snsclient.twitter.service.TwitterMediaUploadService;
 import org.springframework.stereotype.Service;
@@ -18,8 +18,8 @@ import twitter4j.TwitterException;
 public class TwitterApiService {
 	private final TwitterUserService twitterUserService;
 	private final TwitterMediaUploadService twitterMediaUploadService;
-	private final Twitter4jService twitter4jService;
 	private final TwitterAuthService twitterAuthService;
+	private final TwitterTweetService twitterTweetService;
 
 	/**
 	 * authorization url 생성 메서드
@@ -32,21 +32,21 @@ public class TwitterApiService {
 	 * 발급받은 code를 가지고 access token(2시간 동안 유효)을 발급받는 메서드
 	 */
 	public TwitterToken getTwitterAuthorizationToken(String code, String clientId) {
-		return twitter4jService.getTwitterAuthorizationToken(code, clientId);
+		return twitterAuthService.getTwitterAuthorizationToken(code, clientId);
 	}
 
 	/**
 	 * 토큰 만료 시 RefreshToken으로 AccessToken 갱신
 	 */
-	public TwitterToken refreshTwitterToken(String refreshToken) throws TwitterException {
-		return twitter4jService.refreshTwitterToken(refreshToken);
+	public TwitterToken refreshTwitterToken(String refreshToken, String clientId) throws TwitterException {
+		return twitterAuthService.refreshTwitterToken(refreshToken, clientId);
 	}
 
 	/**
 	 * 글 생성 API 호출 메서드
 	 */
-	public Long postTweet(String accessToken, String content, Long[] mediaIds) throws TwitterException {
-		return twitter4jService.postTweet(accessToken, content, mediaIds);
+	public String postTweet(String accessToken, String content, Long[] mediaIds) throws TwitterException {
+		return twitterTweetService.postTweet(accessToken, content, mediaIds);
 	}
 
 	/**

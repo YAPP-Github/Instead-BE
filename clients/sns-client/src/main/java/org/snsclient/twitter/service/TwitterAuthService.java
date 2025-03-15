@@ -48,16 +48,34 @@ public class TwitterAuthService {
 	}
 
 	/**
-	 * Twitter AccessToken 발급 요청
+	 * 발급받은 code를 가지고 access token(2시간 동안 유효)을 발급받는 메서드
+	 * @param code 발급받은 code (10분간 유효)
+	 * @return access token
 	 */
-	public TwitterToken getAccessToken(
-		String clientId, String redirectUri, String code, String challenge
-	) throws TwitterException {
-		return twitterClient.getAccessTokenRequest (
-			clientId,
-			redirectUri,
-			code,
-			challenge
-		);
+	public TwitterToken getTwitterAuthorizationToken(String code, String clientId) {
+		try {
+			return twitterClient.getAccessTokenRequest(
+				clientId,
+				config.getRedirectUri(),
+				code,
+				config.getChallenge()
+			);
+		} catch (Exception e) {
+			log.error("Twitter Token 발급 API 호출 중 오류 발생: {}", e.getMessage());
+			throw new RuntimeException("Twitter Token 발급 API 호출 중 오류 발생", e);
+		}
+	}
+
+	/**
+	 * 토큰 만료 시 RefreshToken으로 AccessToken 재발급 요청
+	 * @param refreshToken 기존 Twitter RefreshToken
+	 */
+	public TwitterToken refreshTwitterToken(String refreshToken, String clientId) throws TwitterException {
+		try {
+			return twitterClient.refreshTokenRequest(refreshToken, clientId);
+		} catch (Exception e) {
+			log.error("Twitter Token 재발급 호출 중 오류 발생: {}", e.getMessage());
+			throw new TwitterException("Twitter RefreshToken 갱신 중 오류 발생", e);
+		}
 	}
 }
