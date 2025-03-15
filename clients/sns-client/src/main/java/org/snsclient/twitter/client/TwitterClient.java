@@ -1,8 +1,10 @@
 package org.snsclient.twitter.client;
 
 import java.net.URI;
+import java.util.Map;
 
 import org.snsclient.twitter.constants.ApiUrls;
+import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.snsclient.twitter.dto.response.TwitterUserResponse;
 import org.springframework.http.HttpHeaders;
@@ -14,12 +16,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import twitter4j.JSONObject;
 import twitter4j.TwitterException;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class TwitterRestClient {
+public class TwitterClient {
 	private final WebClient webClient;
 
 	/**
@@ -43,7 +46,9 @@ public class TwitterRestClient {
 		}
 	}
 
-
+	/**
+	 * Twitter 본인 정보 요청
+	 */
 	public TwitterUserInfoDto getUserGetMeRequest(String userFields, String accessToken) throws
 		TwitterException {
 		try {
@@ -63,6 +68,43 @@ public class TwitterRestClient {
 		} catch (Exception e) {
 			log.error("Twitter 사용자 정보 요청 중 에러 발생", e);
 			throw new TwitterException("Twitter 사용자 정보 요청 중 에러 발생: " + e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Twitter Code를 통해서 AccessToken 발급 요청
+	 */
+	public TwitterToken getAccessTokenRequest(String clientId, String redirectUri, String code, String challenge) throws TwitterException {
+		Map<String, String> params = Map.of(
+			"code", code,
+			"grant_type", "authorization_code",
+			"client_id", clientId,
+			"redirect_uri", redirectUri,
+			"code_verifier", challenge
+		);
+
+		try {
+			String responseBody = webClient.post()
+				.uri("/token")
+				.header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
+				.bodyValue(params)
+				.retrieve()
+				.bodyToMono(String.class)
+				.block();
+
+			if (responseBody == null) {
+				throw new TwitterException("Twitter AccessToken 발급 요청 응답이 비어 있습니다.");
+			}
+
+			JSONObject json = new JSONObject(responseBody);
+			return TwitterToken.of(
+				json.getString("access_token"),
+				json.getString("refresh_token"),
+				json.getLong("expires_in")
+			);
+
+		} catch (Exception e) {
+			throw new TwitterException("Twitter AccessToken 발급 요청 중 오류 발생: " + e.getMessage(), e);
 		}
 	}
 }

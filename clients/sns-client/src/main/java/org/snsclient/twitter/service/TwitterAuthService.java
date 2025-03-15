@@ -1,11 +1,14 @@
 package org.snsclient.twitter.service;
 
+import org.snsclient.twitter.client.TwitterClient;
 import org.snsclient.twitter.config.Twitter4jConfig;
+import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.util.TwitterOauthUtil;
 import org.springframework.stereotype.Component;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import twitter4j.TwitterException;
 
 @Slf4j
 @Component
@@ -13,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 public class TwitterAuthService {
 	private final String[] scopes = {"media.write", "tweet.read", "tweet.write", "users.read", "offline.access"};
 	private final Twitter4jConfig config;
+	private final TwitterClient twitterClient;
 
 	/**
 	 * authorization url 생성 메서드
@@ -43,6 +47,17 @@ public class TwitterAuthService {
 			"prompt=select_account";
 	}
 
-
-
+	/**
+	 * Twitter AccessToken 발급 요청
+	 */
+	public TwitterToken getAccessToken(
+		String clientId, String redirectUri, String code, String challenge
+	) throws TwitterException {
+		return twitterClient.getAccessTokenRequest (
+			clientId,
+			redirectUri,
+			code,
+			challenge
+		);
+	}
 }
