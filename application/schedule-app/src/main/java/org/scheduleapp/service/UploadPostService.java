@@ -1,4 +1,4 @@
-package org.scheduleapp.schedule;
+package org.scheduleapp.service;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -75,7 +75,7 @@ public class UploadPostService {
 				.map(Long::parseLong)
 				.toArray(Long[]::new);
 
-			Long tweetId = twitterApiService.postTweet(
+			String tweetId = twitterApiService.postTweet(
 				uploadPostDto.snsToken().getAccessToken(),
 				uploadPostDto.post().getContent(),
 				mediaIds
@@ -84,18 +84,24 @@ public class UploadPostService {
 			uploadExceptionHandler.handleUploadSuccess(uploadPostDto, tweetId);
 			return CompletableFuture.completedFuture(null);
 		} catch (Exception ex) {
-			uploadExceptionHandler.handleUploadError(uploadPostDto, ex, retryCount,
-				() -> retryUploadWithNewToken(uploadPostDto, retryCount));
-			return CompletableFuture.failedFuture(ex);
+			return uploadExceptionHandler.handleUploadError(uploadPostDto, ex, retryCount,
+				() -> {
+					try {
+						return retryUploadWithNewToken(uploadPostDto, retryCount);
+					} catch (TwitterException e) {
+						throw new RuntimeException(e);
+					}
+				});
 		}
 	}
 
 	/**
 	 * 토큰을 갱신한 후 업로드 재시도 (401 에러 발생시)
 	 */
-	private void retryUploadWithNewToken(UploadPostDto uploadPostDto, int retryCount) {
+	private CompletableFuture<Void> retryUploadWithNewToken(UploadPostDto uploadPostDto, int retryCount) throws
+		TwitterException {
 		UploadPostDto newTokens = snsTokenService.reissueToken(uploadPostDto);
-		processUploadPost(newTokens, retryCount + 1);
+		return processUploadPost(newTokens, retryCount + 1);
 	}
 
 	/**
