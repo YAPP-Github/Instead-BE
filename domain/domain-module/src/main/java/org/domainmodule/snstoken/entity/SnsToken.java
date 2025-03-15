@@ -45,26 +45,38 @@ public class SnsToken extends BaseAuditEntity {
 	@Column(nullable = false)
 	private LocalDateTime refreshTokenExpirationDate;
 
+	@Column(nullable = false)
+	private String clientId;
+
+	@Column(nullable = false)
+	private String clientSecret;
+
 	@Builder(access = lombok.AccessLevel.PRIVATE)
 	private SnsToken(
 		Agent agent,
 		String accessToken,
 		String refreshToken,
 		LocalDateTime accessTokenExpirationDate,
-		LocalDateTime refreshTokenExpirationDate
+		LocalDateTime refreshTokenExpirationDate,
+		String clientId,
+		String clientSecret
 	) {
 		this.agent = agent;
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.accessTokenExpirationDate = accessTokenExpirationDate;
 		this.refreshTokenExpirationDate = refreshTokenExpirationDate;
+		this.clientId = clientId;
+		this.clientSecret = clientSecret;
 	}
 
 	public static SnsToken create(
 		Agent agent,
 		String accessToken,
 		String refreshToken,
-		Long accessTokenDurationInSeconds
+		Long accessTokenDurationInSeconds,
+		String clientId,
+		String clientSecret
 	) {
 		LocalDateTime now = LocalDateTime.now();
 
@@ -73,11 +85,12 @@ public class SnsToken extends BaseAuditEntity {
 			.accessToken(accessToken)
 			.refreshToken(refreshToken)
 			.accessTokenExpirationDate(now.plusSeconds(accessTokenDurationInSeconds))
-			.refreshTokenExpirationDate(now.plusMonths(6)) // X refreshToken 6개월
+			.refreshTokenExpirationDate(now.plusDays(14)) // X refreshToken 2주
+			.clientId(clientId)
+			.clientSecret(clientSecret)
 			.build();
 	}
 
-	//TODO refreshToken 만료일 6개월 고정인거 이후에 인자로 수정
 	public void update(
 		String newAccessToken,
 		String newRefreshToken,
@@ -88,6 +101,6 @@ public class SnsToken extends BaseAuditEntity {
 		this.accessToken = newAccessToken;
 		this.refreshToken = newRefreshToken;
 		this.accessTokenExpirationDate = now.plusSeconds(accessTokenDurationInSeconds);
-		this.refreshTokenExpirationDate = now.plusMonths(6); // X refreshToken 6개월
+		this.refreshTokenExpirationDate = now.plusDays(14); // X refreshToken 14일
 	}
 }
