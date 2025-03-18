@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.mainapp.domain.post.controller.request.CreatePostsRequest;
 import org.mainapp.domain.post.controller.request.MultiplePostUpdateRequest;
+import org.mainapp.domain.post.controller.request.ReserveUploadTimeRequest;
 import org.mainapp.domain.post.controller.request.SinglePostUpdateRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostContentRequest;
 import org.mainapp.domain.post.controller.request.UpdatePostsMetadataRequest;
@@ -139,6 +140,16 @@ public class PostController {
 		return ResponseEntity.ok().build();
 	}
 
+	@Operation(summary = "업로드 시간 빠른 예약하기 API", description = "READY_TO_UPLOAD 상태인 Post들의 예약 시간을 일괄로 설정합니다.")
+	@PutMapping("/post-groups/{postGroupId}/posts/reserved-all")
+	public ResponseEntity<GetAgentReservedPostsResponse> reserveReadyToUploadPosts(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId,
+		@Validated @RequestBody ReserveUploadTimeRequest request
+	) {
+		return ResponseEntity.ok(postService.reserveReadyToUploadPosts(agentId, postGroupId, request));
+	}
+
 	@Operation(summary = "게시물 프롬프트 기반 개별 수정 API", description = "개별 게시물에 대해 입력된 프롬프트를 바탕으로 수정합니다.")
 	@PatchMapping("/post-groups/{postGroupId}/posts/{postId}/prompt")
 	public ResponseEntity<PostResponse> updateSinglePostByPrompt(
@@ -252,7 +263,7 @@ public class PostController {
 
 	@Operation(
 		summary = "계정별 예약 게시물 조회 API",
-		description = "sns 계정별 업로드가 예약된 상태(UPLOAD_RESERVED)인 게시물 목록을 조회합니다."
+		description = "sns 계정별 업로드가 예약된 상태(UPLOAD_CONFIRMED)인 게시물 목록을 조회합니다."
 	)
 	@GetMapping("/post-groups/posts/upload-reserved")
 	public ResponseEntity<GetAgentReservedPostsResponse> getAgentReservedPosts(
