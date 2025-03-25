@@ -17,11 +17,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+@Deprecated
 @RestController
-@RequestMapping("/v1/twitter")
+@RequestMapping("/twitter")
 @RequiredArgsConstructor
 @Tag(name = "SNS - X(Twitter) API", description = "X(Twitter)와 관련된 API입니다.")
-public class TwitterController {
+public class LegacyTwitterController {
 
 	private final TwitterService twitterService;
 
