@@ -19,7 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/agents")
+@RequestMapping("v1/agents")
 @RequiredArgsConstructor
 @Tag(name = "Agent API", description = "사용자가 연동한 SNS 계정(에이전트)에 대한 요청을 처리하는 API입니다.")
 public class AgentController {
