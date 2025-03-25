@@ -13,11 +13,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+@Deprecated
 @RestController
-@RequestMapping("/v1/news-categories")
+@RequestMapping("/news-categories")
 @RequiredArgsConstructor
 @Tag(name = "NewsCategory API", description = "뉴스 카테고리에 대한 요청을 처리하는 API입니다.")
-public class NewsCategoryController {
+public class LegacyNewsCategoryController {
 
 	private final NewsCategoryService newsCategoryService;
 
