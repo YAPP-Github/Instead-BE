@@ -13,11 +13,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
+@Deprecated
 @RestController
-@RequestMapping("/v1/auth")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
 @Tag(name = "Auth API", description = "로그인/회원가입에 대한 요청을 처리하는 API입니다.")
-public class AuthController {
+public class LegacyAuthController {
 	private final AuthServiceImpl authService;
 	private final ResponseUtil responseUtil;
 
