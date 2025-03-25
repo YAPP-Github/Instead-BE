@@ -10,11 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+@Deprecated
 @RestController
-@RequestMapping("/v1/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 @Tag(name = "User API", description = "유저에 대한 요청을 처리하는 API입니다.")
-public class UserController {
+public class LegacyUserController {
 
 	private final UserService userService;
 
