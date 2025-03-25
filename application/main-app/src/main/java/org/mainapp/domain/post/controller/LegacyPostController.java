@@ -37,11 +37,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+@Deprecated
 @RestController
-@RequestMapping("/v1/agents/{agentId}")
+@RequestMapping("/agents/{agentId}")
 @RequiredArgsConstructor
 @Tag(name = "Post API", description = "게시물에 대한 요청을 처리하는 API입니다.")
-public class PostController {
+public class LegacyPostController {
 
 	private final PostService postService;
 	private final PostPromptHistoryService postPromptHistoryService;
