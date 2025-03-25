@@ -11,11 +11,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
+@Deprecated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/presigned-url")
+@RequestMapping("/presigned-url")
 @Tag(name = "Pre-signed URL API", description = "pre-signed URL 발급 관련 API입니다.")
-public class S3Controller {
+public class LegacyS3Controller {
 
 	private final S3Service s3Service;
 
