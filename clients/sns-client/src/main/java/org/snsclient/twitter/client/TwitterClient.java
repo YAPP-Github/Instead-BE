@@ -147,16 +147,12 @@ public class TwitterClient {
 	}
 
 
-	public String postTweet(String accessToken, String text, Long[] mediaIds) throws TwitterException {
+	public String postTweet(String accessToken, String text, String[] mediaIds) throws TwitterException {
 		Map<String, Object> requestBody = new HashMap<>();
 		requestBody.put("text", text);
 
 		if (mediaIds != null) {
-			String[] mediaIdsStr = Arrays.stream(mediaIds)
-				.map(String::valueOf)
-				.toArray(String[]::new);
-
-			requestBody.put("media", Map.of("media_ids", mediaIdsStr));
+			requestBody.put("media", Map.of("media_ids", mediaIds));
 		}
 		try {
 			String responseBody = webClient.post()

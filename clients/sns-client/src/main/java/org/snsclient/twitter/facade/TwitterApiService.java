@@ -45,7 +45,7 @@ public class TwitterApiService {
 	/**
 	 * 글 생성 API 호출 메서드
 	 */
-	public String postTweet(String accessToken, String content, Long[] mediaIds) throws TwitterException {
+	public String postTweet(String accessToken, String content, String[] mediaIds) throws TwitterException {
 		return twitterTweetService.postTweet(accessToken, content, mediaIds);
 	}
 

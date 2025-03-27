@@ -17,7 +17,7 @@ public class TwitterTweetService {
 	 * 트윗 생성 API 호출 메서드
 	 * @param content 트윗 내용
 	 */
-	public String postTweet(String accessToken, String content, Long[] mediaIds) throws TwitterException {
+	public String postTweet(String accessToken, String content, String[] mediaIds) throws TwitterException {
 		return twitterClient.postTweet(accessToken, content, mediaIds);
 	}
 }
