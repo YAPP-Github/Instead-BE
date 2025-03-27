@@ -1,5 +1,7 @@
 package org.scheduleapp.service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -25,8 +27,6 @@ public class UploadPostService {
 	private final SnsTokenService snsTokenService;
 	private final TwitterUploadExceptionHandler uploadExceptionHandler;
 
-	private static final int MAX_RETRY_COUNT = 1;
-
 	/**
 	 * post의 upload_time을 확인하여 sns 게시물 업로드
 	 */
@@ -36,15 +36,24 @@ public class UploadPostService {
 			// 업로드할 Post DTO 리스트 가져오기
 			List<Post> postsReadyForUpload = postService.getPostsReadyForUpload();
 			List<UploadPostDto> uploadPostInfoList = getInfoReadyForUpload(postsReadyForUpload);
+			List<UploadPostDto> retryList = Collections.synchronizedList(new ArrayList<>());
 
 			// CompletableFuture 리스트 생성
 			List<CompletableFuture<Void>> futures = uploadPostInfoList.stream()
-				.map(post -> processUploadPost(post, 0))
+				.map(post -> processUploadPost(post, retryList))
 				.toList();
 
 			// 모든 업로드가 완료될 때까지 대기
 			CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
 
+			// 토큰 재발급 후 2번째 시도
+			if (!retryList.isEmpty()) {
+				List<CompletableFuture<Void>> retryFutures = retryList.stream()
+					.map(this::reUploadWithNewToken)
+					.toList();
+
+				CompletableFuture.allOf(retryFutures.toArray(new CompletableFuture[0])).join();
+			}
 		} catch (Exception e) {
 			log.error("Post 업로드 스케쥴링 에러 {}", e.getMessage(), e);
 		}
@@ -54,54 +63,51 @@ public class UploadPostService {
 	 * @Async 비동기 업로드 수행
 	 */
 	@Async("threadPoolTaskExecutor")
-	public CompletableFuture<Void> processUploadPost(UploadPostDto uploadPostDto, int retryCount) {
-		if (retryCount > MAX_RETRY_COUNT) {
-			log.error("업로드 실패 (최대 재시도 횟수 초과) - Post ID: {} ", uploadPostDto.post().getId());
-			return CompletableFuture.completedFuture(null);
-		}
-		try {
-			List<String> imageUrls = postService.getPostImageUrlsByPost(uploadPostDto.post());
+	public CompletableFuture<Void> processUploadPost(UploadPostDto uploadPostDto, List<UploadPostDto> retryList) {
+		return CompletableFuture.runAsync(() -> {
+			try {
+				// 업로드 할 이미지 mediaID 리스트
+				String[] mediaIds = getMediaIds(uploadPostDto);
 
-			// 업로드 할 이미지 mediaID 리스트
-			Long[] mediaIds = imageUrls.isEmpty() ? null :
-				imageUrls.stream()
-				.map(url -> {
-					try {
-						return twitterApiService.uploadMedia(url, uploadPostDto.snsToken().getAccessToken());
-					} catch (TwitterException e) {
-						throw new RuntimeException("Media 업로드에 실패하였습니다.", e);
-					}
-				})
-				.map(Long::parseLong)
-				.toArray(Long[]::new);
+				// tweet 올리기
+				String tweetId = twitterApiService.postTweet(
+					uploadPostDto.snsToken().getAccessToken(),
+					uploadPostDto.post().getContent(),
+					mediaIds
+				);
 
-			String tweetId = twitterApiService.postTweet(
-				uploadPostDto.snsToken().getAccessToken(),
-				uploadPostDto.post().getContent(),
-				mediaIds
-			);
-
-			uploadExceptionHandler.handleUploadSuccess(uploadPostDto, tweetId);
-			return CompletableFuture.completedFuture(null);
-		} catch (Exception ex) {
-			return uploadExceptionHandler.handleUploadError(uploadPostDto, ex, retryCount,
-				() -> {
-					try {
-						return retryUploadWithNewToken(uploadPostDto, retryCount);
-					} catch (TwitterException e) {
-						throw new RuntimeException(e);
-					}
-				});
-		}
+				uploadExceptionHandler.handleUploadSuccess(uploadPostDto, tweetId);
+			} catch (Exception e) {
+				if (e instanceof TwitterException te && te.getStatusCode() == 401) {
+					log.warn("401 오류, 재시도 대상으로 추가 - Post ID: {}", uploadPostDto.post().getId());
+					retryList.add(uploadPostDto);
+				} else {
+					uploadExceptionHandler.handleUploadError(uploadPostDto, e);
+				}
+			}
+		});
 	}
 
-	/**
-	 * 토큰을 갱신한 후 업로드 재시도 (401 에러 발생시)
-	 */
-	private CompletableFuture<Void> retryUploadWithNewToken(UploadPostDto uploadPostDto, int retryCount) throws
-		TwitterException {
-		UploadPostDto newTokens = snsTokenService.reissueToken(uploadPostDto);
-		return processUploadPost(newTokens, retryCount + 1);
+	@Async("threadPoolTaskExecutor")
+	public CompletableFuture<Void> reUploadWithNewToken(UploadPostDto oldDto) {
+		return CompletableFuture.runAsync(() -> {
+			try {
+				UploadPostDto newDto = snsTokenService.reissueToken(oldDto);
+
+				String[] mediaIds = getMediaIds(newDto);
+
+				String tweetId = twitterApiService.postTweet(
+					newDto.snsToken().getAccessToken(),
+					newDto.post().getContent(),
+					mediaIds
+				);
+
+				uploadExceptionHandler.handleUploadSuccess(newDto, tweetId);
+			} catch (Exception e) {
+				log.error("재시도 실패 - Post ID: {}, 예외: {}", oldDto.post().getId(), e.getMessage());
+				uploadExceptionHandler.handleUploadError(oldDto, e);
+			}
+		});
 	}
 
 	/**
@@ -111,5 +117,28 @@ public class UploadPostService {
 		return posts.stream()
 			.map(UploadPostDto::fromPost)
 			.toList();
+	}
+
+	/**
+	 * 이미지 업로드 요청 후 mediaId의 값 받아오기
+	 */
+	private String[] getMediaIds(UploadPostDto uploadPostDto) {
+		List<String> imageUrls = postService.getPostImageUrlsByPost(uploadPostDto.post());
+
+		if (imageUrls.isEmpty()) {
+			return null;
+		}
+		// 업로드 할 이미지 mediaID 리스트
+		return imageUrls.stream()
+				.map(url -> uploadImageWithUrl(url, uploadPostDto.snsToken().getAccessToken()))
+				.toArray(String[]::new);
+	}
+
+	private String uploadImageWithUrl(String url, String accessToken) {
+		try {
+			return twitterApiService.uploadMedia(url,accessToken);
+		} catch (TwitterException e) {
+			throw new RuntimeException("Twitter media 업로드 실패 URL : " + url, e);
+		}
 	}
 }
