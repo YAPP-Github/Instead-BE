@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Getter
 @Configuration
-public class Twitter4jConfig {
+public class TwitterConfig {
 	@Value("${sns.twitter.challenge}")
 	private String challenge;
 	

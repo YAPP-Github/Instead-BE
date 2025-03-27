@@ -1,7 +1,7 @@
 package org.snsclient.twitter.service;
 
 import org.snsclient.twitter.client.TwitterClient;
-import org.snsclient.twitter.config.Twitter4jConfig;
+import org.snsclient.twitter.config.TwitterConfig;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.util.TwitterOauthUtil;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import twitter4j.TwitterException;
 @RequiredArgsConstructor
 public class TwitterAuthService {
 	private final String[] scopes = {"media.write", "tweet.read", "tweet.write", "users.read", "offline.access"};
-	private final Twitter4jConfig config;
+	private final TwitterConfig config;
 	private final TwitterClient twitterClient;
 
 	/**
