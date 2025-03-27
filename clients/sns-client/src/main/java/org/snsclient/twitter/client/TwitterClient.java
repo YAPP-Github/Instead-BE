@@ -1,6 +1,8 @@
 package org.snsclient.twitter.client;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.snsclient.twitter.constants.ApiUrls;
@@ -10,7 +12,9 @@ import org.snsclient.twitter.dto.response.TwitterUserResponse;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -75,19 +79,19 @@ public class TwitterClient {
 	 * Twitter Code를 통해서 AccessToken 발급 요청
 	 */
 	public TwitterToken getAccessTokenRequest(String clientId, String redirectUri, String code, String challenge) throws TwitterException {
-		Map<String, String> params = Map.of(
-			"code", code,
-			"grant_type", "authorization_code",
-			"client_id", clientId,
-			"redirect_uri", redirectUri,
-			"code_verifier", challenge
-		);
+		MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+		formData.add("code", code);
+		formData.add("grant_type", "authorization_code");
+		formData.add("client_id", clientId);
+		formData.add("redirect_uri", redirectUri);
+		formData.add("code_verifier", challenge);
+
 
 		try {
 			String responseBody = webClient.post()
 				.uri(URI.create(ApiUrls.TWITTER_GET_TOKEN_URL))
 				.header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
-				.bodyValue(params)
+				.body(BodyInserters.fromFormData(formData))
 				.retrieve()
 				.bodyToMono(String.class)
 				.block();
@@ -104,22 +108,24 @@ public class TwitterClient {
 			);
 
 		} catch (Exception e) {
-			throw new TwitterException("Twitter AccessToken 발급 요청 중 오류 발생: " + e.getMessage(), e);
+			throw new TwitterException(e);
 		}
 	}
 
+	/**
+	 *  토큰 재발급
+	 */
 	public TwitterToken refreshTokenRequest(String refreshToken, String clientId) throws TwitterException {
-		Map<String, String> params = Map.of(
-			"grant_type", "refresh_token",
-			"refresh_token", refreshToken,
-			"client_id", clientId
-		);
+		MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+		formData.add("grant_type", "refresh_token");
+		formData.add("refresh_token", refreshToken);
+		formData.add("client_id", clientId);
 
 		try {
 			String responseBody = webClient.post()
 				.uri(URI.create(ApiUrls.TWITTER_GET_TOKEN_URL))
 				.header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
-				.bodyValue(params)
+				.body(BodyInserters.fromFormData(formData))
 				.retrieve()
 				.bodyToMono(String.class)
 				.block();
@@ -136,37 +142,46 @@ public class TwitterClient {
 			);
 
 		} catch (Exception e) {
-			throw new TwitterException("Twitter RefreshToken 요청 중 오류 발생: " + e.getMessage(), e);
+			throw new TwitterException(e);
 		}
 	}
 
+
 	public String postTweet(String accessToken, String text, Long[] mediaIds) throws TwitterException {
-		// 요청 바디 생성
-		Map<String, Object> requestBody = Map.of(
-			"text", text,
-			"media", Map.of("media_ids", mediaIds)
-		);
+		Map<String, Object> requestBody = new HashMap<>();
+		requestBody.put("text", text);
 
-		String responseBody = webClient.post()
-			.uri(URI.create(ApiUrls.TWITTER_POST_TWEET_URL))
-			.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-			.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-			.bodyValue(requestBody)
-			.retrieve()
-			.bodyToMono(String.class)
-			.block();
+		if (mediaIds != null) {
+			String[] mediaIdsStr = Arrays.stream(mediaIds)
+				.map(String::valueOf)
+				.toArray(String[]::new);
 
-		if (responseBody == null) {
-			throw new TwitterException("Twitter 응답이 비어 있습니다.");
+			requestBody.put("media", Map.of("media_ids", mediaIdsStr));
 		}
+		try {
+			String responseBody = webClient.post()
+				.uri(URI.create(ApiUrls.TWITTER_POST_TWEET_URL))
+				.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+				.bodyValue(requestBody)
+				.retrieve()
+				.bodyToMono(String.class)
+				.block();
 
-		JSONObject jsonResponse = new JSONObject(responseBody);
+			if (responseBody == null) {
+				throw new TwitterException("Twitter 응답이 비어 있습니다.");
+			}
 
-		if (jsonResponse.has("data")) {
-			JSONObject data = jsonResponse.getJSONObject("data");
-			return data.getString("id");
-		} else {
-			throw new TwitterException ("Twitter 응답에 'data' 객체가 없습니다.");
+			JSONObject jsonResponse = new JSONObject(responseBody);
+
+			if (jsonResponse.has("data")) {
+				JSONObject data = jsonResponse.getJSONObject("data");
+				return data.getString("id");
+			} else {
+				throw new TwitterException ("Twitter 응답에 'data' 객체가 없습니다.");
+			}
+		} catch (Exception e) {
+			throw new TwitterException(e);
 		}
 	}
 }
