@@ -1,7 +1,7 @@
 package org.scheduleapp.snstoken;
 
-import org.domainmodule.snstoken.entity.SnsToken;
-import org.domainmodule.snstoken.repository.SnsTokenRepository;
+import org.domainmodule.sns.entity.SnsToken;
+import org.domainmodule.sns.repository.SnsTokenRepository;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.facade.TwitterApiService;
 import org.springframework.stereotype.Service;

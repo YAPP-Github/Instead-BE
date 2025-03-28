@@ -3,7 +3,7 @@ package org.domainmodule.agent.entity;
 import org.domainmodule.agent.entity.type.AgentPlanType;
 import org.domainmodule.agent.entity.type.AgentPlatformType;
 import org.domainmodule.common.entity.BaseTimeEntity;
-import org.domainmodule.snstoken.entity.SnsToken;
+import org.domainmodule.sns.entity.SnsToken;
 import org.domainmodule.user.entity.User;
 
 import jakarta.persistence.Column;

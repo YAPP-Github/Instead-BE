@@ -1,4 +1,4 @@
-package org.domainmodule.snstoken.entity;
+package org.domainmodule.sns.entity;
 
 import java.time.LocalDateTime;
 
