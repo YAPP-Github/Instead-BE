@@ -22,20 +22,20 @@ public class TwitterAuthService {
 	 * authorization url 생성 메서드
 	 * @return authorization url
 	 */
-	public String getTwitterAuthorizationUrl(String userId, String clientId) {
+	public String getTwitterAuthorizationUrl(String snsProviderId, String clientId) {
 		return createAuthorizeUrl(
-			userId,
+			snsProviderId,
 			clientId,
 			config.getRedirectUri(),
 			scopes,
 			config.getChallenge());
 	}
 
-	private String createAuthorizeUrl(String userId, String clientId, String redirectUri, String[] scopes, String challenge) {
+	private String createAuthorizeUrl(String providerId, String clientId, String redirectUri, String[] scopes, String challenge) {
 		String scope = String.join("%20", scopes);
 
 		// Base64 URL-safe 인코딩
-		String state = TwitterOauthUtil.encodeStateToBase64(userId, clientId);
+		String state = TwitterOauthUtil.encodeStateToBase64(providerId);
 
 		return "https://twitter.com/i/oauth2/authorize?response_type=code&" +
 			"client_id=" + clientId + "&" +
@@ -52,10 +52,26 @@ public class TwitterAuthService {
 	 * @param code 발급받은 code (10분간 유효)
 	 * @return access token
 	 */
-	public TwitterToken getTwitterAuthorizationToken(String code, String clientId) {
+	public TwitterToken getTwitterAuthorizationToken(String code, String clientId, String clientSecret) {
 		try {
-			return twitterClient.getAccessTokenRequest(
+			return twitterClient.getAccessTokenBySecretRequest(
 				clientId,
+				clientSecret,
+				config.getRedirectUri(),
+				code,
+				config.getChallenge()
+			);
+		} catch (Exception e) {
+			log.error("Twitter Token 발급 API 호출 중 오류 발생: {}", e.getMessage());
+			throw new RuntimeException("Twitter Token 발급 API 호출 중 오류 발생", e);
+		}
+	}
+
+	public TwitterToken getTwitterAuthorizationTokenBySecret(String code, String clientId, String clientSecret) {
+		try {
+			return twitterClient.getAccessTokenBySecretRequest(
+				clientId,
+				clientSecret,
 				config.getRedirectUri(),
 				code,
 				config.getChallenge()

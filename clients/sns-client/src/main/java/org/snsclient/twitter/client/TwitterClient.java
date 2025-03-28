@@ -1,7 +1,8 @@
 package org.snsclient.twitter.client;
 
 import java.net.URI;
-import java.util.Arrays;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,7 +91,46 @@ public class TwitterClient {
 		try {
 			String responseBody = webClient.post()
 				.uri(URI.create(ApiUrls.TWITTER_GET_TOKEN_URL))
-				.header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+				.body(BodyInserters.fromFormData(formData))
+				.retrieve()
+				.bodyToMono(String.class)
+				.block();
+
+			if (responseBody == null) {
+				throw new TwitterException("Twitter AccessToken 발급 요청 응답이 비어 있습니다.");
+			}
+
+			JSONObject json = new JSONObject(responseBody);
+			return TwitterToken.of(
+				json.getString("access_token"),
+				json.getString("refresh_token"),
+				json.getLong("expires_in")
+			);
+
+		} catch (Exception e) {
+			throw new TwitterException(e);
+		}
+	}
+
+	/**
+	 * Twitter Code를 통해서 AccessToken 발급 요청
+	 */
+	public TwitterToken getAccessTokenBySecretRequest(String clientId, String clientSecret, String redirectUri, String code, String challenge) throws TwitterException {
+		MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
+		formData.add("code", code);
+		formData.add("grant_type", "authorization_code");
+		formData.add("redirect_uri", redirectUri);
+		formData.add("code_verifier", challenge);
+
+		String basicAuth = Base64.getEncoder()
+			.encodeToString((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8));
+
+		try {
+			String responseBody = webClient.post()
+				.uri(URI.create(ApiUrls.TWITTER_GET_TOKEN_URL))
+				.header(HttpHeaders.AUTHORIZATION, "Basic " + basicAuth)
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 				.body(BodyInserters.fromFormData(formData))
 				.retrieve()
 				.bodyToMono(String.class)
