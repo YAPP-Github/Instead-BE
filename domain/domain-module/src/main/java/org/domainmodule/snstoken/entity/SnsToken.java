@@ -45,38 +45,26 @@ public class SnsToken extends BaseAuditEntity {
 	@Column(nullable = false)
 	private LocalDateTime refreshTokenExpirationDate;
 
-	@Column(nullable = false)
-	private String clientId;
-
-	@Column(nullable = false)
-	private String clientSecret;
-
 	@Builder(access = lombok.AccessLevel.PRIVATE)
 	private SnsToken(
 		Agent agent,
 		String accessToken,
 		String refreshToken,
 		LocalDateTime accessTokenExpirationDate,
-		LocalDateTime refreshTokenExpirationDate,
-		String clientId,
-		String clientSecret
+		LocalDateTime refreshTokenExpirationDate
 	) {
 		this.agent = agent;
 		this.accessToken = accessToken;
 		this.refreshToken = refreshToken;
 		this.accessTokenExpirationDate = accessTokenExpirationDate;
 		this.refreshTokenExpirationDate = refreshTokenExpirationDate;
-		this.clientId = clientId;
-		this.clientSecret = clientSecret;
 	}
 
 	public static SnsToken create(
 		Agent agent,
 		String accessToken,
 		String refreshToken,
-		Long accessTokenDurationInSeconds,
-		String clientId,
-		String clientSecret
+		Long accessTokenDurationInSeconds
 	) {
 		LocalDateTime now = LocalDateTime.now();
 
@@ -86,8 +74,6 @@ public class SnsToken extends BaseAuditEntity {
 			.refreshToken(refreshToken)
 			.accessTokenExpirationDate(now.plusSeconds(accessTokenDurationInSeconds))
 			.refreshTokenExpirationDate(now.plusDays(14)) // X refreshToken 2주
-			.clientId(clientId)
-			.clientSecret(clientSecret)
 			.build();
 	}
 
