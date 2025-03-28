@@ -42,7 +42,7 @@ public class TwitterService {
 		User user = userService.findUserById(userId);
 
 		// ClientId, ClientSecret 저장
-		SnsProvider snsProvider = snsProviderService.findOrCreateSnsProvider(user, request.clientId(), request.clientSecret());
+		SnsProvider snsProvider = snsProviderService.createSnsProvider(user, request.clientId(), request.clientSecret());
 
 		// 리다이렉트 URL 생성
 		return twitterApiService.getTwitterAuthorizationUrl(snsProvider.getId().toString(), snsProvider.getClientId());
@@ -57,6 +57,8 @@ public class TwitterService {
 	public String loginOrRegister(String code, String encodedState) {
 		Map<String, String> stateMap = TwitterOauthUtil.decodeStateFromBase64(encodedState);
 		String snsProviderId = stateMap.get("providerId");
+
+		// client key값 가져오기
 		SnsProvider snsProvider =  snsProviderService.findSnsProviderById(Long.parseLong(snsProviderId));
 
 		// 토큰 발급

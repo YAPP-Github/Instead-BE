@@ -16,9 +16,13 @@ public class SnsProviderService {
 	private final SnsProviderRespository snsProviderRepository;
 
 	@Transactional
-	public SnsProvider findOrCreateSnsProvider(User user, String clientId, String clientSecret) {
-		return snsProviderRepository.findByUserAndClientIdAndClientSecret(user, clientId, clientSecret)
-			.orElseGet(() -> snsProviderRepository.save(SnsProvider.create(clientId, clientSecret, user)));
+	public SnsProvider createSnsProvider(User user, String clientId, String clientSecret) {
+		// 이미 등록된 clientid, clientsecret이면 예외 (2개의 구글ID에 똑같은 SNS등록 방지)
+		if (snsProviderRepository.existsByClientIdAndClientSecret(clientId, clientSecret)) {
+			throw new CustomException(SnsErrorCode.SNS_PROVIDER_ALREADY_EXISTS);
+		}
+
+		return snsProviderRepository.save(SnsProvider.create(clientId, clientSecret, user));
 	}
 
 	public SnsProvider findSnsProviderById(Long snsProviderId) {
