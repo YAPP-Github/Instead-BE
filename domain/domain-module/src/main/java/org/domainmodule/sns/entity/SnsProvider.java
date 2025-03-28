@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -34,4 +35,27 @@ public class SnsProvider extends BaseTimeEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
+
+	@Builder(access = AccessLevel.PRIVATE)
+	private SnsProvider(
+		String clientId,
+		String clientSecret,
+		User user
+	) {
+		this.clientId = clientId;
+		this.clientSecret = clientSecret;
+		this.user = user;
+	}
+
+	public static SnsProvider create(
+		String clientId,
+		String clientSecret,
+		User user
+	) {
+		return SnsProvider.builder()
+			.clientId(clientId)
+			.clientSecret(clientSecret)
+			.user(user)
+			.build();
+	}
 }
