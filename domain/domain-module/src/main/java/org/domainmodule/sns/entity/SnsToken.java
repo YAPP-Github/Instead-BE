@@ -1,4 +1,4 @@
-package org.domainmodule.snstoken.entity;
+package org.domainmodule.sns.entity;
 
 import java.time.LocalDateTime;
 
@@ -73,11 +73,10 @@ public class SnsToken extends BaseAuditEntity {
 			.accessToken(accessToken)
 			.refreshToken(refreshToken)
 			.accessTokenExpirationDate(now.plusSeconds(accessTokenDurationInSeconds))
-			.refreshTokenExpirationDate(now.plusMonths(6)) // X refreshToken 6개월
+			.refreshTokenExpirationDate(now.plusDays(14)) // X refreshToken 2주
 			.build();
 	}
 
-	//TODO refreshToken 만료일 6개월 고정인거 이후에 인자로 수정
 	public void update(
 		String newAccessToken,
 		String newRefreshToken,
@@ -88,6 +87,6 @@ public class SnsToken extends BaseAuditEntity {
 		this.accessToken = newAccessToken;
 		this.refreshToken = newRefreshToken;
 		this.accessTokenExpirationDate = now.plusSeconds(accessTokenDurationInSeconds);
-		this.refreshTokenExpirationDate = now.plusMonths(6); // X refreshToken 6개월
+		this.refreshTokenExpirationDate = now.plusDays(14); // X refreshToken 14일
 	}
 }

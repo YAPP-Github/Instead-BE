@@ -10,7 +10,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum SnsErrorCode implements ErrorCodeStatus {
 
-	TWITTER_USER_INFO_FETCH_FAILED(HttpStatus.BAD_REQUEST, "Twitter 유저 기본정보를 가져오지 못했습니다.");
+	TWITTER_USER_INFO_FETCH_FAILED(HttpStatus.BAD_REQUEST, "Twitter 유저 기본정보를 가져오지 못했습니다."),
+	SNS_PROVIDER_NOT_FOUND(HttpStatus.NOT_FOUND, "SnsProvider를 찾을 수 없습니다."),
+	SNS_PROVIDER_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 등록된 SnsProvider입니다.");
+
 	private final HttpStatus httpStatus;
 	private final String message;
 }

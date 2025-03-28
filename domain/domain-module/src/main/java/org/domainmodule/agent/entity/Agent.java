@@ -3,7 +3,8 @@ package org.domainmodule.agent.entity;
 import org.domainmodule.agent.entity.type.AgentPlanType;
 import org.domainmodule.agent.entity.type.AgentPlatformType;
 import org.domainmodule.common.entity.BaseTimeEntity;
-import org.domainmodule.snstoken.entity.SnsToken;
+import org.domainmodule.sns.entity.SnsProvider;
+import org.domainmodule.sns.entity.SnsToken;
 import org.domainmodule.user.entity.User;
 
 import jakarta.persistence.Column;
@@ -35,6 +36,10 @@ public class Agent extends BaseTimeEntity {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
+
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "sns_key_id", unique = true)
+	private SnsProvider snsProvider;
 
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)

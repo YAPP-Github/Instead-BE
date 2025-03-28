@@ -1,8 +1,8 @@
 package org.mainapp.domain.sns.token;
 
 import org.domainmodule.agent.entity.Agent;
-import org.domainmodule.snstoken.entity.SnsToken;
-import org.domainmodule.snstoken.repository.SnsTokenRepository;
+import org.domainmodule.sns.entity.SnsToken;
+import org.domainmodule.sns.repository.SnsTokenRepository;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.springframework.stereotype.Service;
 

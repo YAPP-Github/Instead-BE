@@ -5,13 +5,14 @@ import java.util.Optional;
 
 import org.domainmodule.agent.entity.Agent;
 import org.domainmodule.agent.entity.type.AgentPlatformType;
+import org.domainmodule.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface AgentRepository extends JpaRepository<Agent, Long> {
 
-	Optional<Agent> findByAccountIdAndPlatform(String accountId, AgentPlatformType platform);
+	Optional<Agent> findByUserAndAccountIdAndPlatform(User user, String accountId, AgentPlatformType platform);
 
 	@Query("""
 			select a from Agent a
