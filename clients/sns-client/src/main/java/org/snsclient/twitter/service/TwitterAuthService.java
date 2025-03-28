@@ -86,9 +86,9 @@ public class TwitterAuthService {
 	 * 토큰 만료 시 RefreshToken으로 AccessToken 재발급 요청
 	 * @param refreshToken 기존 Twitter RefreshToken
 	 */
-	public TwitterToken refreshTwitterToken(String refreshToken, String clientId) throws TwitterException {
+	public TwitterToken refreshTwitterToken(String refreshToken, String clientId, String clientSecret) throws TwitterException {
 		try {
-			return twitterClient.refreshTokenRequest(refreshToken, clientId);
+			return twitterClient.refreshTokenRequest(refreshToken, clientId, clientSecret);
 		} catch (Exception e) {
 			log.error("Twitter Token 재발급 호출 중 오류 발생: {}", e.getMessage());
 			throw new TwitterException("Twitter RefreshToken 갱신 중 오류 발생", e);

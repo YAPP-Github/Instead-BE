@@ -155,16 +155,19 @@ public class TwitterClient {
 	/**
 	 *  토큰 재발급
 	 */
-	public TwitterToken refreshTokenRequest(String refreshToken, String clientId) throws TwitterException {
+	public TwitterToken refreshTokenRequest(String refreshToken, String clientId, String clientSecret) throws TwitterException {
 		MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
 		formData.add("grant_type", "refresh_token");
 		formData.add("refresh_token", refreshToken);
-		formData.add("client_id", clientId);
+
+		String basicAuth = Base64.getEncoder()
+			.encodeToString((clientId + ":" + clientSecret).getBytes(StandardCharsets.UTF_8));
 
 		try {
 			String responseBody = webClient.post()
 				.uri(URI.create(ApiUrls.TWITTER_GET_TOKEN_URL))
-				.header(HttpHeaders.CONTENT_TYPE, "application/x-www-form-urlencoded")
+				.header(HttpHeaders.AUTHORIZATION, "Basic " + basicAuth)
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
 				.body(BodyInserters.fromFormData(formData))
 				.retrieve()
 				.bodyToMono(String.class)

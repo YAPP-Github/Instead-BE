@@ -38,8 +38,8 @@ public class TwitterApiService {
 	/**
 	 * 토큰 만료 시 RefreshToken으로 AccessToken 갱신
 	 */
-	public TwitterToken refreshTwitterToken(String refreshToken, String clientId) throws TwitterException {
-		return twitterAuthService.refreshTwitterToken(refreshToken, clientId);
+	public TwitterToken refreshTwitterToken(String refreshToken, String clientId, String clientSecret) throws TwitterException {
+		return twitterAuthService.refreshTwitterToken(refreshToken, clientId, clientSecret);
 	}
 
 	/**

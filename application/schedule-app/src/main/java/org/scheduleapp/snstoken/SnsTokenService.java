@@ -1,5 +1,6 @@
 package org.scheduleapp.snstoken;
 
+import org.domainmodule.sns.entity.SnsProvider;
 import org.domainmodule.sns.entity.SnsToken;
 import org.domainmodule.sns.repository.SnsTokenRepository;
 import org.snsclient.twitter.dto.response.TwitterToken;
@@ -20,11 +21,15 @@ public class SnsTokenService {
 	@Transactional
 	public UploadPostDto reissueToken(UploadPostDto uploadPostDto) throws TwitterException {
 
-		//TODO 테이블 생성 후 값 찾아서 넣기
-		String clientId ="df";
+		SnsToken token = uploadPostDto.snsToken();
+		SnsProvider snsProvider = token.getAgent().getSnsProvider();
 
 		// 토큰 재발급
-		TwitterToken newSnsToken = twitterApiService.refreshTwitterToken(uploadPostDto.snsToken().getRefreshToken(), clientId);
+		TwitterToken newSnsToken = twitterApiService.refreshTwitterToken(
+			uploadPostDto.snsToken().getRefreshToken(),
+			snsProvider.getClientId(),
+			snsProvider.getClientSecret()
+		);
 
 		// Sns토큰 업데이트
 		SnsToken snsToken = uploadPostDto.snsToken();
