@@ -6,7 +6,7 @@ import org.mainapp.global.constants.UrlConstants;
 import org.mainapp.global.oauth2.CustomUserDetails;
 import org.mainapp.global.util.JwtUtil;
 import org.mainapp.global.util.ResponseUtil;
-import org.mainapp.domain.token.service.TokenService;
+import org.mainapp.domain.v1.token.service.TokenService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
 		Authentication authentication) throws IOException {
-		CustomUserDetails customOAuth2User = (CustomUserDetails) authentication.getPrincipal();
+		CustomUserDetails customOAuth2User = (CustomUserDetails)authentication.getPrincipal();
 
 		String accessToken = jwtUtil.generateAccessToken(customOAuth2User.getId());
 		String refreshToken = tokenService.getRefreshToken(Long.parseLong(customOAuth2User.getId()));
