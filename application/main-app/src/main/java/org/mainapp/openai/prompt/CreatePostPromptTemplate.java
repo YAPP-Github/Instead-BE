@@ -76,7 +76,9 @@ public class CreatePostPromptTemplate {
 		}
 
 		// 게시물 글자수 설정
-		prompt.append("글자수는 ").append(length.getMaxLength()).append("자를 절대 초과해서는 안돼. 그 이내로 작성해줘.\n");
+		prompt
+			.append("글자수는 최대 ").append(length.getMaxLength()).append("자 이내가 되도록 글을 작성해줘.")
+			.append("만약 정해진 글자수를 초과하는 게시물을 생성하면 사용자가 처벌을 받게 돼. 그러면 안되니까 글자수를 꼭 지키도록 해.\n");
 
 		// 게시물 핵심 내용 설정
 		if (content != null) {
@@ -84,7 +86,8 @@ public class CreatePostPromptTemplate {
 		}
 
 		// 이모지 포함 설정
-		prompt.append("마지막으로, 문장 중간중간에 내용과 관련된 emoji를 종종 추가하도록 해.\n");
+		prompt
+			.append("마지막으로, 게시물 중간중간에 내용과 관련된 적절한 emoji를 알맞게 추가해도 돼. ");
 
 		return prompt.toString();
 	}
