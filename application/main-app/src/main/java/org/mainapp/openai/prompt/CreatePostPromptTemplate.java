@@ -39,7 +39,8 @@ public class CreatePostPromptTemplate {
 			prompt
 				.append("게시물을 생성할 때 말투는 ")
 				.append(tone.getSuffix()).append("와 같이 ")
-				.append(tone.getValue()).append("을 사용해야 해.\n");
+				.append(tone.getValue()).append("을 사용해야 해. ")
+				.append("만약 너가 마음대로 다른 말투를 사용하게 되면 지구가 멸망하게 돼.\n");
 		} else if (customTone != null && tone == AgentToneType.CUSTOM) {
 			prompt
 				.append("게시물을 생성할 때 말투는 다음과 같이 사용해야 해. ")
