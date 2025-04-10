@@ -88,7 +88,9 @@ public class CreatePostPromptTemplate {
 
 		// 이모지 포함 설정
 		prompt
-			.append("마지막으로, 게시물 중간중간에 내용과 관련된 적절한 emoji를 알맞게 추가해도 돼. ");
+			.append("마지막으로, 게시물 중간중간에 내용과 관련된 적절한 emoji를 알맞게 추가해도 돼. ")
+			.append("문장이 끝날때 혹은 문장 중간에 넣어도 되고, 특히 소제목 주변에 넣거나 감정이 필요한 문장에 사용하면 좋겠지! ")
+			.append("단 emoji를 마구 남발하면 사용자가 로봇으로 의심받기 때문에 꼭 필요한 곳에만 적절하게 사용해야해.\n");
 
 		return prompt.toString();
 	}
