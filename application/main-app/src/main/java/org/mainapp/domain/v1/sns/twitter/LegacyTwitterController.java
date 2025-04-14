@@ -31,10 +31,9 @@ public class LegacyTwitterController {
 	)
 	@GetMapping("/login")
 	public ResponseEntity<TwitterRedirectResponse> redirectToTwitterAuth(
-		@RequestHeader("Authorization") String accessToken,
-		@RequestBody OAuthClientCredentials clientCredentials
+		@RequestHeader("Authorization") String accessToken
 	) {
-		String url = twitterService.createRedirectResponse(accessToken, clientCredentials);
+		String url = twitterService.createRedirectResponseV1(accessToken);
 		return ResponseEntity.ok(TwitterRedirectResponse.from(url));
 	}
 
