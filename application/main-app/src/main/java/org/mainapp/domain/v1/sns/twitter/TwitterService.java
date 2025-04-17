@@ -65,4 +65,15 @@ public class TwitterService {
 			throw new CustomException(SnsErrorCode.TWITTER_USER_INFO_FETCH_FAILED);
 		}
 	}
+
+	//TODO 트위터 리펙토링 후 제거
+	/**
+	 * Twitter Authorization URL 생성 및 리다이렉트 ResponseEntity 반환
+	 */
+	public String createRedirectResponseV1(String accessToken) {
+		String redirectUrl = "T0dSSXZOYk15RkdZa2otS3pkOG86MTpjaQ";
+		// 리다이렉트 URL 생성
+		final Long userId = jwtUtil.getUserIdFromAccessToken(accessToken);
+		return twitterApiService.getTwitterAuthorizationUrl(userId.toString(), redirectUrl);
+	}
 }
