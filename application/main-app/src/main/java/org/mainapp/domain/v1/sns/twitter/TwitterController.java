@@ -2,11 +2,9 @@ package org.mainapp.domain.v1.sns.twitter;
 
 import java.io.IOException;
 
-import org.mainapp.domain.v1.sns.twitter.request.OAuthClientCredentials;
 import org.mainapp.domain.v1.sns.twitter.response.TwitterRedirectResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,10 +28,9 @@ public class TwitterController {
 	)
 	@GetMapping("/login")
 	public ResponseEntity<TwitterRedirectResponse> redirectToTwitterAuth(
-		@RequestHeader("Authorization") String accessToken,
-		@RequestBody OAuthClientCredentials clientCredentials
+		@RequestHeader("Authorization") String accessToken
 	) {
-		String url = twitterService.createRedirectResponse(accessToken, clientCredentials);
+		String url = twitterService.createRedirectResponseV1(accessToken);
 		return ResponseEntity.ok(TwitterRedirectResponse.from(url));
 	}
 
