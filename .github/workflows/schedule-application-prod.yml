@@ -6,7 +6,6 @@ on:
             - chore/#61
         paths:
             - 'application/schedule-app/**'
-
 jobs:
     deploy:
         runs-on: ubuntu-latest

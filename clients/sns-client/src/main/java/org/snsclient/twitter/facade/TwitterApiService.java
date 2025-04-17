@@ -43,7 +43,7 @@ public class TwitterApiService {
 	}
 
 	/**
-	 * 글 생성 API 호출 메서드
+	 * 트윗 생성 API 호출 메서드
 	 */
 	public Long postTweet(String accessToken, String content, Long[] mediaIds) throws TwitterException {
 		return twitter4jService.postTweet(accessToken, content, mediaIds);

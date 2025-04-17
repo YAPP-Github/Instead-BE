@@ -109,7 +109,6 @@ public class PostUpdateService {
 				post.updateStatus(PostStatusType.UPLOAD_RESERVED);
 				post.updateUploadTime(postRequest.uploadTime());
 			});
-
 		// 수정 내용 저장
 		postTransactionService.savePosts(posts);
 	}
