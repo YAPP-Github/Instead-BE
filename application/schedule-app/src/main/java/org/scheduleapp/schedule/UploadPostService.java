@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import org.domainmodule.post.entity.Post;
-import org.snsclient.twitter.service.TwitterApiService;
-import org.snsclient.twitter.service.TwitterMediaUploadService;
+import org.snsclient.twitter.facade.TwitterApiService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.scheduleapp.exception.TwitterUploadExceptionHandler;

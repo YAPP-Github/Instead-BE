@@ -24,8 +24,8 @@ public class BaseAuditEntity extends BaseTimeEntity {
 	private boolean preventUpdatedAt = false;
 
 	@PrePersist
-	public void setUpdatedAt() {
-		this.updatedAt = LocalDateTime.now();
+	public void prePersist() {
+		this.updatedAt = LocalDateTime.now(); // 초기 저장 시 updatedAt 설정
 	}
 
 	@PreUpdate

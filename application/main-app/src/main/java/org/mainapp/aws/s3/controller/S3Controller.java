@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/presigned-url")
+@RequestMapping("/v1/presigned-url")
 @Tag(name = "Pre-signed URL API", description = "pre-signed URL 발급 관련 API입니다.")
 public class S3Controller {
 

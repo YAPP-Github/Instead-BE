@@ -5,7 +5,7 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.function.Function;
 
-import org.mainapp.domain.token.exception.TokenErrorCode;
+import org.mainapp.domain.v1.token.exception.TokenErrorCode;
 import org.mainapp.global.constants.HeaderConstants;
 import org.mainapp.global.constants.JwtProperties;
 import org.mainapp.global.error.CustomException;
