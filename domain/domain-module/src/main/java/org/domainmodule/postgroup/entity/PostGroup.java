@@ -67,8 +67,11 @@ public class PostGroup extends BaseTimeEntity {
 
 	private String thumbnailImage;
 
+	@Column(nullable = false)
+	private Boolean isReserving;
+
 	@OneToMany(mappedBy = "postGroup", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<PostGroupImage> postGroupImages = new ArrayList<>();
+	private final List<PostGroupImage> postGroupImages = new ArrayList<>();
 
 	@OneToOne(mappedBy = "postGroup", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private PostGroupRssCursor postGroupRssCursor;
@@ -115,6 +118,10 @@ public class PostGroup extends BaseTimeEntity {
 
 	public void increaseGenerationCount() {
 		this.generationCount++;
+	}
+
+	public void updateReservingState(Boolean reservingState) {
+		this.isReserving = reservingState;
 	}
 
 	@Override
