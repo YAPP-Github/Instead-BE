@@ -8,6 +8,7 @@ import org.domainmodule.common.entity.BaseTimeEntity;
 import org.domainmodule.postgroup.entity.type.PostGroupLengthType;
 import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
 import org.domainmodule.postgroup.entity.type.PostGroupReferenceType;
+import org.domainmodule.postgroup.entity.type.PostGroupStepType;
 import org.domainmodule.rssfeed.entity.RssFeed;
 
 import jakarta.persistence.CascadeType;
@@ -68,7 +69,7 @@ public class PostGroup extends BaseTimeEntity {
 	private String thumbnailImage;
 
 	@Column(nullable = false)
-	private Boolean isReserving;
+	private PostGroupStepType step;
 
 	@OneToMany(mappedBy = "postGroup", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private final List<PostGroupImage> postGroupImages = new ArrayList<>();
@@ -120,8 +121,8 @@ public class PostGroup extends BaseTimeEntity {
 		this.generationCount++;
 	}
 
-	public void updateReservingState(Boolean reservingState) {
-		this.isReserving = reservingState;
+	public void updateStep(PostGroupStepType newStep) {
+		this.step = newStep;
 	}
 
 	@Override
