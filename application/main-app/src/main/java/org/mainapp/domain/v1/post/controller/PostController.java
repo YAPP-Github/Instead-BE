@@ -7,6 +7,7 @@ import org.mainapp.domain.v1.post.controller.request.MultiplePostUpdateRequest;
 import org.mainapp.domain.v1.post.controller.request.ReserveUploadTimeRequest;
 import org.mainapp.domain.v1.post.controller.request.SinglePostUpdateRequest;
 import org.mainapp.domain.v1.post.controller.request.UpdatePostContentRequest;
+import org.mainapp.domain.v1.post.controller.request.UpdatePostGroupStepRequest;
 import org.mainapp.domain.v1.post.controller.request.UpdatePostsMetadataRequest;
 import org.mainapp.domain.v1.post.controller.request.UpdateReservedPostsRequest;
 import org.mainapp.domain.v1.post.controller.response.CreatePostsResponse;
@@ -240,6 +241,17 @@ public class PostController {
 		@PathVariable Long postGroupId
 	) {
 		return ResponseEntity.ok(postService.getPostGroupStep(agentId, postGroupId));
+	}
+
+	@Operation(summary = "게시물 그룹 단계 변경 API", description = "게시물 그룹의 진행 단계를 조회합니다.")
+	@PutMapping("/post-groups/{postGroupId}/step")
+	public ResponseEntity<Void> updatePostGroupStep(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId,
+		@Validated @RequestBody UpdatePostGroupStepRequest updatePostGroupStepRequest
+	) {
+		postService.updatePostGroupStep(agentId, postGroupId, updatePostGroupStepRequest);
+		return ResponseEntity.ok().build();
 	}
 
 	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")
