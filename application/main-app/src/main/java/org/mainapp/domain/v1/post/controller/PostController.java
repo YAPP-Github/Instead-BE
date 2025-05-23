@@ -12,6 +12,7 @@ import org.mainapp.domain.v1.post.controller.request.UpdateReservedPostsRequest;
 import org.mainapp.domain.v1.post.controller.response.CreatePostsResponse;
 import org.mainapp.domain.v1.post.controller.response.GetAgentReservedPostsResponse;
 import org.mainapp.domain.v1.post.controller.response.GetPostGroupPostsResponse;
+import org.mainapp.domain.v1.post.controller.response.GetPostGroupStepResponse;
 import org.mainapp.domain.v1.post.controller.response.GetPostGroupTopicResponse;
 import org.mainapp.domain.v1.post.controller.response.GetPostGroupsResponse;
 import org.mainapp.domain.v1.post.controller.response.PromptHistoriesResponse;
@@ -230,6 +231,15 @@ public class PostController {
 		@PathVariable Long postGroupId
 	) {
 		return ResponseEntity.ok(postService.getPostGroupTopic(agentId, postGroupId));
+	}
+
+	@Operation(summary = "게시물 그룹 단계 조회 API", description = "게시물 그룹의 진행 단계를 조회합니다.")
+	@GetMapping("/post-groups/{postGroupId}/step")
+	public ResponseEntity<GetPostGroupStepResponse> getPostGroupStep(
+		@PathVariable Long agentId,
+		@PathVariable Long postGroupId
+	) {
+		return ResponseEntity.ok(postService.getPostGroupStep(agentId, postGroupId));
 	}
 
 	@Operation(summary = "게시물 그룹별 게시물 목록 조회 API", description = "게시물 그룹에 해당되는 모든 게시물 목록을 조회합니다.")

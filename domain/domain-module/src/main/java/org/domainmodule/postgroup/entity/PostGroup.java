@@ -69,6 +69,7 @@ public class PostGroup extends BaseTimeEntity {
 	private String thumbnailImage;
 
 	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
 	private PostGroupStepType step;
 
 	@OneToMany(mappedBy = "postGroup", cascade = CascadeType.REMOVE, orphanRemoval = true)
