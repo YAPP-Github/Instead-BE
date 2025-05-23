@@ -39,6 +39,7 @@ import org.mainapp.domain.v1.post.controller.request.type.UpdateReservedPostsReq
 import org.mainapp.domain.v1.post.controller.response.CreatePostsResponse;
 import org.mainapp.domain.v1.post.controller.response.GetAgentReservedPostsResponse;
 import org.mainapp.domain.v1.post.controller.response.GetPostGroupPostsResponse;
+import org.mainapp.domain.v1.post.controller.response.GetPostGroupStepResponse;
 import org.mainapp.domain.v1.post.controller.response.GetPostGroupTopicResponse;
 import org.mainapp.domain.v1.post.controller.response.GetPostGroupsResponse;
 import org.mainapp.domain.v1.post.controller.response.type.PostGroupResponse;
@@ -144,6 +145,16 @@ public class PostService {
 		String topic = postGroupRepository.findTopicByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
 			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
 		return new GetPostGroupTopicResponse(topic);
+	}
+
+	/**
+	 * 게시물 그룹의 단계를 조회하는 메서드
+	 */
+	public GetPostGroupStepResponse getPostGroupStep(Long agentId, Long postGroupId) {
+		Long userId = SecurityUtil.getCurrentUserId();
+		PostGroup postGroup = postGroupRepository.findByUserIdAndAgentIdAndId(userId, agentId, postGroupId)
+			.orElseThrow(() -> new CustomException(PostErrorCode.POST_GROUP_NOT_FOUND));
+		return GetPostGroupStepResponse.from(postGroup);
 	}
 
 	/**

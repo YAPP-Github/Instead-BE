@@ -8,6 +8,7 @@ import org.domainmodule.common.entity.BaseTimeEntity;
 import org.domainmodule.postgroup.entity.type.PostGroupLengthType;
 import org.domainmodule.postgroup.entity.type.PostGroupPurposeType;
 import org.domainmodule.postgroup.entity.type.PostGroupReferenceType;
+import org.domainmodule.postgroup.entity.type.PostGroupStepType;
 import org.domainmodule.rssfeed.entity.RssFeed;
 
 import jakarta.persistence.CascadeType;
@@ -67,8 +68,12 @@ public class PostGroup extends BaseTimeEntity {
 
 	private String thumbnailImage;
 
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private PostGroupStepType step;
+
 	@OneToMany(mappedBy = "postGroup", cascade = CascadeType.REMOVE, orphanRemoval = true)
-	private List<PostGroupImage> postGroupImages = new ArrayList<>();
+	private final List<PostGroupImage> postGroupImages = new ArrayList<>();
 
 	@OneToOne(mappedBy = "postGroup", cascade = CascadeType.REMOVE, orphanRemoval = true)
 	private PostGroupRssCursor postGroupRssCursor;
@@ -115,6 +120,10 @@ public class PostGroup extends BaseTimeEntity {
 
 	public void increaseGenerationCount() {
 		this.generationCount++;
+	}
+
+	public void updateStep(PostGroupStepType newStep) {
+		this.step = newStep;
 	}
 
 	@Override

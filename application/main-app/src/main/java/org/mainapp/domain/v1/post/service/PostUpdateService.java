@@ -81,8 +81,6 @@ public class PostUpdateService {
 					post.updateStatus(postRequest.getStatus());
 				}
 				if (postRequest.getUploadTime() != null) {
-					// 업로드 예약일시가 변경되는 경우는 업로드 예약 상태가 되는 경우만 존재
-					post.updateStatus(PostStatusType.UPLOAD_RESERVED);
 					post.updateUploadTime(postRequest.getUploadTime());
 				}
 				if (postRequest.getDisplayOrder() != null) {
