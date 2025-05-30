@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.domainmodule.post.entity.Post;
 import org.domainmodule.post.entity.PostImage;
-import org.domainmodule.post.entity.type.PostStatusType;
 import org.domainmodule.post.repository.PostRepository;
 import org.mainapp.domain.v1.post.controller.request.UpdatePostContentRequest;
 import org.mainapp.domain.v1.post.controller.request.UpdatePostsMetadataRequest;
@@ -104,7 +103,6 @@ public class PostUpdateService {
 				Post post = postRepository.findById(postRequest.postId())  // 1차 캐시 조회
 					.orElseThrow(() -> new CustomException(PostErrorCode.POST_NOT_FOUND));
 
-				post.updateStatus(PostStatusType.UPLOAD_RESERVED);
 				post.updateUploadTime(postRequest.uploadTime());
 			});
 		// 수정 내용 저장
