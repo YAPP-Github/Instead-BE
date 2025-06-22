@@ -6,10 +6,10 @@ import org.domainmodule.agent.entity.Agent;
 import org.mainapp.domain.v1.agent.service.AgentService;
 import org.mainapp.domain.v1.sns.exception.SnsErrorCode;
 import org.mainapp.domain.v1.sns.token.SnsTokenService;
-import org.mainapp.domain.v1.sns.twitter.request.OAuthClientCredentials;
 import org.mainapp.global.constants.UrlConstants;
 import org.mainapp.global.error.CustomException;
 import org.mainapp.global.util.JwtUtil;
+import org.snsclient.twitter.config.TwitterConfig;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.snsclient.twitter.facade.TwitterApiService;
@@ -27,14 +27,16 @@ public class TwitterService {
 	private final AgentService agentService;
 	private final SnsTokenService snsTokenService;
 	private final JwtUtil jwtUtil;
+	private final TwitterConfig twitterConfig;
 
 	/**
 	 * Twitter Authorization URL 생성 및 리다이렉트 ResponseEntity 반환
 	 */
-	public String createRedirectResponse(String accessToken, OAuthClientCredentials request) {
-		// 리다이렉트 URL 생성
+	public String createRedirectResponse(String accessToken) {
 		final Long userId = jwtUtil.getUserIdFromAccessToken(accessToken);
-		return twitterApiService.getTwitterAuthorizationUrl(userId.toString(), request.clientId());
+
+		// 리다이렉트 URL 생성
+		return twitterApiService.getTwitterAuthorizationUrl(userId.toString());
 	}
 
 	/**
@@ -48,7 +50,8 @@ public class TwitterService {
 		String userId = stateMap.get("userId");
 		String clientId = stateMap.get("clientId");
 
-		TwitterToken tokenResponse = twitterApiService.getTwitterAuthorizationToken(code, clientId);
+		TwitterToken tokenResponse = twitterApiService.getTwitterAuthorizationToken(code, clientId,
+			twitterConfig.getClientSecret());
 		TwitterUserInfoDto userInfo = getTwitterUserInfo(tokenResponse);
 
 		Agent agent = agentService.updateOrCreateAgent(userInfo, userId);
@@ -63,16 +66,5 @@ public class TwitterService {
 		} catch (TwitterException e) {
 			throw new CustomException(SnsErrorCode.TWITTER_USER_INFO_FETCH_FAILED);
 		}
-	}
-
-	//TODO 트위터 리펙토링 후 제거
-	/**
-	 * Twitter Authorization URL 생성 및 리다이렉트 ResponseEntity 반환
-	 */
-	public String createRedirectResponseV1(String accessToken) {
-		String redirectUrl = "T0dSSXZOYk15RkdZa2otS3pkOG86MTpjaQ";
-		// 리다이렉트 URL 생성
-		final Long userId = jwtUtil.getUserIdFromAccessToken(accessToken);
-		return twitterApiService.getTwitterAuthorizationUrl(userId.toString(), redirectUrl);
 	}
 }

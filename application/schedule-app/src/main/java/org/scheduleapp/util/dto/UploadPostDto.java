@@ -1,7 +1,7 @@
 package org.scheduleapp.util.dto;
 
 import org.domainmodule.post.entity.Post;
-import org.domainmodule.snstoken.entity.SnsToken;
+import org.domainmodule.sns.entity.SnsToken;
 
 public record UploadPostDto(
 	Post post,

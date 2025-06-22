@@ -1,6 +1,6 @@
 package org.snsclient.twitter.service;
 
-import org.snsclient.twitter.client.TwitterRestClient;
+import org.snsclient.twitter.client.TwitterClient;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ import twitter4j.TwitterException;
 @RequiredArgsConstructor
 public class TwitterUserService {
 
-	private final TwitterRestClient twitterRestClient;
+	private final TwitterClient twitterClient;
 
 	/**
 	 * X로 부터 유저 본인의 정보 받아오기
@@ -21,7 +21,7 @@ public class TwitterUserService {
 	 * https://docs.x.com/x-api/users/user-lookup-me
 	 */
 	public TwitterUserInfoDto getUserInfo(String accessToken) throws TwitterException {
-		return twitterRestClient.getUserGetMeRequest(
+		return twitterClient.getUserGetMeRequest(
 			"description,profile_image_url,subscription_type"
 			, accessToken);
 	}

@@ -30,7 +30,7 @@ public class TwitterController {
 	public ResponseEntity<TwitterRedirectResponse> redirectToTwitterAuth(
 		@RequestHeader("Authorization") String accessToken
 	) {
-		String url = twitterService.createRedirectResponseV1(accessToken);
+		String url = twitterService.createRedirectResponse(accessToken);
 		return ResponseEntity.ok(TwitterRedirectResponse.from(url));
 	}
 
@@ -45,4 +45,3 @@ public class TwitterController {
 		response.sendRedirect(redirectUrl);
 	}
 }
-

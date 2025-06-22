@@ -3,7 +3,7 @@ package org.snsclient.twitter.service;
 import java.util.ArrayList;
 
 import org.snsclient.client.ImageDownloadClient;
-import org.snsclient.twitter.client.TwitterRestClient;
+import org.snsclient.twitter.client.TwitterClient;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.MultipartBodyBuilder;
@@ -24,7 +24,7 @@ import twitter4j.TwitterException;
 public class TwitterMediaUploadService {
 
 	private final ObjectMapper objectMapper;
-	private final TwitterRestClient twitterRestClient;
+	private final TwitterClient twitterClient;
 	private final ImageDownloadClient imageDownloadClient;
 
 	/**
@@ -62,7 +62,7 @@ public class TwitterMediaUploadService {
 		body.add("total_bytes", String.valueOf(totalBytes));
 		body.add("media_type", "image/jpeg");
 
-		return twitterRestClient.uploadMedia(body, accessToken);
+		return twitterClient.uploadMedia(body, accessToken);
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class TwitterMediaUploadService {
 		MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 		builder.build().forEach((key, value) -> body.put(key, new ArrayList<>(value)));
 
-		twitterRestClient.uploadMedia(body, accessToken);
+		twitterClient.uploadMedia(body, accessToken);
 	}
 
 	/**
@@ -94,7 +94,7 @@ public class TwitterMediaUploadService {
 		body.add("command", "FINALIZE");
 		body.add("media_id", mediaId);
 
-		return twitterRestClient.uploadMedia(body, accessToken);
+		return twitterClient.uploadMedia(body, accessToken);
 	}
 
 	/**

@@ -40,8 +40,7 @@ public class AgentService {
 		User user = userService.findUserById(Long.parseLong(userId));
 
 		// Agent가 이미 존재하는지 확인
-		// TODO User, userinfo.id, PlatformType 3개로 비교를 해야할지? ( 2개의 구글아이디에 1개의 트위터를 등록이 가능한 상태 )
-		return agentRepository.findByAccountIdAndPlatform(userInfo.id(), AgentPlatformType.X)
+		return agentRepository.findByUserAndAccountIdAndPlatform(user, userInfo.id(), AgentPlatformType.X)
 			.map(existingAgent -> updatAgent(existingAgent, userInfo))
 			.orElseGet(() -> createAndSaveAgent(user, userInfo));
 	}
@@ -62,8 +61,12 @@ public class AgentService {
 	}
 
 	private Agent updatAgent(Agent agent, TwitterUserInfoDto userInfo) {
-		agent.updateInfo(userInfo.description(), userInfo.profileImageUrl(), userInfo.subscriptionType(),
-			userInfo.username());
+		agent.updateInfo(
+			userInfo.description(),
+			userInfo.profileImageUrl(),
+			userInfo.subscriptionType(),
+			userInfo.username()
+		);
 		return agentTransactionService.saveAgent(agent);
 	}
 

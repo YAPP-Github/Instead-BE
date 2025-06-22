@@ -1,5 +1,6 @@
 package org.scheduleapp.schedule;
 
+import org.scheduleapp.service.UploadPostService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
