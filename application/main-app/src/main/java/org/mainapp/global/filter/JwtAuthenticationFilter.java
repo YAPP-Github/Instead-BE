@@ -2,8 +2,8 @@ package org.mainapp.global.filter;
 
 import java.io.IOException;
 
-import org.mainapp.domain.token.exception.TokenErrorCode;
-import org.mainapp.domain.token.service.TokenServiceImpl;
+import org.mainapp.domain.v1.token.exception.TokenErrorCode;
+import org.mainapp.domain.v1.token.service.TokenServiceImpl;
 import org.mainapp.global.constants.HeaderConstants;
 import org.mainapp.global.constants.WebSecurityURI;
 import org.mainapp.global.error.CustomException;

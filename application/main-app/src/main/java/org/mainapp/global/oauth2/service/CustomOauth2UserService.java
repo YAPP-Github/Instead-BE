@@ -3,7 +3,7 @@ package org.mainapp.global.oauth2.service;
 import java.util.Map;
 
 import org.domainmodule.user.entity.User;
-import org.mainapp.domain.auth.service.AuthService;
+import org.mainapp.domain.v1.auth.service.AuthService;
 import org.mainapp.global.oauth2.CustomUserDetails;
 import org.mainapp.global.oauth2.userinfo.GoogleOAuth2UserInfo;
 import org.mainapp.global.oauth2.userinfo.OAuth2UserInfo;

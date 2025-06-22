@@ -13,7 +13,7 @@ public final class UrlConstants {
 
 	// Dev 환경 상수
 	public static final String DEV_SERVER_DOMAIN_URL = "https://jumo.im";
-	public static final String SERVER_DOMAIN_URL = "https://hong-nuri.shop";
+	public static final String SERVER_DOMAIN_URL = "https://rong5026.shop";
 
 	// 공통 상수
 	public static final String BASE_URI = "/yapp";
