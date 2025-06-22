@@ -1,18 +1,12 @@
 package org.domainmodule.user.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.domainmodule.common.entity.BaseAuditEntity;
-import org.domainmodule.sns.entity.SnsProvider;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,9 +30,6 @@ public class User extends BaseAuditEntity {
 
 	@Column(length = 500)
 	private String profileImage;
-
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private List<SnsProvider> snsProviders = new ArrayList<>();
 
 	@Builder(access = AccessLevel.PRIVATE)
 	private User(

@@ -17,25 +17,28 @@ public class TwitterAuthService {
 	private final String[] scopes = {"media.write", "tweet.read", "tweet.write", "users.read", "offline.access"};
 	private final TwitterConfig config;
 	private final TwitterClient twitterClient;
+	private final TwitterConfig twitterConfig;
 
 	/**
 	 * authorization url 생성 메서드
 	 * @return authorization url
 	 */
-	public String getTwitterAuthorizationUrl(String snsProviderId, String clientId) {
+	public String getTwitterAuthorizationUrl(String userId) {
 		return createAuthorizeUrl(
-			snsProviderId,
-			clientId,
+			userId,
 			config.getRedirectUri(),
 			scopes,
 			config.getChallenge());
 	}
 
-	private String createAuthorizeUrl(String providerId, String clientId, String redirectUri, String[] scopes, String challenge) {
+	private String createAuthorizeUrl(String userId, String redirectUri, String[] scopes,
+		String challenge) {
 		String scope = String.join("%20", scopes);
 
+		final String clientId = twitterConfig.getClientId();
+
 		// Base64 URL-safe 인코딩
-		String state = TwitterOauthUtil.encodeStateToBase64(providerId);
+		String state = TwitterOauthUtil.encodeStateToBase64(userId, clientId);
 
 		return "https://twitter.com/i/oauth2/authorize?response_type=code&" +
 			"client_id=" + clientId + "&" +
@@ -43,7 +46,7 @@ public class TwitterAuthService {
 			"scope=" + scope + "&" +
 			"state=" + state + "&" +
 			"code_challenge=" + challenge + "&" +
-			"code_challenge_method=plain"  + "&" +
+			"code_challenge_method=plain" + "&" +
 			"prompt=select_account";
 	}
 
@@ -86,7 +89,8 @@ public class TwitterAuthService {
 	 * 토큰 만료 시 RefreshToken으로 AccessToken 재발급 요청
 	 * @param refreshToken 기존 Twitter RefreshToken
 	 */
-	public TwitterToken refreshTwitterToken(String refreshToken, String clientId, String clientSecret) throws TwitterException {
+	public TwitterToken refreshTwitterToken(String refreshToken, String clientId, String clientSecret) throws
+		TwitterException {
 		try {
 			return twitterClient.refreshTokenRequest(refreshToken, clientId, clientSecret);
 		} catch (Exception e) {

@@ -10,7 +10,13 @@ import lombok.Getter;
 public class TwitterConfig {
 	@Value("${sns.twitter.challenge}")
 	private String challenge;
-	
+
 	@Value("${sns.twitter.redirect-url}")
 	private String redirectUri;
+
+	@Value("${sns.twitter.client-id")
+	private String clientId;
+
+	@Value("${sns.twitter.client-secret}")
+	private String clientSecret;
 }

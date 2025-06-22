@@ -3,17 +3,13 @@ package org.mainapp.domain.sns.twitter;
 import java.util.Map;
 
 import org.domainmodule.agent.entity.Agent;
-import org.domainmodule.sns.entity.SnsProvider;
-import org.domainmodule.user.entity.User;
 import org.mainapp.domain.agent.service.AgentService;
 import org.mainapp.domain.sns.exception.SnsErrorCode;
-import org.mainapp.domain.sns.token.SnsProviderService;
 import org.mainapp.domain.sns.token.SnsTokenService;
-import org.mainapp.domain.sns.twitter.request.OAuthClientCredentials;
-import org.mainapp.domain.user.service.UserService;
 import org.mainapp.global.constants.UrlConstants;
 import org.mainapp.global.error.CustomException;
 import org.mainapp.global.util.JwtUtil;
+import org.snsclient.twitter.config.TwitterConfig;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.snsclient.twitter.facade.TwitterApiService;
@@ -31,21 +27,16 @@ public class TwitterService {
 	private final AgentService agentService;
 	private final SnsTokenService snsTokenService;
 	private final JwtUtil jwtUtil;
-	private final UserService userService;
-	private final SnsProviderService snsProviderService;
+	private final TwitterConfig twitterConfig;
 
 	/**
 	 * Twitter Authorization URL 생성 및 리다이렉트 ResponseEntity 반환
 	 */
-	public String createRedirectResponse(String accessToken, OAuthClientCredentials request) {
+	public String createRedirectResponse(String accessToken) {
 		final Long userId = jwtUtil.getUserIdFromAccessToken(accessToken);
-		User user = userService.findUserById(userId);
-
-		// ClientId, ClientSecret 저장
-		SnsProvider snsProvider = snsProviderService.createSnsProvider(user, request.clientId(), request.clientSecret());
 
 		// 리다이렉트 URL 생성
-		return twitterApiService.getTwitterAuthorizationUrl(snsProvider.getId().toString(), snsProvider.getClientId());
+		return twitterApiService.getTwitterAuthorizationUrl(userId.toString());
 	}
 
 	/**
@@ -56,24 +47,18 @@ public class TwitterService {
 	@Transactional
 	public String loginOrRegister(String code, String encodedState) {
 		Map<String, String> stateMap = TwitterOauthUtil.decodeStateFromBase64(encodedState);
-		String snsProviderId = stateMap.get("providerId");
+		String userId = stateMap.get("userId");
+		String clientId = stateMap.get("clientId");
 
-		// client key값 가져오기
-		SnsProvider snsProvider =  snsProviderService.findSnsProviderById(Long.parseLong(snsProviderId));
-
-		// 토큰 발급
-		TwitterToken tokenResponse = twitterApiService.getTwitterAuthorizationToken(code, snsProvider.getClientId(), snsProvider.getClientSecret());
-
-		// 유저 정보
+		TwitterToken tokenResponse = twitterApiService.getTwitterAuthorizationToken(code, clientId,
+			twitterConfig.getClientSecret());
 		TwitterUserInfoDto userInfo = getTwitterUserInfo(tokenResponse);
 
-		String userId = snsProvider.getUser().getId().toString();
 		Agent agent = agentService.updateOrCreateAgent(userInfo, userId);
 		snsTokenService.createOrUpdateSnsToken(agent, tokenResponse);
-
+		// TODO 리다이렉트 URL 트위터가 들어가도록 변경
 		return UrlConstants.PROD_DOMAIN_URL + "/" + agent.getId();
 	}
-
 
 	private TwitterUserInfoDto getTwitterUserInfo(TwitterToken token) {
 		try {

@@ -3,9 +3,9 @@ package org.snsclient.twitter.facade;
 import org.snsclient.twitter.dto.response.TwitterToken;
 import org.snsclient.twitter.dto.response.TwitterUserInfoDto;
 import org.snsclient.twitter.service.TwitterAuthService;
+import org.snsclient.twitter.service.TwitterMediaUploadService;
 import org.snsclient.twitter.service.TwitterTweetService;
 import org.snsclient.twitter.service.TwitterUserService;
-import org.snsclient.twitter.service.TwitterMediaUploadService;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -24,8 +24,8 @@ public class TwitterApiService {
 	/**
 	 * authorization url 생성 메서드
 	 */
-	public String getTwitterAuthorizationUrl(String snsProviderId, String clientId) {
-		return twitterAuthService.getTwitterAuthorizationUrl(snsProviderId, clientId);
+	public String getTwitterAuthorizationUrl(String userId) {
+		return twitterAuthService.getTwitterAuthorizationUrl(userId);
 	}
 
 	/**
@@ -38,7 +38,8 @@ public class TwitterApiService {
 	/**
 	 * 토큰 만료 시 RefreshToken으로 AccessToken 갱신
 	 */
-	public TwitterToken refreshTwitterToken(String refreshToken, String clientId, String clientSecret) throws TwitterException {
+	public TwitterToken refreshTwitterToken(String refreshToken, String clientId, String clientSecret) throws
+		TwitterException {
 		return twitterAuthService.refreshTwitterToken(refreshToken, clientId, clientSecret);
 	}
 
